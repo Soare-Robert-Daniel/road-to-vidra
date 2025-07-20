@@ -117,10 +117,10 @@ export function HourDisplay({
       }
     `}
     >
-      <div class="tabular-nums leading-tight text-xl font-medium">{hour}</div>
+      <div class="tabular-nums leading-tight text-2xl font-medium">{hour}</div>
       {remainingTime && (
         <div
-          class={`text-xs font-medium leading-none ${
+          class={`text-base font-medium leading-none ${
             isNext
               ? accentClasses.nextRemainingText
               : isTomorrow
