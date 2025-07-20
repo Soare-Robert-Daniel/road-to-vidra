@@ -2,12 +2,15 @@ import { JSX } from "preact";
 import { twMerge } from "tailwind-merge";
 import { busScheduleData } from "../config";
 import { isWeekendProgram, timeToMinutes } from "../utils";
-import { HourDisplay } from "./HourDisplay";
+import { PastHours } from "./PastHours";
+import { AvailableHours } from "./AvailableHours";
+import { FutureHours } from "./FutureHours";
 
 interface HoursDisplayProps {
   hours: string[];
   showNextDay: boolean;
   useWeekendSchedule: boolean;
+  showPastHours: boolean;
   busNumber: string;
   direction: string;
   className?: string;
@@ -17,6 +20,7 @@ export function HoursDisplay({
   hours,
   showNextDay,
   useWeekendSchedule,
+  showPastHours,
   busNumber,
   direction,
   className,
@@ -79,17 +83,51 @@ export function HoursDisplay({
 
   return (
     <div class={twMerge("grid grid-cols-5 gap-0.5 mb-2", className)}>
-      {finalHours.map((busInfo, index) => (
-        <HourDisplay
-          key={`${busInfo.hour}-${busInfo.isToday}`}
-          hour={busInfo.hour}
-          isNext={index === nextBusIndex}
-          currentTime={currentTime}
-          isToday={busInfo.isToday}
-          busNumber={busNumber}
-          direction={direction}
-        />
-      ))}
+      {finalHours.map((busInfo, index) => {
+        const busTime = timeToMinutes(busInfo.hour);
+        const isPast = busInfo.isToday && busTime < currentTime;
+        const isNext = index === nextBusIndex;
+
+        // Skip past hours if showPastHours is false
+        if (isPast && !showPastHours) {
+          return null;
+        }
+
+        if (isPast) {
+          return (
+            <PastHours
+              key={`${busInfo.hour}-${busInfo.isToday}-past`}
+              hour={busInfo.hour}
+              currentTime={currentTime}
+              isToday={busInfo.isToday}
+              busNumber={busNumber}
+              direction={direction}
+            />
+          );
+        } else if (isNext) {
+          return (
+            <AvailableHours
+              key={`${busInfo.hour}-${busInfo.isToday}-available`}
+              hour={busInfo.hour}
+              currentTime={currentTime}
+              isToday={busInfo.isToday}
+              busNumber={busNumber}
+              direction={direction}
+            />
+          );
+        } else {
+          return (
+            <FutureHours
+              key={`${busInfo.hour}-${busInfo.isToday}-future`}
+              hour={busInfo.hour}
+              currentTime={currentTime}
+              isToday={busInfo.isToday}
+              busNumber={busNumber}
+              direction={direction}
+            />
+          );
+        }
+      })}
     </div>
   );
 }

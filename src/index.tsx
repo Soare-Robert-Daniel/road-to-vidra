@@ -20,17 +20,28 @@ import { signal } from "@preact/signals";
 import "./style.css";
 import { isWeekendProgram, getHolidayName } from "./utils";
 import {
+  getSelectedBus,
+  setSelectedBus,
+  getShowPastHours,
+  setShowPastHours,
+} from "./storage";
+import {
   HolidayBanner,
   Header,
   SettingsMenu,
   StationHours,
 } from "./components";
 
-// State management
-const selectedBusNumber = signal("420");
+// State management with localStorage persistence
+const selectedBusNumber = signal(getSelectedBus());
 // 'auto': determined by day, 'lucru': forced workday, 'weekend': forced weekend
 const programMode = signal<"auto" | "lucru" | "weekend">("auto");
 const showNextDayProgram = signal(false);
+const showPastHours = signal(getShowPastHours());
+
+// Persist changes to localStorage
+selectedBusNumber.subscribe((value) => setSelectedBus(value));
+showPastHours.subscribe((value) => setShowPastHours(value));
 
 export function App() {
   const currentDate = new Date();
@@ -41,6 +52,7 @@ export function App() {
   const busNumber = selectedBusNumber.value;
   const mode = programMode.value;
   const showNextDay = showNextDayProgram.value;
+  const showPast = showPastHours.value;
 
   let useWeekendSchedule;
   if (mode === "auto") {
@@ -63,6 +75,7 @@ export function App() {
           selectedBusNumber={selectedBusNumber}
           programMode={programMode}
           showNextDayProgram={showNextDayProgram}
+          showPastHours={showPastHours}
           isWeekendProgram={isCurrentlyWeekendProgram}
           holidayName={holidayName}
         />
@@ -74,12 +87,14 @@ export function App() {
             direction="tur"
             useWeekendSchedule={useWeekendSchedule}
             showNextDay={showNextDay}
+            showPastHours={showPast}
           />
           <StationHours
             busNumber={busNumber}
             direction="retur"
             useWeekendSchedule={useWeekendSchedule}
             showNextDay={showNextDay}
+            showPastHours={showPast}
           />
         </div>
       </div>

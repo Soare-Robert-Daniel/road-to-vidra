@@ -5,11 +5,13 @@ import { BusSelector } from "./BusSelector";
 import { ProgramModeButtons } from "./ProgramModeButtons";
 import { NextDayToggle } from "./NextDayToggle";
 import { AutoButton } from "./AutoButton";
+import { ShowPastHoursToggle } from "./ShowPastHoursToggle";
 
 interface SettingsMenuProps {
   selectedBusNumber: Signal<string>;
   programMode: Signal<"auto" | "lucru" | "weekend">;
   showNextDayProgram: Signal<boolean>;
+  showPastHours: Signal<boolean>;
   isWeekendProgram: boolean;
   holidayName: string | null;
   className?: string;
@@ -19,6 +21,7 @@ export function SettingsMenu({
   selectedBusNumber,
   programMode,
   showNextDayProgram,
+  showPastHours,
   isWeekendProgram,
   holidayName,
   className,
@@ -42,10 +45,13 @@ export function SettingsMenu({
           />
         </div>
 
-        {/* Second row: Next day toggle and Auto button */}
+        {/* Second row: Next day toggle, Show past hours toggle, and Auto button */}
         <div class={twMerge("flex items-center justify-between")}>
           <NextDayToggle showNextDayProgram={showNextDayProgram} />
-          <AutoButton programMode={programMode} />
+          <div class="flex items-center gap-6">
+            <ShowPastHoursToggle showPastHours={showPastHours} />
+            {/* <AutoButton programMode={programMode} /> */}
+          </div>
         </div>
       </div>
     </div>
