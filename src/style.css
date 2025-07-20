@@ -1,0 +1,48 @@
+@import url('https://fonts.cdnfonts.com/css/ff-unit-pro');
+@import "tailwindcss";
+
+body {
+	font-family: 'FF Unit Pro', sans-serif;
+}
+
+/* Custom styles for ultra-compact mobile layout */
+@media (max-width: 320px) {
+  .grid-cols-5 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  
+  .text-sm {
+    font-size: 0.8rem;
+  }
+  
+  .text-xs {
+    font-size: 0.65rem;
+  }
+}
+
+/* Very small phones optimization */
+@media (max-width: 280px) {
+  .grid-cols-5 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  
+  .px-0\.5 {
+    padding-left: 0.1rem;
+    padding-right: 0.1rem;
+  }
+  
+  .text-sm {
+    font-size: 0.75rem;
+  }
+}
+
+/* Ensure text doesn't get too small on mobile */
+@media (max-width: 360px) {
+  .text-xs {
+    font-size: 0.7rem;
+  }
+  
+  .text-sm {
+    font-size: 0.85rem;
+  }
+}
