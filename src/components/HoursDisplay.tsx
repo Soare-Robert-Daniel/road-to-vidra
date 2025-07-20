@@ -1,4 +1,5 @@
 import { JSX } from "preact";
+import { twMerge } from "tailwind-merge";
 import { busScheduleData } from "../config";
 import { isWeekendProgram, timeToMinutes } from "../utils";
 import { HourDisplay } from "./HourDisplay";
@@ -9,6 +10,7 @@ interface HoursDisplayProps {
   useWeekendSchedule: boolean;
   busNumber: string;
   direction: string;
+  className?: string;
 }
 
 export function HoursDisplay({
@@ -17,10 +19,11 @@ export function HoursDisplay({
   useWeekendSchedule,
   busNumber,
   direction,
+  className,
 }: HoursDisplayProps): JSX.Element {
   if (!hours || hours.length === 0) {
     return (
-      <div class="text-gray-500 text-center py-1 text-xs">
+      <div class={twMerge("text-gray-500 text-center py-1 text-xs", className)}>
         Nu există ore disponibile
       </div>
     );
@@ -68,14 +71,14 @@ export function HoursDisplay({
 
   if (finalHours.length === 0) {
     return (
-      <div class="text-gray-500 text-center py-1 text-xs">
+      <div class={twMerge("text-gray-500 text-center py-1 text-xs", className)}>
         Nu există ore disponibile pentru perioada selectată.
       </div>
     );
   }
 
   return (
-    <div class="grid grid-cols-5 gap-0.5 mb-2">
+    <div class={twMerge("grid grid-cols-5 gap-0.5 mb-2", className)}>
       {finalHours.map((busInfo, index) => (
         <HourDisplay
           key={`${busInfo.hour}-${busInfo.isToday}`}

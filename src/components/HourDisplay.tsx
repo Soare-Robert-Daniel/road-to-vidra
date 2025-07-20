@@ -1,4 +1,6 @@
 import { JSX } from "preact";
+import { twMerge } from "tailwind-merge";
+
 import {
   timeToMinutes,
   formatTimeDifference,
@@ -12,6 +14,7 @@ interface HourDisplayProps {
   isToday?: boolean;
   busNumber: string;
   direction: string;
+  className?: string;
 }
 
 export function HourDisplay({
@@ -21,6 +24,7 @@ export function HourDisplay({
   isToday = true,
   busNumber,
   direction,
+  className,
 }: HourDisplayProps): JSX.Element {
   const busTime = timeToMinutes(hour);
   let timeDiff;
@@ -41,95 +45,112 @@ export function HourDisplay({
   const isPassed = isToday && busTime < currentTime;
   const isTomorrow = !isToday;
 
-  let accentClasses = {
-    bg: "bg-gray-50",
-    text: "text-gray-800",
-    nextBg: "bg-yellow-100",
-    nextBorder: "border-yellow-500",
-    nextText: "text-yellow-800",
-    remainingText: "text-gray-600",
-    nextRemainingText: "text-yellow-600",
+  // Define theme colors based on bus number and direction
+  const getThemeClasses = () => {
+    if (busNumber === "420") {
+      if (direction === "tur") {
+        return {
+          bg: "bg-blue-50",
+          text: "text-blue-800",
+          nextBg: "bg-blue-100",
+          nextBorder: "border-blue-500",
+          nextText: "text-blue-800",
+          remainingText: "text-blue-600",
+          nextRemainingText: "text-blue-600",
+        };
+      } else {
+        return {
+          bg: "bg-green-50",
+          text: "text-green-800",
+          nextBg: "bg-green-100",
+          nextBorder: "border-green-500",
+          nextText: "text-green-800",
+          remainingText: "text-green-600",
+          nextRemainingText: "text-green-600",
+        };
+      }
+    } else {
+      // 438
+      if (direction === "tur") {
+        return {
+          bg: "bg-red-50",
+          text: "text-red-800",
+          nextBg: "bg-red-100",
+          nextBorder: "border-red-500",
+          nextText: "text-red-800",
+          remainingText: "text-red-600",
+          nextRemainingText: "text-red-600",
+        };
+      } else {
+        return {
+          bg: "bg-purple-50",
+          text: "text-purple-800",
+          nextBg: "bg-purple-100",
+          nextBorder: "border-purple-500",
+          nextText: "text-purple-800",
+          remainingText: "text-purple-600",
+          nextRemainingText: "text-purple-600",
+        };
+      }
+    }
   };
 
-  if (busNumber === "420") {
-    if (direction === "tur") {
-      // Blue
-      accentClasses = {
-        bg: "bg-blue-50",
-        text: "text-blue-800",
-        nextBg: "bg-blue-100",
-        nextBorder: "border-blue-500",
-        nextText: "text-blue-800",
-        remainingText: "text-blue-600",
-        nextRemainingText: "text-blue-600",
-      };
+  const themeClasses = getThemeClasses();
+
+  // Base container classes
+  const baseClasses =
+    "px-0.5 py-0 rounded-lg text-center transition-all min-h-[3rem] flex flex-col justify-center cursor-pointer select-none";
+
+  // Conditional classes based on state
+  const getContainerClasses = () => {
+    if (isNext) {
+      return twMerge(
+        baseClasses,
+        themeClasses.nextBg,
+        "border-1",
+        themeClasses.nextBorder,
+        themeClasses.nextText,
+        "font-semibold shadow-md"
+      );
+    } else if (isPassed) {
+      return twMerge(
+        baseClasses,
+        "bg-gray-100 text-gray-500 cursor-not-allowed opacity-75"
+      );
+    } else if (isTomorrow) {
+      return twMerge(
+        baseClasses,
+        "bg-indigo-50 text-indigo-700 border-1 border-indigo-200"
+      );
     } else {
-      // Green
-      accentClasses = {
-        bg: "bg-green-50",
-        text: "text-green-800",
-        nextBg: "bg-green-100",
-        nextBorder: "border-green-500",
-        nextText: "text-green-800",
-        remainingText: "text-green-600",
-        nextRemainingText: "text-green-600",
-      };
+      return twMerge(
+        baseClasses,
+        themeClasses.bg,
+        themeClasses.text,
+        "border border-transparent"
+      );
     }
-  } else {
-    // 438
-    if (direction === "tur") {
-      // Red
-      accentClasses = {
-        bg: "bg-red-50",
-        text: "text-red-800",
-        nextBg: "bg-red-100",
-        nextBorder: "border-red-500",
-        nextText: "text-red-800",
-        remainingText: "text-red-600",
-        nextRemainingText: "text-red-600",
-      };
+  };
+
+  const getRemainingTimeClasses = () => {
+    const baseTimeClasses = "text-base font-medium leading-none";
+
+    if (isNext) {
+      return twMerge(baseTimeClasses, themeClasses.nextRemainingText);
+    } else if (isTomorrow) {
+      return twMerge(baseTimeClasses, "text-indigo-600");
     } else {
-      // Purple
-      accentClasses = {
-        bg: "bg-purple-50",
-        text: "text-purple-800",
-        nextBg: "bg-purple-100",
-        nextBorder: "border-purple-500",
-        nextText: "text-purple-800",
-        remainingText: "text-purple-600",
-        nextRemainingText: "text-purple-600",
-      };
+      return twMerge(baseTimeClasses, themeClasses.remainingText);
     }
-  }
+  };
 
   return (
-    <div
-      class={`
-      px-0.5 py-0 rounded text-center transition-all min-h-[3rem] flex flex-col justify-center
-      ${
-        isNext
-          ? `${accentClasses.nextBg} border ${accentClasses.nextBorder} ${accentClasses.nextText} font-semibold`
-          : isPassed
-          ? "bg-gray-100 text-gray-500"
-          : isTomorrow
-          ? "bg-indigo-50 text-indigo-700 border border-indigo-200"
-          : `${accentClasses.bg} ${accentClasses.text}`
-      }
-    `}
-    >
-      <div class="tabular-nums leading-tight text-2xl font-medium">{hour}</div>
+    <div class={twMerge(getContainerClasses(), className)}>
+      <div class={twMerge("tabular-nums leading-tight text-2xl font-medium")}>
+        {hour}
+      </div>
       {remainingTime && (
-        <div
-          class={`text-base font-medium leading-none ${
-            isNext
-              ? accentClasses.nextRemainingText
-              : isTomorrow
-              ? "text-indigo-600"
-              : accentClasses.remainingText
-          }`}
-        >
-          {remainingTime}
-        </div>
+        <div class={getRemainingTimeClasses()}>{remainingTime}</div>
       )}
     </div>
   );

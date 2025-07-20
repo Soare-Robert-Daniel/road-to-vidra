@@ -1,5 +1,6 @@
 import { JSX } from "preact";
 import { Signal } from "@preact/signals";
+import { twMerge } from "tailwind-merge";
 import { BusSelector } from "./BusSelector";
 import { ProgramModeButtons } from "./ProgramModeButtons";
 import { NextDayToggle } from "./NextDayToggle";
@@ -11,6 +12,7 @@ interface SettingsMenuProps {
   showNextDayProgram: Signal<boolean>;
   isWeekendProgram: boolean;
   holidayName: string | null;
+  className?: string;
 }
 
 export function SettingsMenu({
@@ -19,6 +21,7 @@ export function SettingsMenu({
   showNextDayProgram,
   isWeekendProgram,
   holidayName,
+  className,
 }: SettingsMenuProps): JSX.Element {
   let currentScheduleType: "lucru" | "weekend";
   if (programMode.value === "auto") {
@@ -28,10 +31,10 @@ export function SettingsMenu({
   }
 
   return (
-    <div class="bg-white rounded-lg shadow-sm p-2 mb-2">
-      <div class="flex flex-col gap-2">
+    <div class={twMerge("bg-white rounded-lg shadow-sm p-2 mb-2", className)}>
+      <div class={twMerge("flex flex-col gap-2")}>
         {/* First row: Bus selection and schedule type */}
-        <div class="flex items-center justify-between gap-2">
+        <div class={twMerge("flex items-center justify-between gap-2")}>
           <BusSelector selectedBusNumber={selectedBusNumber} />
           <ProgramModeButtons
             programMode={programMode}
@@ -40,7 +43,7 @@ export function SettingsMenu({
         </div>
 
         {/* Second row: Next day toggle and Auto button */}
-        <div class="flex items-center justify-between">
+        <div class={twMerge("flex items-center justify-between")}>
           <NextDayToggle showNextDayProgram={showNextDayProgram} />
           <AutoButton programMode={programMode} />
         </div>
