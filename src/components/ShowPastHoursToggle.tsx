@@ -35,7 +35,12 @@ export function ShowPastHoursToggle({
           )}
         />
       </button>
-      <label class="text-base text-gray-600">Ore trecute</label>
+      <label
+        onClick={handleToggle}
+        class={twMerge("text-base text-gray-600 cursor-pointer")}
+      >
+        Ore trecute
+      </label>
     </div>
   );
 }

@@ -11,39 +11,36 @@ export function NextDayToggle({
   showNextDayProgram,
   className,
 }: NextDayToggleProps): JSX.Element {
+  const handleToggle = () => {
+    showNextDayProgram.value = !showNextDayProgram.value;
+  };
+
   return (
-    <label
-      class={twMerge(
-        "flex items-center gap-3 text-base text-gray-700 cursor-pointer select-none group",
-        className
-      )}
-    >
-      <div class={twMerge("relative")}>
-        <input
-          type="checkbox"
-          checked={showNextDayProgram.value}
-          onChange={(e) =>
-            (showNextDayProgram.value = (e.target as HTMLInputElement).checked)
-          }
-          class={twMerge("sr-only")} // Hide original checkbox
+    <div class={twMerge("flex items-center gap-2", className)}>
+      <button
+        onClick={handleToggle}
+        class={twMerge(
+          "relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
+          showNextDayProgram.value ? "bg-blue-600" : "bg-gray-300"
+        )}
+        type="button"
+        role="switch"
+        aria-checked={showNextDayProgram.value}
+        aria-label="Arată program mâine"
+      >
+        <span
+          class={twMerge(
+            "inline-block h-3 w-3 transform rounded-full bg-white transition-transform",
+            showNextDayProgram.value ? "translate-x-5" : "translate-x-1"
+          )}
         />
-        <div
-          class={twMerge(
-            "w-10 h-5 bg-gray-200 rounded-full shadow-inner transition-colors duration-200 ease-in-out group-hover:bg-gray-300"
-          )}
-        ></div>
-        <div
-          class={twMerge(
-            "absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transform transition-transform duration-200 ease-in-out",
-            showNextDayProgram.value ? "translate-x-5 bg-blue-500" : ""
-          )}
-        ></div>
-      </div>
-      <span
-        class={twMerge("font-bold group-hover:text-gray-900 transition-colors")}
+      </button>
+      <label
+        onClick={handleToggle}
+        class={twMerge("text-base text-gray-600 cursor-pointer")}
       >
         Arată program mâine
-      </span>
-    </label>
+      </label>
+    </div>
   );
 }
