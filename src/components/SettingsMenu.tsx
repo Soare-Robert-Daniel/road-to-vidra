@@ -40,11 +40,6 @@ export function SettingsMenu({
             currentScheduleType={currentScheduleType}
           />
         </div>
-
-        {/* Second row: Hours view selector */}
-        <div class={twMerge("flex items-center justify-end")}>
-          <HoursViewSelector showPastHours={showPastHours} />
-        </div>
       </div>
     </div>
   );
