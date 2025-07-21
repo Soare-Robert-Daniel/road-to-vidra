@@ -43,6 +43,8 @@ export function App() {
     useWeekendSchedule = mode === "weekend";
   }
 
+  const isTodaySchedule = useWeekendSchedule === isCurrentlyWeekendProgram;
+
   return (
     <div class="min-h-screen bg-gray-50 p-1">
       <div class="max-w-6xl mx-auto">
@@ -68,12 +70,14 @@ export function App() {
             direction="tur"
             useWeekendSchedule={useWeekendSchedule}
             showPastHours={showPast}
+            isTodaySchedule={isTodaySchedule}
           />
           <StationHours
             busNumber={busNumber}
             direction="retur"
             useWeekendSchedule={useWeekendSchedule}
             showPastHours={showPast}
+            isTodaySchedule={isTodaySchedule}
           />
         </div>
       </div>

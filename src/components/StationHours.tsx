@@ -9,6 +9,7 @@ interface StationHoursProps {
   direction: string;
   useWeekendSchedule: boolean;
   showPastHours: boolean;
+  isTodaySchedule: boolean;
   className?: string;
 }
 
@@ -17,6 +18,7 @@ export function StationHours({
   direction,
   useWeekendSchedule,
   showPastHours,
+  isTodaySchedule,
   className,
 }: StationHoursProps): JSX.Element {
   const busData = busScheduleData.bus[busNumber]?.[direction];
@@ -69,6 +71,7 @@ export function StationHours({
           showPastHours={showPastHours}
           busNumber={busNumber}
           direction={direction}
+          isTodaySchedule={isTodaySchedule}
         />
       </div>
     </div>

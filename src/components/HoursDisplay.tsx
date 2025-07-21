@@ -5,7 +5,7 @@ import { PastHours } from "./PastHours";
 import { AvailableHours } from "./AvailableHours";
 import { FutureHours } from "./FutureHours";
 import { useCurrentTime } from "../hooks/useCurrentTime";
-import { useState } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 
 interface HoursDisplayProps {
   hours: string[];
@@ -13,6 +13,7 @@ interface HoursDisplayProps {
   showPastHours: boolean;
   busNumber: string;
   direction: string;
+  isTodaySchedule: boolean;
   className?: string;
 }
 
@@ -21,10 +22,15 @@ export function HoursDisplay({
   useWeekendSchedule,
   busNumber,
   direction,
+  isTodaySchedule,
   className,
 }: HoursDisplayProps): JSX.Element {
   const currentTimeSignal = useCurrentTime();
-  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isCollapsed, setIsCollapsed] = useState(isTodaySchedule);
+
+  useEffect(() => {
+    setIsCollapsed(isTodaySchedule);
+  }, [isTodaySchedule]);
 
   if (!hours || hours.length === 0) {
     return (
@@ -43,7 +49,10 @@ export function HoursDisplay({
     return busTime > currentTime;
   });
 
-  const finalHours = hours.map((h) => ({ hour: h, isToday: true }));
+  const finalHours = hours.map((h) => ({
+    hour: h,
+    isToday: isTodaySchedule,
+  }));
 
   if (finalHours.length === 0) {
     return (
@@ -58,17 +67,26 @@ export function HoursDisplay({
     return busInfo.isToday && busTime < currentTime;
   });
 
-  const futureHours = finalHours.filter((busInfo, index) => {
+  const futureHours = finalHours.filter((busInfo) => {
     const busTime = timeToMinutes(busInfo.hour);
     const isPast = busInfo.isToday && busTime < currentTime;
     return !isPast;
   });
 
+  const showNoMoreBusesMessage =
+    futureHours.length === 0 && pastHours.length > 0;
+
   return (
     <div
       class={twMerge("flex flex-col", className)}
       role="button"
-      onClick={() => setIsCollapsed((prev) => !prev)}
+      onClick={() => {
+        if (showNoMoreBusesMessage) {
+          setIsCollapsed(false); // Always expand to show past hours
+          return;
+        }
+        setIsCollapsed((prev) => !prev);
+      }}
     >
       <div class={twMerge("grid grid-cols-5 gap-1 text-center")}>
         {pastHours.length > 0 && (
@@ -85,6 +103,12 @@ export function HoursDisplay({
               />
             ))}
           </CollapsableHours>
+        )}
+
+        {showNoMoreBusesMessage && !isCollapsed && (
+          <div class="col-span-4 text-gray-500 text-center py-1 text-xs">
+            Nu mai sunt curse pentru astăzi.
+          </div>
         )}
 
         {futureHours.map((busInfo, index) => {
