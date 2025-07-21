@@ -5,7 +5,8 @@ import { PastHours } from "./PastHours";
 import { AvailableHours } from "./AvailableHours";
 import { FutureHours } from "./FutureHours";
 import { useCurrentTime } from "../hooks/useCurrentTime";
-import { useEffect, useState } from "preact/hooks";
+import { useState, useEffect } from "preact/hooks";
+import { getIsSectionCollapsed, setIsSectionCollapsed } from "../storage";
 
 interface HoursDisplayProps {
   hours: string[];
@@ -26,11 +27,22 @@ export function HoursDisplay({
   className,
 }: HoursDisplayProps): JSX.Element {
   const currentTimeSignal = useCurrentTime();
-  const [isCollapsed, setIsCollapsed] = useState(isTodaySchedule);
+  const initialCollapsedState =
+    getIsSectionCollapsed(busNumber, direction) ?? isTodaySchedule;
+  const [isCollapsed, setIsCollapsed] = useState(initialCollapsedState);
 
   useEffect(() => {
-    setIsCollapsed(isTodaySchedule);
-  }, [isTodaySchedule]);
+    const storedState = getIsSectionCollapsed(busNumber, direction);
+    if (storedState === undefined) {
+      setIsCollapsed(isTodaySchedule);
+    }
+  }, [isTodaySchedule, busNumber, direction]);
+
+  const handleToggleCollapse = () => {
+    const newState = !isCollapsed;
+    setIsCollapsed(newState);
+    setIsSectionCollapsed(busNumber, direction, newState);
+  };
 
   if (!hours || hours.length === 0) {
     return (
@@ -80,13 +92,7 @@ export function HoursDisplay({
     <div
       class={twMerge("flex flex-col", className)}
       role="button"
-      onClick={() => {
-        if (showNoMoreBusesMessage) {
-          setIsCollapsed(false); // Always expand to show past hours
-          return;
-        }
-        setIsCollapsed((prev) => !prev);
-      }}
+      onClick={handleToggleCollapse}
     >
       <div class={twMerge("grid grid-cols-5 gap-1 text-center")}>
         {pastHours.length > 0 && (
