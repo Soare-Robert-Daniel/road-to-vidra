@@ -12,6 +12,10 @@ export function Header({
   currentDate,
   className,
 }: HeaderProps): JSX.Element {
+  if (!holidayName) {
+    return <></>;
+  }
+
   return (
     <header class={twMerge("text-center mb-2", className)}>
       <div class={twMerge("text-base text-gray-500")}>
