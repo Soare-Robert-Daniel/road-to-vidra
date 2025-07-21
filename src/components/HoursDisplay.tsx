@@ -24,7 +24,7 @@ export function HoursDisplay({
   className,
 }: HoursDisplayProps): JSX.Element {
   const currentTimeSignal = useCurrentTime();
-  const [showPastHours, setShowPastHours] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
 
   if (!hours || hours.length === 0) {
     return (
@@ -65,8 +65,28 @@ export function HoursDisplay({
   });
 
   return (
-    <div class={twMerge("flex flex-col", className)}>
+    <div
+      class={twMerge("flex flex-col", className)}
+      role="button"
+      onClick={() => setIsCollapsed((prev) => !prev)}
+    >
       <div class={twMerge("grid grid-cols-5 gap-1 text-center")}>
+        {pastHours.length > 0 && (
+          <CollapsableHours isCollapsed={isCollapsed}>
+            {pastHours.map((busInfo) => (
+              <PastHours
+                key={`${busInfo.hour}-${busInfo.isToday}-past`}
+                hour={busInfo.hour}
+                currentTime={currentTime}
+                isToday={busInfo.isToday}
+                busNumber={busNumber}
+                direction={direction}
+                useWeekendSchedule={useWeekendSchedule}
+              />
+            ))}
+          </CollapsableHours>
+        )}
+
         {futureHours.map((busInfo, index) => {
           const isNext = index === 0 && nextBusIndexForToday !== -1;
 
@@ -97,39 +117,32 @@ export function HoursDisplay({
           }
         })}
       </div>
-      {pastHours.length > 0 && (
-        <CollapsableHours>
-          <div class={twMerge("grid grid-cols-5 gap-1 text-center mt-1")}>
-            {pastHours.map((busInfo) => (
-              <PastHours
-                key={`${busInfo.hour}-${busInfo.isToday}-past`}
-                hour={busInfo.hour}
-                currentTime={currentTime}
-                isToday={busInfo.isToday}
-                busNumber={busNumber}
-                direction={direction}
-                useWeekendSchedule={useWeekendSchedule}
-              />
-            ))}
-          </div>
-        </CollapsableHours>
-      )}
     </div>
   );
 }
 
-function CollapsableHours({ children }) {
-  const [isCollapsed, setIsCollapsed] = useState(true);
-
+function CollapsableHours({ children, isCollapsed }) {
   return (
-    <div class="text-center mt-2">
-      <button
-        onClick={() => setIsCollapsed(!isCollapsed)}
-        class="text-base text-gray-500 hover:text-gray-600"
-      >
-        {isCollapsed ? "Vezi cursele trecute" : "Ascunde cursele trecute"}
-      </button>
-      {!isCollapsed && <div class="mt-2">{children}</div>}
-    </div>
+    <>
+      {isCollapsed && (
+        <div class="px-0.5 py-0 flex flex-col justify-center cursor-pointer">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="size-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="m18.75 4.5-7.5 7.5 7.5 7.5m-6-15L5.25 12l7.5 7.5"
+            />
+          </svg>
+        </div>
+      )}
+      {!isCollapsed && <>{children}</>}
+    </>
   );
 }

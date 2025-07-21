@@ -39,14 +39,12 @@ export function HourDisplay({
 
   let timeDiff = -1;
   let remainingTime = "";
-  let remainingDays = 0;
 
   if (isPassed) {
     // For passed buses, calculate time until the next occurrence
     const nextOccurrence = timeUntilNextOccurrence(hour, useWeekendSchedule);
     if (nextOccurrence.minutes > 0) {
       timeDiff = nextOccurrence.minutes;
-      remainingDays = nextOccurrence.days;
       remainingTime = formatTimeDifference(timeDiff);
     }
   } else if (isToday) {
@@ -138,7 +136,7 @@ export function HourDisplay({
     if (isPassed) {
       return twMerge(
         baseClasses,
-        "bg-gray-100 text-gray-500 cursor-not-allowed opacity-75"
+        "bg-gray-100 text-gray-500 select-none opacity-75"
       );
     } else if (isTomorrow) {
       // Use regular theme colors for tomorrow's hours, not indigo
