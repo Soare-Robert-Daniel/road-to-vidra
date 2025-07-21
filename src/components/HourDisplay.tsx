@@ -135,16 +135,7 @@ export function HourDisplay({
 
   // Conditional classes based on state
   const getContainerClasses = () => {
-    if (isNext && isToday) {
-      return twMerge(
-        baseClasses,
-        themeClasses.nextBg,
-        "border-1",
-        themeClasses.nextBorder,
-        themeClasses.nextText,
-        "font-semibold shadow-md"
-      );
-    } else if (isPassed) {
+    if (isPassed) {
       return twMerge(
         baseClasses,
         "bg-gray-100 text-gray-500 cursor-not-allowed opacity-75"
