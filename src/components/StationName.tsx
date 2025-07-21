@@ -19,7 +19,7 @@ export function StationName({
         className
       )}
     >
-      <h3 class={twMerge("text-sm font-semibold text-gray-800")}>
+      <h3 class={twMerge("text-base font-semibold text-gray-800")}>
         {busNumber} {"420" === busNumber ? "🌿" : "😩"} - {label}
       </h3>
     </div>
