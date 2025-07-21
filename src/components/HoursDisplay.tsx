@@ -149,14 +149,13 @@ function CollapsableHours({ children, isCollapsed }) {
   return (
     <>
       {isCollapsed && (
-        <div class="px-0.5 py-0 flex flex-col justify-center cursor-pointer">
+        <div class=" px-0.5 py-0 flex flex-row justify-center items-center cursor-pointer">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={1.5}
-            stroke="currentColor"
-            className="size-6"
+            className="size-6 stroke-black"
           >
             <path
               strokeLinecap="round"
