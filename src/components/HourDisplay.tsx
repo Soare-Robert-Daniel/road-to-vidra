@@ -6,6 +6,7 @@ import {
   formatTimeDifference,
   timeUntilTomorrow,
 } from "../utils";
+import { useCurrentTime } from "../hooks/useCurrentTime";
 
 interface HourDisplayProps {
   hour: string;
@@ -26,13 +27,16 @@ export function HourDisplay({
   direction,
   className,
 }: HourDisplayProps): JSX.Element {
+  const currentTimeSignal = useCurrentTime();
+  const realTimeNow = new Date(currentTimeSignal.value);
+  const realCurrentTime = realTimeNow.getHours() * 60 + realTimeNow.getMinutes();
+
   const busTime = timeToMinutes(hour);
   let timeDiff;
 
   if (isToday) {
-    timeDiff = busTime - currentTime;
+    timeDiff = busTime - realCurrentTime;
   } else {
-    // Tomorrow's bus - calculate time until tomorrow + bus time
     timeDiff = timeUntilTomorrow(hour);
   }
 
@@ -42,7 +46,7 @@ export function HourDisplay({
     remainingTime = formatTimeDifference(timeDiff);
   }
 
-  const isPassed = isToday && busTime < currentTime;
+  const isPassed = isToday && busTime < realCurrentTime;
   const isTomorrow = !isToday;
 
   // Define theme colors based on bus number and direction
