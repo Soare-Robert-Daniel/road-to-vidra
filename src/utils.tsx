@@ -104,3 +104,35 @@ export const timeUntilTomorrow = (timeStr) => {
 
   return minutesUntilTomorrow + busTime;
 };
+
+/**
+ * Calculate time until the next occurrence of a specific bus hour.
+ * Finds the next day with the same schedule type and calculates time until that bus.
+ * @param {string} timeStr Time in format "HH:MM"
+ * @param {boolean} useWeekendSchedule The type of schedule to look for.
+ * @returns {{minutes: number, days: number}}
+ */
+export const timeUntilNextOccurrence = (timeStr, useWeekendSchedule) => {
+  const now = new Date();
+
+  for (let i = 1; i <= 7; i++) {
+    const futureDate = new Date();
+    futureDate.setDate(now.getDate() + i);
+
+    if (isWeekendProgram(futureDate) === useWeekendSchedule) {
+      // Found the next day with the same schedule type
+      const futureDateTime = new Date(futureDate);
+      const [hour, minute] = timeStr.split(":").map(Number);
+      futureDateTime.setHours(hour, minute, 0, 0);
+
+      const diffMinutes = Math.floor(
+        (futureDateTime.getTime() - now.getTime()) / (1000 * 60)
+      );
+
+      return { minutes: diffMinutes, days: i };
+    }
+  }
+
+  // Fallback in case no matching day is found within a week
+  return { minutes: -1, days: -1 };
+};

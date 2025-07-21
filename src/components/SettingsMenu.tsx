@@ -3,14 +3,11 @@ import { Signal } from "@preact/signals";
 import { twMerge } from "tailwind-merge";
 import { BusSelector } from "./BusSelector";
 import { ProgramModeButtons } from "./ProgramModeButtons";
-import { DaySelector } from "./DaySelector";
-import { AutoButton } from "./AutoButton";
 import { HoursViewSelector } from "./HoursViewSelector";
 
 interface SettingsMenuProps {
   selectedBusNumber: Signal<string>;
   programMode: Signal<"auto" | "lucru" | "weekend">;
-  showNextDayProgram: Signal<boolean>;
   showPastHours: Signal<boolean>;
   isWeekendProgram: boolean;
   holidayName: string | null;
@@ -20,7 +17,6 @@ interface SettingsMenuProps {
 export function SettingsMenu({
   selectedBusNumber,
   programMode,
-  showNextDayProgram,
   showPastHours,
   isWeekendProgram,
   holidayName,
@@ -45,13 +41,9 @@ export function SettingsMenu({
           />
         </div>
 
-        {/* Second row: Day selector and Hours view selector */}
-        <div class={twMerge("flex items-center justify-between")}>
-          <DaySelector showNextDayProgram={showNextDayProgram} />
-          <div class="flex items-center gap-4">
-            <HoursViewSelector showPastHours={showPastHours} />
-            {/* <AutoButton programMode={programMode} /> */}
-          </div>
+        {/* Second row: Hours view selector */}
+        <div class={twMerge("flex items-center justify-end")}>
+          <HoursViewSelector showPastHours={showPastHours} />
         </div>
       </div>
     </div>

@@ -36,7 +36,6 @@ import {
 const selectedBusNumber = signal(getSelectedBus());
 // 'auto': determined by day, 'lucru': forced workday, 'weekend': forced weekend
 const programMode = signal<"auto" | "lucru" | "weekend">("auto");
-const showNextDayProgram = signal(false);
 const showPastHours = signal(getShowPastHours());
 
 // Persist changes to localStorage
@@ -51,7 +50,6 @@ export function App() {
   // By reading the signals here, we ensure this component re-renders on change.
   const busNumber = selectedBusNumber.value;
   const mode = programMode.value;
-  const showNextDay = showNextDayProgram.value;
   const showPast = showPastHours.value;
 
   let useWeekendSchedule;
@@ -74,7 +72,6 @@ export function App() {
         <SettingsMenu
           selectedBusNumber={selectedBusNumber}
           programMode={programMode}
-          showNextDayProgram={showNextDayProgram}
           showPastHours={showPastHours}
           isWeekendProgram={isCurrentlyWeekendProgram}
           holidayName={holidayName}
@@ -86,14 +83,12 @@ export function App() {
             busNumber={busNumber}
             direction="tur"
             useWeekendSchedule={useWeekendSchedule}
-            showNextDay={showNextDay}
             showPastHours={showPast}
           />
           <StationHours
             busNumber={busNumber}
             direction="retur"
             useWeekendSchedule={useWeekendSchedule}
-            showNextDay={showNextDay}
             showPastHours={showPast}
           />
         </div>

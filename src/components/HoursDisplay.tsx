@@ -1,7 +1,12 @@
 import { JSX } from "preact";
 import { twMerge } from "tailwind-merge";
 import { busScheduleData } from "../config";
-import { isWeekendProgram, timeToMinutes } from "../utils";
+import {
+  isWeekendProgram,
+  timeToMinutes,
+  timeUntilNextOccurrence,
+  formatTimeDifference,
+} from "../utils";
 import { PastHours } from "./PastHours";
 import { AvailableHours } from "./AvailableHours";
 import { FutureHours } from "./FutureHours";
@@ -9,7 +14,6 @@ import { useCurrentTime } from "../hooks/useCurrentTime";
 
 interface HoursDisplayProps {
   hours: string[];
-  showNextDay: boolean;
   useWeekendSchedule: boolean;
   showPastHours: boolean;
   busNumber: string;
@@ -19,7 +23,6 @@ interface HoursDisplayProps {
 
 export function HoursDisplay({
   hours,
-  showNextDay,
   useWeekendSchedule,
   showPastHours,
   busNumber,
@@ -39,36 +42,14 @@ export function HoursDisplay({
   const now = new Date(currentTimeSignal.value);
   const currentTime = now.getHours() * 60 + now.getMinutes();
 
-  let finalHours;
-  let nextBusIndex = -1;
+  // Always show today's program
+  const nextBusIndexForToday = hours.findIndex((timeStr) => {
+    const busTime = timeToMinutes(timeStr);
+    return busTime > currentTime;
+  });
 
-  if (showNextDay) {
-    // Show tomorrow's complete program
-    const tomorrowDate = new Date();
-    tomorrowDate.setDate(tomorrowDate.getDate() + 1);
-    const isTomorrowWeekend = isWeekendProgram(tomorrowDate);
-
-    // Get tomorrow's hours
-    const busData = busScheduleData.bus[busNumber]?.[direction];
-    const tomorrowHours = busData
-      ? isTomorrowWeekend
-        ? busData.weekendHours
-        : busData.workingHours
-      : [];
-
-    // All hours are tomorrow's hours, so the first one is the next bus
-    finalHours = tomorrowHours.map((h) => ({ hour: h, isToday: false }));
-    nextBusIndex = finalHours.length > 0 ? 0 : -1;
-  } else {
-    // Show today's program
-    const nextBusIndexForToday = hours.findIndex((timeStr) => {
-      const busTime = timeToMinutes(timeStr);
-      return busTime > currentTime;
-    });
-
-    finalHours = hours.map((h) => ({ hour: h, isToday: true }));
-    nextBusIndex = nextBusIndexForToday;
-  }
+  const finalHours = hours.map((h) => ({ hour: h, isToday: true }));
+  const nextBusIndex = nextBusIndexForToday;
 
   if (finalHours.length === 0) {
     return (
@@ -100,6 +81,7 @@ export function HoursDisplay({
                 isToday={busInfo.isToday}
                 busNumber={busNumber}
                 direction={direction}
+                useWeekendSchedule={useWeekendSchedule}
               />
             );
           } else if (isNext) {
@@ -111,6 +93,7 @@ export function HoursDisplay({
                 isToday={busInfo.isToday}
                 busNumber={busNumber}
                 direction={direction}
+                useWeekendSchedule={useWeekendSchedule}
               />
             );
           } else {
@@ -122,6 +105,7 @@ export function HoursDisplay({
                 isToday={busInfo.isToday}
                 busNumber={busNumber}
                 direction={direction}
+                useWeekendSchedule={useWeekendSchedule}
               />
             );
           }

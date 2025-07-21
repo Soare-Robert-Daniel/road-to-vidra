@@ -8,7 +8,6 @@ interface StationHoursProps {
   busNumber: string;
   direction: string;
   useWeekendSchedule: boolean;
-  showNextDay: boolean;
   showPastHours: boolean;
   className?: string;
 }
@@ -17,7 +16,6 @@ export function StationHours({
   busNumber,
   direction,
   useWeekendSchedule,
-  showNextDay,
   showPastHours,
   className,
 }: StationHoursProps): JSX.Element {
@@ -67,7 +65,6 @@ export function StationHours({
       <div class={twMerge("mt-1")}>
         <HoursDisplay
           hours={hours}
-          showNextDay={showNextDay}
           useWeekendSchedule={useWeekendSchedule}
           showPastHours={showPastHours}
           busNumber={busNumber}

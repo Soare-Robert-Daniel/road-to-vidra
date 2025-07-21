@@ -4,7 +4,7 @@ import { twMerge } from "tailwind-merge";
 import {
   timeToMinutes,
   formatTimeDifference,
-  timeUntilTomorrow,
+  timeUntilNextOccurrence,
 } from "../utils";
 import { useCurrentTime } from "../hooks/useCurrentTime";
 
@@ -15,6 +15,7 @@ interface HourDisplayProps {
   isToday?: boolean;
   busNumber: string;
   direction: string;
+  useWeekendSchedule: boolean; // Pass schedule type
   className?: string;
 }
 
@@ -25,28 +26,47 @@ export function HourDisplay({
   isToday = true,
   busNumber,
   direction,
+  useWeekendSchedule,
   className,
 }: HourDisplayProps): JSX.Element {
   const currentTimeSignal = useCurrentTime();
   const realTimeNow = new Date(currentTimeSignal.value);
-  const realCurrentTime = realTimeNow.getHours() * 60 + realTimeNow.getMinutes();
+  const realCurrentTime =
+    realTimeNow.getHours() * 60 + realTimeNow.getMinutes();
 
   const busTime = timeToMinutes(hour);
-  let timeDiff;
+  const isPassed = isToday && busTime < realCurrentTime;
 
-  if (isToday) {
-    timeDiff = busTime - realCurrentTime;
-  } else {
-    timeDiff = timeUntilTomorrow(hour);
-  }
-
+  let timeDiff = -1;
   let remainingTime = "";
-  // Show remaining time for ALL future buses, not just the next one
-  if (timeDiff > 0) {
+  let remainingDays = 0;
+
+  if (isPassed) {
+    // For passed buses, calculate time until the next occurrence
+    const nextOccurrence = timeUntilNextOccurrence(hour, useWeekendSchedule);
+    if (nextOccurrence.minutes > 0) {
+      timeDiff = nextOccurrence.minutes;
+      remainingDays = nextOccurrence.days;
+      remainingTime = formatTimeDifference(timeDiff);
+    }
+  } else if (isToday) {
+    // For future buses today
+    timeDiff = busTime - realCurrentTime;
+    if (timeDiff > 0) {
+      remainingTime = formatTimeDifference(timeDiff);
+    }
+  } else {
+    // For all buses tomorrow (or future days)
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    const minutesUntilTomorrow = Math.floor(
+      (tomorrow.getTime() - realTimeNow.getTime()) / (1000 * 60)
+    );
+    timeDiff = minutesUntilTomorrow + busTime;
     remainingTime = formatTimeDifference(timeDiff);
   }
 
-  const isPassed = isToday && busTime < realCurrentTime;
   const isTomorrow = !isToday;
 
   // Define theme colors based on bus number and direction
@@ -61,6 +81,8 @@ export function HourDisplay({
           nextText: "text-blue-800",
           remainingText: "text-blue-600",
           nextRemainingText: "text-blue-600",
+          passedText: "text-gray-400",
+          passedRemainingText: "text-gray-500",
         };
       } else {
         return {
@@ -71,6 +93,8 @@ export function HourDisplay({
           nextText: "text-green-800",
           remainingText: "text-green-600",
           nextRemainingText: "text-green-600",
+          passedText: "text-gray-400",
+          passedRemainingText: "text-gray-500",
         };
       }
     } else {
@@ -84,6 +108,8 @@ export function HourDisplay({
           nextText: "text-red-800",
           remainingText: "text-red-600",
           nextRemainingText: "text-red-600",
+          passedText: "text-gray-400",
+          passedRemainingText: "text-gray-500",
         };
       } else {
         return {
@@ -94,6 +120,8 @@ export function HourDisplay({
           nextText: "text-purple-800",
           remainingText: "text-purple-600",
           nextRemainingText: "text-purple-600",
+          passedText: "text-gray-400",
+          passedRemainingText: "text-gray-500",
         };
       }
     }
@@ -145,6 +173,8 @@ export function HourDisplay({
     if (isNext && isToday) {
       // Only apply "next" styling for today's hours
       return twMerge(baseTimeClasses, themeClasses.nextRemainingText);
+    } else if (isPassed) {
+      return twMerge(baseTimeClasses, themeClasses.passedRemainingText);
     } else if (isTomorrow) {
       return twMerge(baseTimeClasses, "text-indigo-600");
     } else {
@@ -152,11 +182,14 @@ export function HourDisplay({
     }
   };
 
+  const hourClasses = twMerge(
+    "tabular-nums leading-tight text-2xl font-medium",
+    isPassed && themeClasses.passedText
+  );
+
   return (
     <div class={twMerge(getContainerClasses(), className)}>
-      <div class={twMerge("tabular-nums leading-tight text-2xl font-medium")}>
-        {hour}
-      </div>
+      <div class={hourClasses}>{hour}</div>
       {remainingTime && (
         <div class={getRemainingTimeClasses()}>{remainingTime}</div>
       )}

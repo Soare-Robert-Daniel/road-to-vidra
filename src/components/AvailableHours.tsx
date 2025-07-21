@@ -8,6 +8,7 @@ interface AvailableHoursProps {
   isToday: boolean;
   busNumber: string;
   direction: string;
+  useWeekendSchedule: boolean;
   className?: string;
 }
 
@@ -17,6 +18,7 @@ export function AvailableHours({
   isToday,
   busNumber,
   direction,
+  useWeekendSchedule,
   className,
 }: AvailableHoursProps): JSX.Element {
   return (
@@ -27,6 +29,7 @@ export function AvailableHours({
       isToday={isToday}
       busNumber={busNumber}
       direction={direction}
+      useWeekendSchedule={useWeekendSchedule}
       className={className}
     />
   );
