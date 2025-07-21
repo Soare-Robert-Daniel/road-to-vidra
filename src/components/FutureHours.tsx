@@ -1,5 +1,4 @@
 import { JSX } from "preact";
-import { twMerge } from "tailwind-merge";
 import { HourDisplay } from "./HourDisplay";
 
 interface FutureHoursProps {

@@ -1,19 +1,3 @@
-/*
-	Application description:
-
-	PURPOSE
-	Display the route hours for bus number 420 and 438 in a friendly and eficient matter for the human eye.
-
-	FUNCTIONALITY
-	Display the bus hours for each route based on the selected bus.
-	Should detect if the weekend or holyday program is active or not.
-	Should allow the user to switch between workday and holyday (non persistent options). The default should be based on the type of the day.
-
-	TECH STACK
-	Preact, Tailwind
-
-*/
-
 import { render } from "preact";
 import { signal } from "@preact/signals";
 

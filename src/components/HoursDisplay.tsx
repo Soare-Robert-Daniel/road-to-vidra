@@ -1,12 +1,6 @@
 import { JSX } from "preact";
 import { twMerge } from "tailwind-merge";
-import { busScheduleData } from "../config";
-import {
-  isWeekendProgram,
-  timeToMinutes,
-  timeUntilNextOccurrence,
-  formatTimeDifference,
-} from "../utils";
+import { timeToMinutes } from "../utils";
 import { PastHours } from "./PastHours";
 import { AvailableHours } from "./AvailableHours";
 import { FutureHours } from "./FutureHours";
@@ -50,7 +44,6 @@ export function HoursDisplay({
   });
 
   const finalHours = hours.map((h) => ({ hour: h, isToday: true }));
-  const nextBusIndex = nextBusIndexForToday;
 
   if (finalHours.length === 0) {
     return (

@@ -3,7 +3,6 @@ import { Signal } from "@preact/signals";
 import { twMerge } from "tailwind-merge";
 import { BusSelector } from "./BusSelector";
 import { ProgramModeButtons } from "./ProgramModeButtons";
-import { HoursViewSelector } from "./HoursViewSelector";
 
 interface SettingsMenuProps {
   selectedBusNumber: Signal<string>;
@@ -17,9 +16,7 @@ interface SettingsMenuProps {
 export function SettingsMenu({
   selectedBusNumber,
   programMode,
-  showPastHours,
   isWeekendProgram,
-  holidayName,
   className,
 }: SettingsMenuProps): JSX.Element {
   let currentScheduleType: "lucru" | "weekend";
