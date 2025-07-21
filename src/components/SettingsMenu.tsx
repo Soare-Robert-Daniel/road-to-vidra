@@ -3,9 +3,9 @@ import { Signal } from "@preact/signals";
 import { twMerge } from "tailwind-merge";
 import { BusSelector } from "./BusSelector";
 import { ProgramModeButtons } from "./ProgramModeButtons";
-import { NextDayToggle } from "./NextDayToggle";
+import { DaySelector } from "./DaySelector";
 import { AutoButton } from "./AutoButton";
-import { ShowPastHoursToggle } from "./ShowPastHoursToggle";
+import { HoursViewSelector } from "./HoursViewSelector";
 
 interface SettingsMenuProps {
   selectedBusNumber: Signal<string>;
@@ -45,11 +45,11 @@ export function SettingsMenu({
           />
         </div>
 
-        {/* Second row: Next day toggle, Show past hours toggle, and Auto button */}
+        {/* Second row: Day selector and Hours view selector */}
         <div class={twMerge("flex items-center justify-between")}>
-          <NextDayToggle showNextDayProgram={showNextDayProgram} />
-          <div class="flex items-center gap-6">
-            <ShowPastHoursToggle showPastHours={showPastHours} />
+          <DaySelector showNextDayProgram={showNextDayProgram} />
+          <div class="flex items-center gap-4">
+            <HoursViewSelector showPastHours={showPastHours} />
             {/* <AutoButton programMode={programMode} /> */}
           </div>
         </div>

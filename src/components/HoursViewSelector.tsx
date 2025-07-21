@@ -1,0 +1,46 @@
+import { JSX } from "preact";
+import { Signal } from "@preact/signals";
+import { twMerge } from "tailwind-merge";
+
+interface HoursViewSelectorProps {
+  showPastHours: Signal<boolean>;
+  className?: string;
+}
+
+export function HoursViewSelector({
+  showPastHours,
+  className,
+}: HoursViewSelectorProps): JSX.Element {
+  const baseButtonClass =
+    "px-3 py-1 text-sm font-bold rounded-lg transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-gray-100";
+  const selectedClass = "bg-white text-blue-600 shadow-md";
+  const unselectedClass = "bg-transparent text-gray-500 hover:text-gray-800";
+
+  return (
+    <div
+      class={twMerge(
+        "flex items-center gap-1 bg-gray-100 rounded-xl p-1 shadow-inner",
+        className
+      )}
+    >
+      <button
+        class={twMerge(
+          baseButtonClass,
+          showPastHours.value ? selectedClass : unselectedClass
+        )}
+        onClick={() => (showPastHours.value = true)}
+      >
+        Complet
+      </button>
+      <button
+        class={twMerge(
+          baseButtonClass,
+          !showPastHours.value ? selectedClass : unselectedClass
+        )}
+        onClick={() => (showPastHours.value = false)}
+      >
+        Disponibil
+      </button>
+    </div>
+  );
+}

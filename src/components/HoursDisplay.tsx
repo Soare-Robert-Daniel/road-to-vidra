@@ -39,26 +39,16 @@ export function HoursDisplay({
   const now = new Date(currentTimeSignal.value);
   const currentTime = now.getHours() * 60 + now.getMinutes();
 
-  // Find next bus for today's full list
-  const nextBusIndexForToday = hours.findIndex((timeStr) => {
-    const busTime = timeToMinutes(timeStr);
-    return busTime > currentTime;
-  });
-
-  let finalHours = hours.map((h) => ({ hour: h, isToday: true }));
-  let nextBusIndex = nextBusIndexForToday;
+  let finalHours;
+  let nextBusIndex = -1;
 
   if (showNextDay) {
-    // Filter out today's past hours
-    const remainingToday =
-      nextBusIndexForToday === -1 ? [] : hours.slice(nextBusIndexForToday);
-
-    // Get tomorrow's hours
+    // Show tomorrow's complete program
     const tomorrowDate = new Date();
     tomorrowDate.setDate(tomorrowDate.getDate() + 1);
     const isTomorrowWeekend = isWeekendProgram(tomorrowDate);
 
-    // Use the correct direction for tomorrow's schedule
+    // Get tomorrow's hours
     const busData = busScheduleData.bus[busNumber]?.[direction];
     const tomorrowHours = busData
       ? isTomorrowWeekend
@@ -66,14 +56,18 @@ export function HoursDisplay({
         : busData.workingHours
       : [];
 
-    // Combine remaining of today with all of tomorrow
-    finalHours = [
-      ...remainingToday.map((h) => ({ hour: h, isToday: true })),
-      ...tomorrowHours.map((h) => ({ hour: h, isToday: false })),
-    ];
-
-    // The next bus is always the first in this combined list
+    // All hours are tomorrow's hours, so the first one is the next bus
+    finalHours = tomorrowHours.map((h) => ({ hour: h, isToday: false }));
     nextBusIndex = finalHours.length > 0 ? 0 : -1;
+  } else {
+    // Show today's program
+    const nextBusIndexForToday = hours.findIndex((timeStr) => {
+      const busTime = timeToMinutes(timeStr);
+      return busTime > currentTime;
+    });
+
+    finalHours = hours.map((h) => ({ hour: h, isToday: true }));
+    nextBusIndex = nextBusIndexForToday;
   }
 
   if (finalHours.length === 0) {
@@ -92,8 +86,8 @@ export function HoursDisplay({
           const isPast = busInfo.isToday && busTime < currentTime;
           const isNext = index === nextBusIndex;
 
-          // Skip past hours if showPastHours is false
-          if (isPast && !showPastHours) {
+          // Skip past hours if showPastHours is false and we're showing today
+          if (isPast && !showPastHours && busInfo.isToday) {
             return null;
           }
 

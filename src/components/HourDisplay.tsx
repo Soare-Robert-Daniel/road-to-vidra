@@ -107,7 +107,7 @@ export function HourDisplay({
 
   // Conditional classes based on state
   const getContainerClasses = () => {
-    if (isNext) {
+    if (isNext && isToday) {
       return twMerge(
         baseClasses,
         themeClasses.nextBg,
@@ -122,9 +122,12 @@ export function HourDisplay({
         "bg-gray-100 text-gray-500 cursor-not-allowed opacity-75"
       );
     } else if (isTomorrow) {
+      // Use regular theme colors for tomorrow's hours, not indigo
       return twMerge(
         baseClasses,
-        "bg-indigo-50 text-indigo-700 border-1 border-indigo-200"
+        themeClasses.bg,
+        themeClasses.text,
+        "border border-transparent"
       );
     } else {
       return twMerge(
@@ -139,7 +142,8 @@ export function HourDisplay({
   const getRemainingTimeClasses = () => {
     const baseTimeClasses = "text-base font-medium leading-none";
 
-    if (isNext) {
+    if (isNext && isToday) {
+      // Only apply "next" styling for today's hours
       return twMerge(baseTimeClasses, themeClasses.nextRemainingText);
     } else if (isTomorrow) {
       return twMerge(baseTimeClasses, "text-indigo-600");
