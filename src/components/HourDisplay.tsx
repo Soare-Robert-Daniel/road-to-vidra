@@ -43,14 +43,14 @@ export function HourDisplay({
   if (isPassed) {
     // For passed buses, calculate time until the next occurrence
     const nextOccurrence = timeUntilNextOccurrence(hour, useWeekendSchedule);
-    if (nextOccurrence.minutes > 0) {
+    if (nextOccurrence.minutes >= 0) {
       timeDiff = nextOccurrence.minutes;
       remainingTime = formatTimeDifference(timeDiff);
     }
   } else if (isToday) {
     // For future buses today
     timeDiff = busTime - realCurrentTime;
-    if (timeDiff > 0) {
+    if (timeDiff >= 0) {
       remainingTime = formatTimeDifference(timeDiff);
     }
   } else {
@@ -179,9 +179,7 @@ export function HourDisplay({
   return (
     <div class={twMerge(getContainerClasses(), className)}>
       <div class={hourClasses}>{hour}</div>
-      {remainingTime && (
-        <div class={getRemainingTimeClasses()}>{remainingTime}</div>
-      )}
+      <div class={getRemainingTimeClasses()}>{remainingTime}</div>
     </div>
   );
 }
