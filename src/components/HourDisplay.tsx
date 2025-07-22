@@ -50,7 +50,7 @@ export function HourDisplay({
         continue;
       }
 
-      futureDate.setHours(0, 0, 0, 0);
+      futureDate.setHours(0, busTime, 0, 0);
       timeDiff = Math.floor(
         (futureDate.getTime() - realTimeNow.getTime()) / (1000 * 60)
       );
