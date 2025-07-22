@@ -85,8 +85,7 @@ export function HoursDisplay({
     return !isPast;
   });
 
-  const showNoMoreBusesMessage =
-    futureHours.length === 0 && pastHours.length > 0;
+  const shouldShowForTomorrow = futureHours.length === 0;
 
   return (
     <div
@@ -96,7 +95,9 @@ export function HoursDisplay({
     >
       <div class={twMerge("grid grid-cols-5 gap-1 text-center")}>
         {pastHours.length > 0 && (
-          <CollapsableHours isCollapsed={isCollapsed}>
+          <CollapsableHours
+            isCollapsed={shouldShowForTomorrow ? false : isCollapsed}
+          >
             {pastHours.map((busInfo) => (
               <PastHours
                 key={`${busInfo.hour}-${busInfo.isToday}-past`}
@@ -109,12 +110,6 @@ export function HoursDisplay({
               />
             ))}
           </CollapsableHours>
-        )}
-
-        {showNoMoreBusesMessage && !isCollapsed && (
-          <div class="col-span-4 text-gray-500 text-center py-1 text-xs">
-            Nu mai sunt curse pentru astăzi.
-          </div>
         )}
 
         {futureHours.map((busInfo, index) => {
