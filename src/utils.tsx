@@ -69,21 +69,22 @@ export const timeToMinutes = (timeStr) => {
  * @param {number} minutes Number of minutes
  * @returns {string} Formatted time difference
  */
-export const formatTimeDifference = (minutes) => {
+export const formatTimeDifference = (minutes: number): string => {
   if (minutes <= 0) return "";
 
-  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(minutes / (60 * 24));
+  const hours = Math.floor((minutes % (60 * 24)) / 60);
   const mins = minutes % 60;
 
-  if (hours > 12) {
-    return `${hours}h`;
-  } else if (hours > 0) {
-    return `${hours}h${mins > 0 ? mins : ""}`;
-  } else if (mins > 60) {
-    return `${mins}m`;
-  } else {
-    return `${mins}'`;
+  if (days > 0) {
+    return `${days}z ${hours > 0 ? `${hours}h` : ""}`.trim();
   }
+
+  if (hours > 0) {
+    return `${hours}h${mins > 0 ? mins : ""}`;
+  }
+
+  return `${mins}'`;
 };
 
 /**
@@ -112,27 +113,34 @@ export const timeUntilTomorrow = (timeStr) => {
  * @param {boolean} useWeekendSchedule The type of schedule to look for.
  * @returns {{minutes: number, days: number}}
  */
-export const timeUntilNextOccurrence = (timeStr, useWeekendSchedule) => {
+export const timeUntilNextOccurrence = (
+  timeStr: string,
+  useWeekendSchedule: boolean
+): { minutes: number; days: number } => {
   const now = new Date();
 
+  // Today is the selected schedule type: show time until next bus today, or next occurrence
+  const [hour, minute] = timeStr.split(":").map(Number);
+  const todayBusTime = new Date();
+  todayBusTime.setHours(hour, minute, 0, 0);
+  const diffMinutesToday = Math.floor(
+    (todayBusTime.getTime() - now.getTime()) / (1000 * 60)
+  );
+  if (diffMinutesToday > 0) {
+    return { minutes: diffMinutesToday, days: 0 };
+  }
+  // Otherwise, find the next occurrence of this schedule type and return time until first bus
   for (let i = 1; i <= 7; i++) {
     const futureDate = new Date();
     futureDate.setDate(now.getDate() + i);
-
     if (isWeekendProgram(futureDate) === useWeekendSchedule) {
-      // Found the next day with the same schedule type
-      const futureDateTime = new Date(futureDate);
-      const [hour, minute] = timeStr.split(":").map(Number);
-      futureDateTime.setHours(hour, minute, 0, 0);
-
+      futureDate.setHours(hour, minute, 0, 0);
       const diffMinutes = Math.floor(
-        (futureDateTime.getTime() - now.getTime()) / (1000 * 60)
+        (futureDate.getTime() - now.getTime()) / (1000 * 60)
       );
-
       return { minutes: diffMinutes, days: i };
     }
   }
 
-  // Fallback in case no matching day is found within a week
   return { minutes: -1, days: -1 };
 };

@@ -5,6 +5,7 @@ import {
   timeToMinutes,
   formatTimeDifference,
   timeUntilNextOccurrence,
+  isWeekendProgram,
 } from "../utils";
 import { useCurrentTime } from "../hooks/useCurrentTime";
 
@@ -40,19 +41,29 @@ export function HourDisplay({
   let timeDiff = -1;
   let remainingTime = "";
 
-  if (isPassed) {
+  if (isWeekendProgram(realTimeNow) !== useWeekendSchedule) {
+    for (let i = 1; i <= 7; i++) {
+      const futureDate = new Date();
+      futureDate.setDate(realTimeNow.getDate() + i);
+
+      if (isWeekendProgram(futureDate) !== useWeekendSchedule) {
+        continue;
+      }
+
+      futureDate.setHours(0, 0, 0, 0);
+      timeDiff = Math.floor(
+        (futureDate.getTime() - realTimeNow.getTime()) / (1000 * 60)
+      );
+    }
+  } else if (isPassed) {
     // For passed buses, calculate time until the next occurrence
     const nextOccurrence = timeUntilNextOccurrence(hour, useWeekendSchedule);
     if (nextOccurrence.minutes >= 0) {
       timeDiff = nextOccurrence.minutes;
-      remainingTime = formatTimeDifference(timeDiff);
     }
   } else if (isToday) {
     // For future buses today
     timeDiff = busTime - realCurrentTime;
-    if (timeDiff >= 0) {
-      remainingTime = formatTimeDifference(timeDiff);
-    }
   } else {
     // For all buses tomorrow (or future days)
     const tomorrow = new Date();
@@ -62,6 +73,9 @@ export function HourDisplay({
       (tomorrow.getTime() - realTimeNow.getTime()) / (1000 * 60)
     );
     timeDiff = minutesUntilTomorrow + busTime;
+  }
+
+  if (timeDiff >= 0) {
     remainingTime = formatTimeDifference(timeDiff);
   }
 
