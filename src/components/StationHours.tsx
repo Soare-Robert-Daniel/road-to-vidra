@@ -1,8 +1,10 @@
 import { JSX } from "preact";
 import { twMerge } from "tailwind-merge";
 import { busScheduleData } from "../config";
+import { type ViewMode } from "../storage";
 import { StationName } from "./StationName";
 import { HoursDisplay } from "./HoursDisplay";
+import { SolarClock } from "./SolarClock";
 
 interface StationHoursProps {
   busNumber: string;
@@ -10,6 +12,7 @@ interface StationHoursProps {
   useWeekendSchedule: boolean;
   showPastHours: boolean;
   isTodaySchedule: boolean;
+  viewMode: ViewMode;
   className?: string;
 }
 
@@ -19,6 +22,7 @@ export function StationHours({
   useWeekendSchedule,
   showPastHours,
   isTodaySchedule,
+  viewMode,
   className,
 }: StationHoursProps): JSX.Element {
   const busData = busScheduleData.bus[busNumber]?.[direction];
@@ -57,22 +61,31 @@ export function StationHours({
       class={twMerge(
         "bg-white rounded-lg shadow-sm p-2",
         getAccentClass(),
-        className
+        className,
       )}
     >
       <StationName
         label={`${stationName} (${direction.toUpperCase()})`}
         busNumber={busNumber}
       />
-      <div class={twMerge("mt-1")}>
-        <HoursDisplay
-          hours={hours}
-          useWeekendSchedule={useWeekendSchedule}
-          showPastHours={showPastHours}
-          busNumber={busNumber}
-          direction={direction}
-          isTodaySchedule={isTodaySchedule}
-        />
+      <div class={twMerge(viewMode === "clock" ? "mt-0.5" : "mt-1")}>
+        {viewMode === "clock" ? (
+          <SolarClock
+            hours={hours}
+            useWeekendSchedule={useWeekendSchedule}
+            busNumber={busNumber}
+            direction={direction}
+          />
+        ) : (
+          <HoursDisplay
+            hours={hours}
+            useWeekendSchedule={useWeekendSchedule}
+            showPastHours={showPastHours}
+            busNumber={busNumber}
+            direction={direction}
+            isTodaySchedule={isTodaySchedule}
+          />
+        )}
       </div>
     </div>
   );

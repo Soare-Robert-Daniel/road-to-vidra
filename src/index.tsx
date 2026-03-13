@@ -8,6 +8,9 @@ import {
   setSelectedBus,
   getShowPastHours,
   setShowPastHours,
+  getViewMode,
+  setViewMode,
+  type ViewMode,
 } from "./storage";
 import {
   HolidayBanner,
@@ -21,10 +24,12 @@ const selectedBusNumber = signal(getSelectedBus());
 // 'auto': determined by day, 'lucru': forced workday, 'weekend': forced weekend
 const programMode = signal<"auto" | "lucru" | "weekend">("auto");
 const showPastHours = signal(getShowPastHours());
+const viewMode = signal<ViewMode>(getViewMode());
 
 // Persist changes to localStorage
 selectedBusNumber.subscribe((value) => setSelectedBus(value));
 showPastHours.subscribe((value) => setShowPastHours(value));
+viewMode.subscribe((value) => setViewMode(value));
 
 export function App() {
   const currentDate = new Date();
@@ -35,6 +40,7 @@ export function App() {
   const busNumber = selectedBusNumber.value;
   const mode = programMode.value;
   const showPast = showPastHours.value;
+  const selectedViewMode = viewMode.value;
 
   let useWeekendSchedule;
   if (mode === "auto") {
@@ -46,7 +52,7 @@ export function App() {
   const isTodaySchedule = useWeekendSchedule === isCurrentlyWeekendProgram;
 
   return (
-    <div class="min-h-screen bg-gray-50 p-1">
+    <div class="min-h-screen bg-gray-50 p-0.5 sm:p-1">
       <div class="max-w-6xl mx-auto">
         {/* Holiday Banner */}
         <HolidayBanner holidayName={holidayName} />
@@ -59,6 +65,7 @@ export function App() {
           selectedBusNumber={selectedBusNumber}
           programMode={programMode}
           showPastHours={showPastHours}
+          viewMode={viewMode}
           isWeekendProgram={isCurrentlyWeekendProgram}
           holidayName={holidayName}
         />
@@ -71,6 +78,7 @@ export function App() {
             useWeekendSchedule={useWeekendSchedule}
             showPastHours={showPast}
             isTodaySchedule={isTodaySchedule}
+            viewMode={selectedViewMode}
           />
           <StationHours
             busNumber={busNumber}
@@ -78,6 +86,7 @@ export function App() {
             useWeekendSchedule={useWeekendSchedule}
             showPastHours={showPast}
             isTodaySchedule={isTodaySchedule}
+            viewMode={selectedViewMode}
           />
         </div>
       </div>
