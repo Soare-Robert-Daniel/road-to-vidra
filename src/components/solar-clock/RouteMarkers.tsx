@@ -22,7 +22,6 @@ interface RouteMarkersProps {
  * Renders all bus route departure times as markers on the clock.
  *
  * Draws for each route (tur/retur):
- * - Dashed guide circle showing the lane where departures are marked
  * - Arc segments between consecutive departures (opacity varies by headway: dense/medium/sparse)
  * - Tick marks at each departure time (thinner for past, thicker for upcoming, brightest for next departure)
  * - Time labels (minute digits) at each departure, with next departure highlighted in bold and animated pulsing glow
@@ -37,20 +36,6 @@ export function RouteMarkers({
 
   return (
     <>
-      {layers.map((routeLayer) => (
-        <circle
-          key={`guide-${routeLayer.direction}`}
-          cx={CENTER}
-          cy={CENTER}
-          r={routeLayer.geometry.laneRadius}
-          fill="none"
-          stroke={routeLayer.theme.markerSoft}
-          stroke-width={String(ROUTE_MARKER_STYLE.guideWidth)}
-          stroke-dasharray={routeLayer.geometry.guideDash}
-          opacity={String(ROUTE_MARKER_STYLE.guideOpacity)}
-        />
-      ))}
-
       {layers.map((routeLayer) =>
         routeLayer.entries.slice(0, -1).map((departure, index) => {
           const nextEntry = routeLayer.entries[index + 1];

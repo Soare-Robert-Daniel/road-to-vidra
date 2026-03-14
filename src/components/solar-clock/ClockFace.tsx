@@ -5,7 +5,6 @@ import {
   CLOCK_COLORS,
   CLOCK_LAYOUT,
   FACE_RADIUS,
-  LABEL_RADIUS,
   LABEL_STYLE,
   TICK_INNER_RADIUS,
   TICK_OUTER_RADIUS,
@@ -30,38 +29,62 @@ export function ClockFaceBackground({ clockFaceId }: ClockFaceBackgroundProps): 
   );
 }
 
+const CARDINAL_HOURS = [0, 6, 12, 18];
+const CARDINAL_LABEL_RADIUS = TICK_OUTER_RADIUS + 18;
+
 export function ClockFaceLabels(): JSX.Element {
   return (
     <>
-      {Array.from({ length: 24 }, (_, index) => {
-        const minuteValue = index * 60 + 30;
-        const start = getPointOnCircle(
-          minuteValue,
-          TICK_INNER_RADIUS + CLOCK_LAYOUT.minorTickInset,
-        );
-        const end = getPointOnCircle(minuteValue, TICK_OUTER_RADIUS);
+      {Array.from({ length: 288 }, (_, index) => {
+        const minutes = index * 5;
+        const isHour = minutes % 60 === 0;
+        const isCardinal = isHour && CARDINAL_HOURS.includes(minutes / 60);
+        const isHalfHour = minutes % 30 === 0;
+        const isQuarterHour = minutes % 15 === 0;
+
+        let strokeWidth: number;
+        let stroke: string;
+        let innerRadius = TICK_INNER_RADIUS;
+        let outerRadius = TICK_OUTER_RADIUS;
+
+        if (isHour) {
+          strokeWidth = isCardinal ? 4.5 : TICK_STYLE.hourWidth;
+          stroke = CLOCK_COLORS.dialText;
+        } else if (isHalfHour || isQuarterHour) {
+          strokeWidth = TICK_STYLE.minuteWidth;
+          stroke = CLOCK_COLORS.tickMinor;
+          innerRadius += CLOCK_LAYOUT.minorTickInset;
+        } else {
+          strokeWidth = 1.2;
+          stroke = CLOCK_COLORS.tickMinor;
+          innerRadius += CLOCK_LAYOUT.minorTickInset + 4;
+          outerRadius -= 4;
+        }
+
+        const start = getPointOnCircle(minutes, innerRadius);
+        const end = getPointOnCircle(minutes, outerRadius);
 
         return (
           <line
-            key={`tick-${minuteValue}`}
+            key={`tick-${minutes}`}
             x1={start.x}
             y1={start.y}
             x2={end.x}
             y2={end.y}
-            stroke={CLOCK_COLORS.tickMinor}
-            stroke-width={String(TICK_STYLE.minuteWidth)}
+            stroke={stroke}
+            stroke-width={String(strokeWidth)}
             stroke-linecap="round"
+            opacity={!isHour && !isHalfHour && !isQuarterHour ? 0.5 : undefined}
           />
         );
       })}
 
-      {Array.from({ length: 24 }, (_, index) => {
-        const point = getPointOnCircle(index * 60, LABEL_RADIUS);
-        const label = String(index);
+      {CARDINAL_HOURS.map((hour) => {
+        const point = getPointOnCircle(hour * 60, CARDINAL_LABEL_RADIUS);
 
         return (
           <text
-            key={`label-${label}`}
+            key={`label-${hour}`}
             x={point.x}
             y={point.y + LABEL_STYLE.dialHourBaselineOffset}
             paint-order="stroke fill"
@@ -75,7 +98,7 @@ export function ClockFaceLabels(): JSX.Element {
             text-anchor="middle"
             dominant-baseline="middle"
           >
-            {label}
+            {String(hour)}
           </text>
         );
       })}
