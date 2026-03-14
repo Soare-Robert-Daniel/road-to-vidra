@@ -49,7 +49,7 @@ export function DepartureSummaries({
           <div class="flex items-baseline gap-2 whitespace-nowrap">
             <div
               class={twMerge(
-                "text-xl font-black tabular-nums tracking-tight",
+                "font-display text-xl font-black tabular-nums tracking-tight",
                 routeLayer.theme.summaryText,
               )}
             >
@@ -57,7 +57,7 @@ export function DepartureSummaries({
             </div>
             <div
               class={twMerge(
-                "text-xs font-semibold uppercase tracking-[0.16em]",
+                "font-ui text-xs font-semibold uppercase tracking-[0.16em]",
                 routeLayer.theme.summaryMuted,
               )}
             >

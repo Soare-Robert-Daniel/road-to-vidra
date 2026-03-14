@@ -69,6 +69,7 @@ export function ClockFaceLabels(): JSX.Element {
             stroke-width={String(LABEL_STYLE.dialHourStrokeWidth)}
             stroke-linejoin="round"
             fill={CLOCK_COLORS.dialText}
+            font-family="'Space Grotesk Variable', sans-serif"
             font-size={String(LABEL_STYLE.dialHourSize)}
             font-weight="700"
             text-anchor="middle"

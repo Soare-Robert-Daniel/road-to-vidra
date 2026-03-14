@@ -122,10 +122,10 @@ export function SolarClock({
       )}
     >
       <div class="flex w-full items-center justify-center gap-2 px-1 pt-0.5">
-        <div class="text-4xl font-black tracking-tight text-slate-950">
+        <div class="font-display text-4xl font-black tracking-tight text-slate-950">
           {busNumber}
         </div>
-        <div class="rounded-full border border-slate-200 bg-white/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-600 shadow-sm shadow-slate-200/70">
+        <div class="font-ui rounded-full border border-slate-200 bg-white/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-600 shadow-sm shadow-slate-200/70">
           {useWeekendSchedule ? "Program weekend" : "Program lucru"}
         </div>
       </div>

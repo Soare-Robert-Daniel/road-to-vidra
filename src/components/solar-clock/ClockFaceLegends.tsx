@@ -31,6 +31,7 @@ export function ClockFaceLegends({
             </defs>
             <text
               fill={layer.theme.marker}
+              font-family="'IBM Plex Sans Condensed', sans-serif"
               font-size={String(LEGEND_STYLE.fontSize)}
               font-weight={String(LEGEND_STYLE.fontWeight)}
               letter-spacing={String(LEGEND_STYLE.letterSpacing)}

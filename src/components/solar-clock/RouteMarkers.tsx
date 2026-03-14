@@ -177,6 +177,7 @@ export function RouteMarkers({
                   stroke-linejoin="round"
                   fill={routeLayer.theme.marker}
                   opacity={isNextDeparture ? "1" : String(labelOpacity)}
+                  font-family="'Space Grotesk Variable', sans-serif"
                   font-size={String(labelFontSize)}
                   font-weight={isNextDeparture ? "800" : "700"}
                   text-anchor="middle"
