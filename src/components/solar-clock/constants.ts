@@ -108,6 +108,16 @@ export const LABEL_STYLE = {
   bottomSectorRange: 80,
 } as const;
 
+// Curved direction labels in the empty 0–5h zone of the clock face
+export const LEGEND_STYLE = {
+  arcStartMinutes: 30,
+  arcEndMinutes: 270,
+  fontSize: 14,
+  fontWeight: 600,
+  letterSpacing: 1.5,
+  opacity: 0.5,
+} as const;
+
 // Visual styling for route departure markers (guides, segments, ticks, glows)
 export const ROUTE_MARKER_STYLE = {
   guideWidth: 1.2,

@@ -8,6 +8,7 @@ import { isWeekendProgram } from "../../utils";
 
 import { ClockDefs } from "./ClockDefs";
 import { ClockFaceBackground, ClockFaceLabels } from "./ClockFace";
+import { ClockFaceLegends } from "./ClockFaceLegends";
 import { ClockHand } from "./ClockHand";
 import { DepartureSummaries } from "./DepartureSummaries";
 import { RouteMarkers } from "./RouteMarkers";
@@ -151,6 +152,7 @@ export function SolarClock({
           />
           <ClockFaceBackground clockFaceId={clockFaceId} />
           <SolarBand solarTimes={solarTimes} daylightId={daylightId} />
+          <ClockFaceLegends routeLayers={routeLayers} />
           <RouteMarkers routeLayers={routeLayers} directions={["retur"]} />
           <ClockFaceLabels />
           <RouteMarkers routeLayers={routeLayers} directions={["tur"]} />
