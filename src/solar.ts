@@ -2,6 +2,7 @@ import * as SunCalc from "suncalc";
 
 import { formatTimeDifference, isWeekendProgram, timeToMinutes } from "./utils";
 
+// Total minutes in a 24-hour day, used to normalize times and calculate clock angles
 const MINUTES_PER_DAY = 24 * 60;
 
 export interface SolarLocation {
