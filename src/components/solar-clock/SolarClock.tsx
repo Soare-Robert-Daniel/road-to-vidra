@@ -7,13 +7,15 @@ import { getNextDeparture, getSolarTimes, minutesToTimeLabel } from "../../solar
 import { isWeekendProgram } from "../../utils";
 
 import { ClockDefs } from "./ClockDefs";
-import { ClockFace } from "./ClockFace";
-import { ClockFrame } from "./ClockFrame";
+import { ClockFaceBackground, ClockFaceLabels } from "./ClockFace";
 import { ClockHand } from "./ClockHand";
 import { DepartureSummaries } from "./DepartureSummaries";
 import { RouteMarkers } from "./RouteMarkers";
 import { SolarBand } from "./SolarBand";
 import {
+  CENTER,
+  CLOCK_COLORS,
+  CLOCK_LAYOUT,
   CLOCK_SIZE,
   getClockTheme,
   getNextDepartureSummary,
@@ -30,6 +32,20 @@ interface SolarClockProps {
   className?: string;
 }
 
+/**
+ * Main solar clock component that displays a 24-hour clock with bus departure times.
+ * 
+ * Renders:
+ * - Bus number and schedule type badge at the top
+ * - SVG clock visualization with:
+ *   - Clock face with hour labels (0-24) and minute ticks
+ *   - Sunrise-to-sunset golden band
+ *   - Current time hand pointing to now
+ *   - Route layers (tur/retur) showing all departure times as colored tick marks
+ *   - Timeline ring showing current time position
+ *   - Next departure highlighted with pulsing glow animation
+ * - Text summaries below showing next departure time and when it leaves for each route
+ */
 export function SolarClock({
   busNumber,
   useWeekendSchedule,
@@ -125,13 +141,19 @@ export function SolarClock({
             daylightId={daylightId}
             shadowId={shadowId}
           />
-          <ClockFrame
-            shadowId={shadowId}
-            currentMinutes={solarTimes.currentMinutes}
+          <circle
+            cx={CENTER}
+            cy={CENTER}
+            r={CLOCK_LAYOUT.faceRadius + 10}
+            fill={CLOCK_COLORS.surface}
+            opacity={String(CLOCK_COLORS.shadowSurfaceOpacity)}
+            filter={`url(#${shadowId})`}
           />
-          <RouteMarkers routeLayers={routeLayers} />
-          <ClockFace clockFaceId={clockFaceId} />
+          <ClockFaceBackground clockFaceId={clockFaceId} />
           <SolarBand solarTimes={solarTimes} daylightId={daylightId} />
+          <RouteMarkers routeLayers={routeLayers} directions={["retur"]} />
+          <ClockFaceLabels />
+          <RouteMarkers routeLayers={routeLayers} directions={["tur"]} />
           <ClockHand currentMinutes={solarTimes.currentMinutes} />
         </svg>
       </div>

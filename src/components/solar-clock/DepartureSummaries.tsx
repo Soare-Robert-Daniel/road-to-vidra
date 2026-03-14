@@ -8,6 +8,14 @@ interface DepartureSummariesProps {
   routeLayers: RouteLayer[];
 }
 
+/**
+ * Renders text summaries of next departures below the clock.
+ * 
+ * Draws for each route (tur/retur):
+ * - Route legend badge (colored dot + destination name)
+ * - Next departure time in large bold text
+ * - Relative time until departure (e.g., "in 15 min", "tomorrow, in 2h 30m")
+ */
 export function DepartureSummaries({
   routeLayers,
 }: DepartureSummariesProps): JSX.Element {

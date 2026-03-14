@@ -11,6 +11,14 @@ interface ClockDefsProps {
   shadowId: string;
 }
 
+/**
+ * Defines SVG gradients and filters used throughout the clock.
+ * 
+ * Does not render visual elements itself, but defines:
+ * - Radial gradient for clock face background (white → light blue)
+ * - Linear gradient for daylight band (yellow → orange)
+ * - Drop shadow filter for depth effect beneath the clock
+ */
 export function ClockDefs({
   clockFaceId,
   daylightId,

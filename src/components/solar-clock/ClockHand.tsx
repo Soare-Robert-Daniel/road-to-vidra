@@ -16,6 +16,15 @@ interface ClockHandProps {
   currentMinutes: number;
 }
 
+/**
+ * Renders the current time hand and center pivot point.
+ * 
+ * Draws:
+ * - Dot on the timeline indicating current time
+ * - Tapered hand pointing from center outward to the current time (with shadow)
+ * - White circle at the tip of the hand
+ * - Multi-ring center pivot point (outer ring, inner ring, and core circle)
+ */
 export function ClockHand({ currentMinutes }: ClockHandProps): JSX.Element {
   const currentHandPoint = getPointOnCircle(
     currentMinutes,

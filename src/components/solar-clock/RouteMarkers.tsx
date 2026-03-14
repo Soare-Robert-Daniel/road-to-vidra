@@ -11,18 +11,33 @@ import {
   getHeadwayOpacity,
   getPointOnCircle,
 } from "./constants";
-import type { RouteLayer } from "./constants";
+import type { Direction, RouteLayer } from "./constants";
 
 interface RouteMarkersProps {
   routeLayers: RouteLayer[];
+  directions?: Direction[];
 }
 
+/**
+ * Renders all bus route departure times as markers on the clock.
+ *
+ * Draws for each route (tur/retur):
+ * - Dashed guide circle showing the lane where departures are marked
+ * - Arc segments between consecutive departures (opacity varies by headway: dense/medium/sparse)
+ * - Tick marks at each departure time (thinner for past, thicker for upcoming, brightest for next departure)
+ * - Time labels (minute digits) at each departure, with next departure highlighted in bold and animated pulsing glow
+ */
 export function RouteMarkers({
   routeLayers,
+  directions,
 }: RouteMarkersProps): JSX.Element {
+  const layers = directions
+    ? routeLayers.filter((l) => directions.includes(l.direction))
+    : routeLayers;
+
   return (
     <>
-      {routeLayers.map((routeLayer) => (
+      {layers.map((routeLayer) => (
         <circle
           key={`guide-${routeLayer.direction}`}
           cx={CENTER}
@@ -36,7 +51,7 @@ export function RouteMarkers({
         />
       ))}
 
-      {routeLayers.map((routeLayer) =>
+      {layers.map((routeLayer) =>
         routeLayer.entries.slice(0, -1).map((departure, index) => {
           const nextEntry = routeLayer.entries[index + 1];
           const spanMinutes =
@@ -66,7 +81,7 @@ export function RouteMarkers({
         }),
       )}
 
-      {routeLayers.map((routeLayer) => (
+      {layers.map((routeLayer) => (
         <g key={`route-layer-${routeLayer.direction}`}>
           {routeLayer.entries.map((departure) => {
             const isNextDeparture =

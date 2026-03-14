@@ -14,6 +14,13 @@ interface SolarBandProps {
   daylightId: string;
 }
 
+/**
+ * Renders the sunrise-to-sunset band on the clock.
+ * 
+ * Draws:
+ * - Full circle background band (light gray) representing the entire day
+ * - Colored arc (golden/orange gradient) from sunrise to sunset representing daylight hours
+ */
 export function SolarBand({
   solarTimes,
   daylightId,

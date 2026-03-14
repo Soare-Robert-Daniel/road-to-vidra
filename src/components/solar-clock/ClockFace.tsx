@@ -13,30 +13,31 @@ import {
   getPointOnCircle,
 } from "./constants";
 
-interface ClockFaceProps {
+interface ClockFaceBackgroundProps {
   clockFaceId: string;
 }
 
-export function ClockFace({ clockFaceId }: ClockFaceProps): JSX.Element {
+export function ClockFaceBackground({ clockFaceId }: ClockFaceBackgroundProps): JSX.Element {
+  return (
+    <circle
+      cx={CENTER}
+      cy={CENTER}
+      r={FACE_RADIUS}
+      fill={`url(#${clockFaceId})`}
+      stroke={CLOCK_COLORS.faceStroke}
+      stroke-width="2"
+    />
+  );
+}
+
+export function ClockFaceLabels(): JSX.Element {
   return (
     <>
-      <circle
-        cx={CENTER}
-        cy={CENTER}
-        r={FACE_RADIUS}
-        fill={`url(#${clockFaceId})`}
-        stroke={CLOCK_COLORS.faceStroke}
-        stroke-width="2"
-      />
-
-      {Array.from({ length: 48 }, (_, index) => {
-        const minuteValue = index * 30;
-        const isHourMark = minuteValue % 60 === 0;
+      {Array.from({ length: 24 }, (_, index) => {
+        const minuteValue = index * 60 + 30;
         const start = getPointOnCircle(
           minuteValue,
-          isHourMark
-            ? TICK_INNER_RADIUS
-            : TICK_INNER_RADIUS + CLOCK_LAYOUT.minorTickInset,
+          TICK_INNER_RADIUS + CLOCK_LAYOUT.minorTickInset,
         );
         const end = getPointOnCircle(minuteValue, TICK_OUTER_RADIUS);
 
@@ -47,14 +48,8 @@ export function ClockFace({ clockFaceId }: ClockFaceProps): JSX.Element {
             y1={start.y}
             x2={end.x}
             y2={end.y}
-            stroke={
-              isHourMark ? CLOCK_COLORS.tickMajor : CLOCK_COLORS.tickMinor
-            }
-            stroke-width={
-              isHourMark
-                ? String(TICK_STYLE.hourWidth)
-                : String(TICK_STYLE.minuteWidth)
-            }
+            stroke={CLOCK_COLORS.tickMinor}
+            stroke-width={String(TICK_STYLE.minuteWidth)}
             stroke-linecap="round"
           />
         );
