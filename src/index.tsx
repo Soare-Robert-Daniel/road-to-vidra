@@ -16,6 +16,7 @@ import {
   HolidayBanner,
   Header,
   SettingsMenu,
+  SolarClock,
   StationHours,
 } from "./components";
 
@@ -71,24 +72,29 @@ export function App() {
         />
 
         {/* Bus Hours Display */}
-        <div class="space-y-2 lg:grid lg:grid-cols-2 lg:gap-2 lg:space-y-0">
-          <StationHours
+        {selectedViewMode === "clock" ? (
+          <SolarClock
             busNumber={busNumber}
-            direction="tur"
             useWeekendSchedule={useWeekendSchedule}
-            showPastHours={showPast}
-            isTodaySchedule={isTodaySchedule}
-            viewMode={selectedViewMode}
           />
-          <StationHours
-            busNumber={busNumber}
-            direction="retur"
-            useWeekendSchedule={useWeekendSchedule}
-            showPastHours={showPast}
-            isTodaySchedule={isTodaySchedule}
-            viewMode={selectedViewMode}
-          />
-        </div>
+        ) : (
+          <div class="space-y-2 lg:grid lg:grid-cols-2 lg:gap-2 lg:space-y-0">
+            <StationHours
+              busNumber={busNumber}
+              direction="tur"
+              useWeekendSchedule={useWeekendSchedule}
+              showPastHours={showPast}
+              isTodaySchedule={isTodaySchedule}
+            />
+            <StationHours
+              busNumber={busNumber}
+              direction="retur"
+              useWeekendSchedule={useWeekendSchedule}
+              showPastHours={showPast}
+              isTodaySchedule={isTodaySchedule}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

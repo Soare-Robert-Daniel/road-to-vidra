@@ -13,3 +13,4 @@ export { AvailableHours } from "./AvailableHours";
 export { FutureHours } from "./FutureHours";
 export { ShowPastHoursToggle } from "./ShowPastHoursToggle";
 export { HoursViewSelector } from "./HoursViewSelector";
+export { SolarClock } from "./SolarClock";
