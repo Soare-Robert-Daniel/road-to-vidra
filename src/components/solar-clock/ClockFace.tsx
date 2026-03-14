@@ -57,7 +57,7 @@ export function ClockFaceLabels(): JSX.Element {
 
       {Array.from({ length: 24 }, (_, index) => {
         const point = getPointOnCircle(index * 60, LABEL_RADIUS);
-        const label = index === 0 ? "24" : String(index);
+        const label = String(index);
 
         return (
           <text

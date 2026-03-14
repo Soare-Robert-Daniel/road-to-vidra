@@ -49,14 +49,14 @@ export const MINUTES_PER_DAY = 24 * 60;
 // SVG canvas and geometric dimensions for the clock face layout
 export const CLOCK_LAYOUT = {
   size: 620,
-  faceRadius: 270,
+  faceRadius: 255,
   timelineRadius: 122,
   timelineWidth: 24,
   timelineFrameOffset: 2,
   timelineHaloOffset: 10,
-  dialLabelRadius: 251,
-  tickInnerRadius: 240,
-  tickOuterRadius: 262,
+  dialLabelRadius: 236,
+  tickInnerRadius: 225,
+  tickOuterRadius: 247,
   minorTickInset: 8,
   currentHandLength: 196,
   currentHandTail: 22,
@@ -73,7 +73,7 @@ export const CLOCK_LAYOUT = {
 
 // Styling for the sunrise-to-sunset band on the clock
 export const SOLAR_BAND_STYLE = {
-  radius: 216,
+  radius: 263,
   width: 8,
   baseOpacity: 1,
 } as const;
@@ -96,7 +96,7 @@ export const TICK_STYLE = {
 
 // Text rendering and opacity for hour/route departure labels
 export const LABEL_STYLE = {
-  dialHourSize: 22,
+  dialHourSize: 34,
   dialHourStrokeWidth: 6.5,
   dialHourBaselineOffset: 2,
   routeBaseOpacity: 0.96,
@@ -247,22 +247,22 @@ export const BUS_ROUTE_THEMES: Record<string, Record<Direction, RouteTheme>> = {
 // Geometric radii and properties for positioning departure labels on tur (outbound) and retur (return) routes
 export const ROUTE_GEOMETRY: Record<Direction, RouteGeometry> = {
   tur: {
-    laneRadius: 284,
+    laneRadius: 269,
     guideDash: "3 12",
-    labelRadius: 298,
-    denseLabelRadius: 302,
+    labelRadius: 295,
+    denseLabelRadius: 260,
     bottomLabelOffset: 0,
     bottomTangentialPixelsPerMinute: 0,
-    labelFontSize: 22,
+    labelFontSize: 30,
   },
   retur: {
-    laneRadius: 234,
+    laneRadius: 205,
     guideDash: "2 10",
-    labelRadius: 218,
-    denseLabelRadius: 214,
+    labelRadius: 180,
+    denseLabelRadius: 199,
     bottomLabelOffset: 0,
     bottomTangentialPixelsPerMinute: 0,
-    labelFontSize: 18,
+    labelFontSize: 30,
   },
 };
 
