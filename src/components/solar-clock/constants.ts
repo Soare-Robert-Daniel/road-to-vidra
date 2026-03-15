@@ -3,17 +3,15 @@ import { formatTimeDifference, timeToMinutes } from "../../utils";
 
 export type Direction = "tur" | "retur";
 
-export interface RouteGeometry {
+interface RouteGeometry {
   laneRadius: number;
   guideDash: string;
   labelRadius: number;
   denseLabelRadius: number;
-  bottomLabelOffset: number;
-  bottomTangentialPixelsPerMinute: number;
   labelFontSize: number;
 }
 
-export interface RouteTheme {
+interface RouteTheme {
   marker: string;
   markerSoft: string;
   legendBg: string;
@@ -162,8 +160,6 @@ export const LABEL_STYLE = {
   routeStrokeWidth: 4,
   routeNextStrokeWidth: 5,
   routeBaselineOffset: 1.5,
-  bottomTargetMinutes: 12 * 60,
-  bottomSectorRange: 80,
 } as const;
 
 // Curved direction labels in the empty 0–5h zone of the clock face
@@ -200,26 +196,10 @@ export const NEXT_GLOW_ANIMATION = {
   peakWidthOffset: 3,
 } as const;
 
-// Styling for the ring indicator showing the current time on the timeline
-export const CURRENT_TIME_RING_STYLE = {
-  overhang: 15,
-  strokeWidth: 4,
-  strokeOpacity: 0.95,
-} as const;
-
 // Drop shadow effect properties for depth and visual emphasis
 export const SHADOW_STYLE = {
   offsetY: 14,
   blur: 18,
-} as const;
-
-// Opacity levels for route departures based on time gaps between consecutive buses
-export const HEADWAY_STYLE = {
-  denseGapMax: 35,
-  mediumGapMax: 60,
-  denseOpacity: 0.38,
-  mediumOpacity: 0.28,
-  sparseOpacity: 0.18,
 } as const;
 
 // RGB/hex color palette for the entire clock visualization
@@ -252,8 +232,6 @@ export const CLOCK_COLORS = {
 export const CLOCK_SIZE = CLOCK_LAYOUT.size;
 export const CENTER = CLOCK_SIZE / 2;
 export const FACE_RADIUS = CLOCK_LAYOUT.faceRadius;
-export const TIMELINE_RADIUS = CLOCK_LAYOUT.timelineRadius;
-export const TIMELINE_WIDTH = CLOCK_LAYOUT.timelineWidth;
 export const LABEL_RADIUS = CLOCK_LAYOUT.dialLabelRadius;
 export const TICK_INNER_RADIUS = CLOCK_LAYOUT.tickInnerRadius;
 export const TICK_OUTER_RADIUS = CLOCK_LAYOUT.tickOuterRadius;
@@ -261,7 +239,7 @@ export const CURRENT_HAND_LENGTH = CLOCK_LAYOUT.currentHandLength;
 export const CURRENT_HAND_TAIL = CLOCK_LAYOUT.currentHandTail;
 
 // Color and styling themes for each bus route (420, 438, default); tur/retur directions have different color schemes
-export const BUS_ROUTE_THEMES: Record<string, Record<Direction, RouteTheme>> = {
+const BUS_ROUTE_THEMES: Record<string, Record<Direction, RouteTheme>> = {
   "420": {
     tur: {
       marker: "var(--color-route-420-tur)",
@@ -315,8 +293,6 @@ export const ROUTE_GEOMETRY: Record<Direction, RouteGeometry> = {
     guideDash: "2 8",
     labelRadius: 163,
     denseLabelRadius: 159,
-    bottomLabelOffset: 0,
-    bottomTangentialPixelsPerMinute: 0,
     labelFontSize: 22,
   },
   retur: {
@@ -324,8 +300,6 @@ export const ROUTE_GEOMETRY: Record<Direction, RouteGeometry> = {
     guideDash: "2 10",
     labelRadius: 195,
     denseLabelRadius: 204,
-    bottomLabelOffset: 0,
-    bottomTangentialPixelsPerMinute: 0,
     labelFontSize: 22,
   },
 };
@@ -464,67 +438,16 @@ export function getNextDepartureSummary(nextDeparture: NextDeparture | null): st
   return `${weekday}, ${relativeTime}`;
 }
 
-export function getCompactNextDepartureSummary(nextDeparture: NextDeparture | null): string {
-  if (!nextDeparture) {
-    return "fara curse";
-  }
-
-  const relativeTime =
-    nextDeparture.minutesUntil <= 0 ? "acum" : formatTimeDifference(nextDeparture.minutesUntil);
-
-  if (nextDeparture.dayOffset === 0) {
-    return relativeTime;
-  }
-
-  if (nextDeparture.dayOffset === 1) {
-    return `maine • ${relativeTime}`;
-  }
-
-  const weekday = nextDeparture.targetDate.toLocaleDateString("ro-RO", {
-    weekday: "short",
-  });
-
-  return `${weekday} • ${relativeTime}`;
-}
-
 export function getHeadwayOpacity(spanMinutes: number): number {
-  if (spanMinutes <= HEADWAY_STYLE.denseGapMax) {
-    return HEADWAY_STYLE.denseOpacity;
+  if (spanMinutes <= 35) {
+    return 0.38;
   }
 
-  if (spanMinutes <= HEADWAY_STYLE.mediumGapMax) {
-    return HEADWAY_STYLE.mediumOpacity;
+  if (spanMinutes <= 60) {
+    return 0.28;
   }
 
-  return HEADWAY_STYLE.sparseOpacity;
-}
-
-function getCircularMinuteDistance(fromMinutes: number, toMinutes: number): number {
-  const distance = Math.abs(fromMinutes - toMinutes) % MINUTES_PER_DAY;
-
-  return Math.min(distance, MINUTES_PER_DAY - distance);
-}
-
-function getSignedCircularMinuteDifference(fromMinutes: number, toMinutes: number): number {
-  const wrappedDifference =
-    (((fromMinutes - toMinutes + MINUTES_PER_DAY / 2) % MINUTES_PER_DAY) + MINUTES_PER_DAY) %
-    MINUTES_PER_DAY;
-
-  return wrappedDifference - MINUTES_PER_DAY / 2;
-}
-
-function getMinuteSectorWeight(
-  totalMinutes: number,
-  targetMinutes: number,
-  sectorRange: number,
-): number {
-  const distance = getCircularMinuteDistance(totalMinutes, targetMinutes);
-
-  if (distance >= sectorRange) {
-    return 0;
-  }
-
-  return 1 - distance / sectorRange;
+  return 0.18;
 }
 
 function getDepartureLabelRadius(routeLayer: RouteLayer, departure: RouteEntry): number {
@@ -538,44 +461,15 @@ function getDepartureLabelRadius(routeLayer: RouteLayer, departure: RouteEntry):
     : Number.POSITIVE_INFINITY;
   const isDenseCluster = Math.min(previousGap, nextGap) <= 42;
 
-  const labelRadius = !isDenseCluster
-    ? routeLayer.geometry.labelRadius
-    : departure.index % 2 === 0
-      ? routeLayer.geometry.labelRadius
-      : routeLayer.geometry.denseLabelRadius;
+  if (!isDenseCluster || departure.index % 2 === 0) {
+    return routeLayer.geometry.labelRadius;
+  }
 
-  const bottomWeight = getMinuteSectorWeight(
-    departure.totalMinutes,
-    LABEL_STYLE.bottomTargetMinutes,
-    LABEL_STYLE.bottomSectorRange,
-  );
-
-  return labelRadius + routeLayer.geometry.bottomLabelOffset * bottomWeight;
+  return routeLayer.geometry.denseLabelRadius;
 }
 
 export function getDepartureLabelPoint(routeLayer: RouteLayer, departure: RouteEntry) {
   const labelRadius = getDepartureLabelRadius(routeLayer, departure);
-  const basePoint = getPointOnCircle(departure.totalMinutes, labelRadius);
-  const bottomWeight = getMinuteSectorWeight(
-    departure.totalMinutes,
-    LABEL_STYLE.bottomTargetMinutes,
-    LABEL_STYLE.bottomSectorRange,
-  );
 
-  if (bottomWeight === 0 || routeLayer.geometry.bottomTangentialPixelsPerMinute === 0) {
-    return basePoint;
-  }
-
-  const signedBottomDifference = getSignedCircularMinuteDifference(
-    departure.totalMinutes,
-    LABEL_STYLE.bottomTargetMinutes,
-  );
-  const tangentialShift =
-    signedBottomDifference * routeLayer.geometry.bottomTangentialPixelsPerMinute * bottomWeight;
-  const angle = (timeToClockAngle(departure.totalMinutes) * Math.PI) / 180;
-
-  return {
-    x: basePoint.x - Math.sin(angle) * tangentialShift,
-    y: basePoint.y + Math.cos(angle) * tangentialShift,
-  };
+  return getPointOnCircle(departure.totalMinutes, labelRadius);
 }
