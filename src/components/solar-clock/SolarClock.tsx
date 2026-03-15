@@ -4,6 +4,7 @@ import { twMerge } from "tailwind-merge";
 
 import { type ClockDisplayMode } from "../../storage";
 import { useRouteLayers } from "../../hooks/useRouteLayers";
+import { useWeatherData } from "../../hooks/useWeatherData";
 import { minutesToTimeLabel } from "../../solar";
 
 import { ClockDefs } from "./ClockDefs";
@@ -13,6 +14,7 @@ import { ClockHand } from "./ClockHand";
 import { ClockModeToggle } from "./ClockModeToggle";
 import { DepartureSummaries } from "./DepartureSummaries";
 import { PosterView } from "./PosterView";
+import { TemperatureWave } from "./TemperatureWave";
 import { RouteMarkers } from "./RouteMarkers";
 import { SolarBand } from "./SolarBand";
 import {
@@ -37,6 +39,7 @@ export function SolarClock({
   className,
 }: SolarClockProps): JSX.Element {
   const result = useRouteLayers(busNumber, useWeekendSchedule);
+  const { data: weatherData } = useWeatherData();
 
   if (!result) {
     return (
@@ -133,6 +136,12 @@ export function SolarClock({
             </svg>
           </div>
           <DepartureSummaries routeLayers={routeLayers} solarTimes={solarTimes} />
+          {weatherData.value?.temperatures && weatherData.value.temperatures.length > 0 && (
+            <TemperatureWave
+              temperatures={weatherData.value.temperatures}
+              currentMinutes={solarTimes.currentMinutes}
+            />
+          )}
         </>
       )}
     </div>
