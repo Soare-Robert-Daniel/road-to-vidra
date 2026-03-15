@@ -1,8 +1,6 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": [
-    "react"
-  ],
+  "plugins": ["react"],
   "env": {
     "builtin": true,
     "browser": true,
@@ -129,13 +127,8 @@
     "browser": "writable"
   },
   "settings": {
-    "targets": [
-      "last 2 versions"
-    ],
-    "polyfills": [
-      "fetch",
-      "Promise"
-    ],
+    "targets": ["last 2 versions"],
+    "polyfills": ["fetch", "Promise"],
     "react": {
       "version": "16.0"
     }

@@ -98,9 +98,7 @@ export const timeUntilTomorrow = (timeStr) => {
   tomorrow.setDate(tomorrow.getDate() + 1);
   tomorrow.setHours(0, 0, 0, 0);
 
-  const minutesUntilTomorrow = Math.floor(
-    (tomorrow.getTime() - now.getTime()) / (1000 * 60)
-  );
+  const minutesUntilTomorrow = Math.floor((tomorrow.getTime() - now.getTime()) / (1000 * 60));
   const busTime = timeToMinutes(timeStr);
 
   return minutesUntilTomorrow + busTime;
@@ -115,7 +113,7 @@ export const timeUntilTomorrow = (timeStr) => {
  */
 export const timeUntilNextOccurrence = (
   timeStr: string,
-  useWeekendSchedule: boolean
+  useWeekendSchedule: boolean,
 ): { minutes: number; days: number } => {
   const now = new Date();
 
@@ -123,9 +121,7 @@ export const timeUntilNextOccurrence = (
   const [hour, minute] = timeStr.split(":").map(Number);
   const todayBusTime = new Date();
   todayBusTime.setHours(hour, minute, 0, 0);
-  const diffMinutesToday = Math.floor(
-    (todayBusTime.getTime() - now.getTime()) / (1000 * 60)
-  );
+  const diffMinutesToday = Math.floor((todayBusTime.getTime() - now.getTime()) / (1000 * 60));
   if (diffMinutesToday > 0) {
     return { minutes: diffMinutesToday, days: 0 };
   }
@@ -135,9 +131,7 @@ export const timeUntilNextOccurrence = (
     futureDate.setDate(now.getDate() + i);
     if (isWeekendProgram(futureDate) === useWeekendSchedule) {
       futureDate.setHours(hour, minute, 0, 0);
-      const diffMinutes = Math.floor(
-        (futureDate.getTime() - now.getTime()) / (1000 * 60)
-      );
+      const diffMinutes = Math.floor((futureDate.getTime() - now.getTime()) / (1000 * 60));
       return { minutes: diffMinutes, days: i };
     }
   }

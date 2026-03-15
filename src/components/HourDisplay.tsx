@@ -32,8 +32,7 @@ export function HourDisplay({
 }: HourDisplayProps): JSX.Element {
   const currentTimeSignal = useCurrentTime();
   const realTimeNow = new Date(currentTimeSignal.value);
-  const realCurrentTime =
-    realTimeNow.getHours() * 60 + realTimeNow.getMinutes();
+  const realCurrentTime = realTimeNow.getHours() * 60 + realTimeNow.getMinutes();
 
   const busTime = timeToMinutes(hour);
   const isPassed = isToday && busTime < realCurrentTime;
@@ -51,9 +50,7 @@ export function HourDisplay({
       }
 
       futureDate.setHours(0, busTime, 0, 0);
-      timeDiff = Math.floor(
-        (futureDate.getTime() - realTimeNow.getTime()) / (1000 * 60)
-      );
+      timeDiff = Math.floor((futureDate.getTime() - realTimeNow.getTime()) / (1000 * 60));
     }
   } else if (isPassed) {
     // For passed buses, calculate time until the next occurrence
@@ -70,7 +67,7 @@ export function HourDisplay({
     tomorrow.setDate(tomorrow.getDate() + 1);
     tomorrow.setHours(0, 0, 0, 0);
     const minutesUntilTomorrow = Math.floor(
-      (tomorrow.getTime() - realTimeNow.getTime()) / (1000 * 60)
+      (tomorrow.getTime() - realTimeNow.getTime()) / (1000 * 60),
     );
     timeDiff = minutesUntilTomorrow + busTime;
   }
@@ -96,46 +93,44 @@ export function HourDisplay({
           passedText: "text-gray-400",
           passedRemainingText: "text-gray-500",
         };
-      } else {
-        return {
-          bg: "bg-green-50",
-          text: "text-green-800",
-          nextBg: "bg-green-100",
-          nextBorder: "border-green-500",
-          nextText: "text-green-800",
-          remainingText: "text-green-600",
-          nextRemainingText: "text-green-600",
-          passedText: "text-gray-400",
-          passedRemainingText: "text-gray-500",
-        };
       }
+      return {
+        bg: "bg-green-50",
+        text: "text-green-800",
+        nextBg: "bg-green-100",
+        nextBorder: "border-green-500",
+        nextText: "text-green-800",
+        remainingText: "text-green-600",
+        nextRemainingText: "text-green-600",
+        passedText: "text-gray-400",
+        passedRemainingText: "text-gray-500",
+      };
+    }
+    // 438
+    if (direction === "tur") {
+      return {
+        bg: "bg-red-50",
+        text: "text-red-800",
+        nextBg: "bg-red-100",
+        nextBorder: "border-red-500",
+        nextText: "text-red-800",
+        remainingText: "text-red-600",
+        nextRemainingText: "text-red-600",
+        passedText: "text-gray-400",
+        passedRemainingText: "text-gray-500",
+      };
     } else {
-      // 438
-      if (direction === "tur") {
-        return {
-          bg: "bg-red-50",
-          text: "text-red-800",
-          nextBg: "bg-red-100",
-          nextBorder: "border-red-500",
-          nextText: "text-red-800",
-          remainingText: "text-red-600",
-          nextRemainingText: "text-red-600",
-          passedText: "text-gray-400",
-          passedRemainingText: "text-gray-500",
-        };
-      } else {
-        return {
-          bg: "bg-purple-50",
-          text: "text-purple-800",
-          nextBg: "bg-purple-100",
-          nextBorder: "border-purple-500",
-          nextText: "text-purple-800",
-          remainingText: "text-purple-600",
-          nextRemainingText: "text-purple-600",
-          passedText: "text-gray-400",
-          passedRemainingText: "text-gray-500",
-        };
-      }
+      return {
+        bg: "bg-purple-50",
+        text: "text-purple-800",
+        nextBg: "bg-purple-100",
+        nextBorder: "border-purple-500",
+        nextText: "text-purple-800",
+        remainingText: "text-purple-600",
+        nextRemainingText: "text-purple-600",
+        passedText: "text-gray-400",
+        passedRemainingText: "text-gray-500",
+      };
     }
   };
 
@@ -148,26 +143,12 @@ export function HourDisplay({
   // Conditional classes based on state
   const getContainerClasses = () => {
     if (isPassed) {
-      return twMerge(
-        baseClasses,
-        "bg-gray-100 text-gray-500 select-none opacity-75"
-      );
+      return twMerge(baseClasses, "bg-gray-100 text-gray-500 select-none opacity-75");
     } else if (isTomorrow) {
       // Use regular theme colors for tomorrow's hours, not indigo
-      return twMerge(
-        baseClasses,
-        themeClasses.bg,
-        themeClasses.text,
-        "border border-transparent"
-      );
-    } else {
-      return twMerge(
-        baseClasses,
-        themeClasses.bg,
-        themeClasses.text,
-        "border border-transparent"
-      );
+      return twMerge(baseClasses, themeClasses.bg, themeClasses.text, "border border-transparent");
     }
+    return twMerge(baseClasses, themeClasses.bg, themeClasses.text, "border border-transparent");
   };
 
   const getRemainingTimeClasses = () => {
@@ -180,14 +161,13 @@ export function HourDisplay({
       return twMerge(baseTimeClasses, themeClasses.passedRemainingText);
     } else if (isTomorrow) {
       return twMerge(baseTimeClasses, "text-indigo-600");
-    } else {
-      return twMerge(baseTimeClasses, themeClasses.remainingText);
     }
+    return twMerge(baseTimeClasses, themeClasses.remainingText);
   };
 
   const hourClasses = twMerge(
     "tabular-nums leading-tight text-2xl font-medium",
-    isPassed && themeClasses.passedText
+    isPassed && themeClasses.passedText,
   );
 
   return (

@@ -7,10 +7,7 @@ interface DaySelectorProps {
   className?: string;
 }
 
-export function DaySelector({
-  showNextDayProgram,
-  className,
-}: DaySelectorProps): JSX.Element {
+export function DaySelector({ showNextDayProgram, className }: DaySelectorProps): JSX.Element {
   const baseButtonClass =
     "px-3 py-1 text-sm font-bold rounded-lg transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-gray-100";
   const selectedClass = "bg-white text-blue-600 shadow-md";
@@ -18,25 +15,19 @@ export function DaySelector({
 
   return (
     <div
-      class={twMerge(
-        "flex items-center gap-1 bg-gray-100 rounded-xl p-1 shadow-inner",
-        className
-      )}
+      class={twMerge("flex items-center gap-1 bg-gray-100 rounded-xl p-1 shadow-inner", className)}
     >
       <button
         class={twMerge(
           baseButtonClass,
-          !showNextDayProgram.value ? selectedClass : unselectedClass
+          !showNextDayProgram.value ? selectedClass : unselectedClass,
         )}
         onClick={() => (showNextDayProgram.value = false)}
       >
         Astăzi
       </button>
       <button
-        class={twMerge(
-          baseButtonClass,
-          showNextDayProgram.value ? selectedClass : unselectedClass
-        )}
+        class={twMerge(baseButtonClass, showNextDayProgram.value ? selectedClass : unselectedClass)}
         onClick={() => (showNextDayProgram.value = true)}
       >
         Mâine

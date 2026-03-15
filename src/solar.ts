@@ -39,8 +39,7 @@ export function dateToMinutes(date: Date): number {
 
 export function minutesToTimeLabel(totalMinutes: number): string {
   const normalized =
-    ((Math.round(totalMinutes) % MINUTES_PER_DAY) + MINUTES_PER_DAY) %
-    MINUTES_PER_DAY;
+    ((Math.round(totalMinutes) % MINUTES_PER_DAY) + MINUTES_PER_DAY) % MINUTES_PER_DAY;
   const hours = Math.floor(normalized / 60)
     .toString()
     .padStart(2, "0");
@@ -55,7 +54,7 @@ export function timeToClockAngle(totalMinutes: number): number {
 
 export function getSolarTimes(
   date: Date,
-  location: SolarLocation = vidraLocation
+  location: SolarLocation = vidraLocation,
 ): SolarTimesSummary {
   const times = SunCalc.getTimes(date, location.latitude, location.longitude);
   const sunriseMinutes = dateToMinutes(times.sunrise);
@@ -68,15 +67,14 @@ export function getSolarTimes(
     sunriseMinutes,
     sunsetMinutes,
     currentMinutes,
-    isDaylight:
-      currentMinutes >= sunriseMinutes && currentMinutes < sunsetMinutes,
+    isDaylight: currentMinutes >= sunriseMinutes && currentMinutes < sunsetMinutes,
   };
 }
 
 export function getNextDeparture(
   hours: string[],
   useWeekendSchedule: boolean,
-  now: Date = new Date()
+  now: Date = new Date(),
 ): NextDeparture | null {
   let nextDeparture: NextDeparture | null = null;
 
@@ -92,9 +90,7 @@ export function getNextDeparture(
       }
 
       candidateDate.setHours(Math.floor(busMinutes / 60), busMinutes % 60, 0, 0);
-      const minutesUntil = Math.floor(
-        (candidateDate.getTime() - now.getTime()) / (1000 * 60)
-      );
+      const minutesUntil = Math.floor((candidateDate.getTime() - now.getTime()) / (1000 * 60));
 
       if (minutesUntil < 0) {
         continue;
@@ -107,10 +103,7 @@ export function getNextDeparture(
         targetDate: candidateDate,
       };
 
-      if (
-        nextDeparture === null ||
-        candidate.minutesUntil < nextDeparture.minutesUntil
-      ) {
+      if (nextDeparture === null || candidate.minutesUntil < nextDeparture.minutesUntil) {
         nextDeparture = candidate;
       }
 
@@ -141,9 +134,7 @@ export function getUpcomingDepartures(
       }
 
       candidateDate.setHours(Math.floor(busMinutes / 60), busMinutes % 60, 0, 0);
-      const minutesUntil = Math.floor(
-        (candidateDate.getTime() - now.getTime()) / (1000 * 60)
-      );
+      const minutesUntil = Math.floor((candidateDate.getTime() - now.getTime()) / (1000 * 60));
 
       if (minutesUntil < 0) {
         continue;

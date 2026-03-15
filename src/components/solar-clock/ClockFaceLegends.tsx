@@ -3,11 +3,7 @@ import { JSX } from "preact";
 import { LEGEND_STYLE, getArcPath } from "./constants";
 import type { RouteLayer } from "./constants";
 
-export function ClockFaceLegends({
-  routeLayers,
-}: {
-  routeLayers: RouteLayer[];
-}): JSX.Element {
+export function ClockFaceLegends({ routeLayers }: { routeLayers: RouteLayer[] }): JSX.Element {
   return (
     <>
       {routeLayers.map((layer) => {
@@ -21,11 +17,7 @@ export function ClockFaceLegends({
             <defs>
               <path
                 id={arcId}
-                d={getArcPath(
-                  LEGEND_STYLE.arcStartMinutes,
-                  LEGEND_STYLE.arcEndMinutes,
-                  radius,
-                )}
+                d={getArcPath(LEGEND_STYLE.arcStartMinutes, LEGEND_STYLE.arcEndMinutes, radius)}
                 fill="none"
               />
             </defs>
@@ -37,11 +29,7 @@ export function ClockFaceLegends({
               letter-spacing={String(LEGEND_STYLE.letterSpacing)}
               opacity={String(LEGEND_STYLE.opacity)}
             >
-              <textPath
-                href={`#${arcId}`}
-                startOffset="50%"
-                text-anchor="middle"
-              >
+              <textPath href={`#${arcId}`} startOffset="50%" text-anchor="middle">
                 {labelText}
               </textPath>
             </text>

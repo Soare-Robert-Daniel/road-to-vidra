@@ -2,11 +2,7 @@ import { JSX } from "preact";
 
 import type { SolarTimesSummary } from "../../solar";
 
-import {
-  SOLAR_BAND_STYLE,
-  getArcPath,
-  getPointOnCircle,
-} from "./constants";
+import { SOLAR_BAND_STYLE, getArcPath, getPointOnCircle } from "./constants";
 
 interface SolarBandProps {
   solarTimes: SolarTimesSummary;
@@ -20,11 +16,19 @@ interface SolarBandProps {
  * - Night arc (sunset → sunrise) in a cool neutral tone
  * - Small dot markers at sunrise and sunset positions
  */
-export function SolarBand({
-  solarTimes,
-}: SolarBandProps): JSX.Element {
+export function SolarBand({ solarTimes }: SolarBandProps): JSX.Element {
   const { sunriseMinutes, sunsetMinutes } = solarTimes;
-  const { radius, width, dayColor, nightColor, dayOpacity, nightOpacity, markerRadius, markerColor, markerOpacity } = SOLAR_BAND_STYLE;
+  const {
+    radius,
+    width,
+    dayColor,
+    nightColor,
+    dayOpacity,
+    nightOpacity,
+    markerRadius,
+    markerColor,
+    markerOpacity,
+  } = SOLAR_BAND_STYLE;
 
   const daylightArcPath = getArcPath(sunriseMinutes, sunsetMinutes, radius);
   const nightArcPath = getArcPath(sunsetMinutes, sunriseMinutes, radius);

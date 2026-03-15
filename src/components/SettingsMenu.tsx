@@ -38,10 +38,7 @@ export function SettingsMenu({
       )}
     >
       <div class={twMerge("flex items-center gap-1 sm:gap-1.5")}>
-        <BusSelector
-          selectedBusNumber={selectedBusNumber}
-          className="shrink-0"
-        />
+        <BusSelector selectedBusNumber={selectedBusNumber} className="shrink-0" />
         <ProgramModeButtons
           programMode={programMode}
           currentScheduleType={currentScheduleType}

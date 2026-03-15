@@ -1,9 +1,6 @@
 import { JSX } from "preact";
 
-import {
-  CLOCK_COLORS,
-  SHADOW_STYLE,
-} from "./constants";
+import { CLOCK_COLORS, SHADOW_STYLE } from "./constants";
 
 interface ClockDefsProps {
   clockFaceId: string;
@@ -17,10 +14,7 @@ interface ClockDefsProps {
  * - Radial gradient for clock face background (white → light blue)
  * - Drop shadow filter for depth effect beneath the clock
  */
-export function ClockDefs({
-  clockFaceId,
-  shadowId,
-}: ClockDefsProps): JSX.Element {
+export function ClockDefs({ clockFaceId, shadowId }: ClockDefsProps): JSX.Element {
   return (
     <defs>
       <radialGradient id={clockFaceId} cx="50%" cy="42%" r="72%">

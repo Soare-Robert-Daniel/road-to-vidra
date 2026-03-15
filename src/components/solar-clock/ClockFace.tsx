@@ -134,4 +134,3 @@ export function ClockFaceLabels(): JSX.Element {
     </>
   );
 }
-

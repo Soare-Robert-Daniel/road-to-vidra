@@ -7,10 +7,7 @@ interface NextDayToggleProps {
   className?: string;
 }
 
-export function NextDayToggle({
-  showNextDayProgram,
-  className,
-}: NextDayToggleProps): JSX.Element {
+export function NextDayToggle({ showNextDayProgram, className }: NextDayToggleProps): JSX.Element {
   const handleToggle = () => {
     showNextDayProgram.value = !showNextDayProgram.value;
   };
@@ -21,7 +18,7 @@ export function NextDayToggle({
         onClick={handleToggle}
         class={twMerge(
           "relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
-          showNextDayProgram.value ? "bg-blue-600" : "bg-gray-300"
+          showNextDayProgram.value ? "bg-blue-600" : "bg-gray-300",
         )}
         type="button"
         role="switch"
@@ -31,14 +28,11 @@ export function NextDayToggle({
         <span
           class={twMerge(
             "inline-block h-3 w-3 transform rounded-full bg-white transition-transform",
-            showNextDayProgram.value ? "translate-x-5" : "translate-x-1"
+            showNextDayProgram.value ? "translate-x-5" : "translate-x-1",
           )}
         />
       </button>
-      <label
-        onClick={handleToggle}
-        class={twMerge("text-base text-gray-600 cursor-pointer")}
-      >
+      <label onClick={handleToggle} class={twMerge("text-base text-gray-600 cursor-pointer")}>
         Arată program mâine
       </label>
     </div>

@@ -7,8 +7,8 @@
 @import "tailwindcss";
 
 @theme {
-  --font-display: 'Space Grotesk Variable', sans-serif;
-  --font-ui: 'IBM Plex Sans Condensed', sans-serif;
+  --font-display: "Space Grotesk Variable", sans-serif;
+  --font-ui: "IBM Plex Sans Condensed", sans-serif;
 
   /* Clock face */
   --color-clock-hand: oklch(0.3462 0.0736 256.04);
@@ -52,7 +52,7 @@
 }
 
 body {
-	font-family: 'IBM Plex Sans Condensed', sans-serif;
+  font-family: "IBM Plex Sans Condensed", sans-serif;
 }
 
 /* Custom styles for ultra-compact mobile layout */
@@ -60,11 +60,11 @@ body {
   .grid-cols-5 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
-  
+
   .text-sm {
     font-size: 0.8rem;
   }
-  
+
   .text-xs {
     font-size: 0.65rem;
   }
@@ -75,12 +75,12 @@ body {
   .grid-cols-5 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
-  
+
   .px-0\.5 {
     padding-left: 0.1rem;
     padding-right: 0.1rem;
   }
-  
+
   .text-sm {
     font-size: 0.75rem;
   }
@@ -91,7 +91,7 @@ body {
   .text-xs {
     font-size: 0.7rem;
   }
-  
+
   .text-sm {
     font-size: 0.85rem;
   }

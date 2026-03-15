@@ -70,10 +70,7 @@ function DepartureColumn({
           routeLayer.theme.legendText,
         )}
       >
-        <span
-          class="h-2 w-2 rounded-full"
-          style={{ backgroundColor: routeLayer.theme.marker }}
-        />
+        <span class="h-2 w-2 rounded-full" style={{ backgroundColor: routeLayer.theme.marker }} />
         <span class="truncate">{routeLayer.label}</span>
       </div>
       {entries.length === 0 ? (
@@ -82,16 +79,13 @@ function DepartureColumn({
         <div class="flex flex-wrap gap-x-3 gap-y-0.5">
           {entries.map((entry) => {
             const isNext =
-              routeLayer.nextDeparture !== null &&
-              entry.time === routeLayer.nextDeparture.time;
+              routeLayer.nextDeparture !== null && entry.time === routeLayer.nextDeparture.time;
             return (
               <DepartureTime
                 key={entry.time}
                 entry={entry}
                 isNext={isNext}
-                nextMinutesUntil={
-                  isNext ? routeLayer.nextDeparture!.minutesUntil : null
-                }
+                nextMinutesUntil={isNext ? routeLayer.nextDeparture!.minutesUntil : null}
                 markerColor={routeLayer.theme.marker}
               />
             );
@@ -110,8 +104,7 @@ export function PosterSectionCard({
   const turLayer = routeLayers.find((r) => r.direction === "tur")!;
   const returLayer = routeLayers.find((r) => r.direction === "retur")!;
 
-  const isEmpty =
-    section.turEntries.length === 0 && section.returEntries.length === 0;
+  const isEmpty = section.turEntries.length === 0 && section.returEntries.length === 0;
 
   const isCurrentSection = section.containsNow && isSelectedScheduleToday;
 
@@ -141,16 +134,11 @@ export function PosterSectionCard({
       </div>
 
       {isEmpty ? (
-        <p class="font-ui py-3 text-center text-sm text-slate-400 italic">
-          Fara curse
-        </p>
+        <p class="font-ui py-3 text-center text-sm text-slate-400 italic">Fara curse</p>
       ) : (
         <div class="grid grid-cols-2 gap-3">
           <DepartureColumn entries={section.turEntries} routeLayer={turLayer} />
-          <DepartureColumn
-            entries={section.returEntries}
-            routeLayer={returLayer}
-          />
+          <DepartureColumn entries={section.returEntries} routeLayer={returLayer} />
         </div>
       )}
     </div>

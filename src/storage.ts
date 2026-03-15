@@ -55,7 +55,7 @@ const setCollapsedSections = (sections: Record<string, boolean>): void => {
  */
 export const getIsSectionCollapsed = (
   busNumber: string,
-  direction: string
+  direction: string,
 ): boolean | undefined => {
   const sections = getCollapsedSections();
   const key = `${busNumber}-${direction}`;
@@ -68,7 +68,7 @@ export const getIsSectionCollapsed = (
 export const setIsSectionCollapsed = (
   busNumber: string,
   direction: string,
-  isCollapsed: boolean
+  isCollapsed: boolean,
 ): void => {
   const sections = getCollapsedSections();
   const key = `${busNumber}-${direction}`;

@@ -1,5 +1,10 @@
 import { busScheduleData } from "../config";
-import { getNextDeparture, getUpcomingDepartures, getSolarTimes, type SolarTimesSummary } from "../solar";
+import {
+  getNextDeparture,
+  getUpcomingDepartures,
+  getSolarTimes,
+  type SolarTimesSummary,
+} from "../solar";
 import { isWeekendProgram } from "../utils";
 
 import { useCurrentTime } from "./useCurrentTime";
@@ -34,37 +39,31 @@ export function useRouteLayers(
     return null;
   }
 
-  const routeLayers: RouteLayer[] = (["tur", "retur"] as const).map(
-    (direction) => {
-      const route = busData[direction];
-      const hours = useWeekendSchedule
-        ? route.weekendHours
-        : route.workingHours;
-      const entries = hours.map((hour, index) => {
-        const timeParts = getTimeParts(hour);
-
-        return {
-          index,
-          time: hour,
-          ...timeParts,
-          isDaylight: isDepartureInDaylight(timeParts.totalMinutes, solarTimes),
-          isPast:
-            isSelectedScheduleToday &&
-            timeParts.totalMinutes < solarTimes.currentMinutes,
-        };
-      });
+  const routeLayers: RouteLayer[] = (["tur", "retur"] as const).map((direction) => {
+    const route = busData[direction];
+    const hours = useWeekendSchedule ? route.weekendHours : route.workingHours;
+    const entries = hours.map((hour, index) => {
+      const timeParts = getTimeParts(hour);
 
       return {
-        direction,
-        label: getRouteLegendLabel(direction, route.station),
-        entries,
-        nextDeparture: getNextDeparture(hours, useWeekendSchedule, now),
-        upcomingDepartures: getUpcomingDepartures(hours, useWeekendSchedule, now, 5),
-        theme: getClockTheme(busNumber, direction),
-        geometry: ROUTE_GEOMETRY[direction],
+        index,
+        time: hour,
+        ...timeParts,
+        isDaylight: isDepartureInDaylight(timeParts.totalMinutes, solarTimes),
+        isPast: isSelectedScheduleToday && timeParts.totalMinutes < solarTimes.currentMinutes,
       };
-    },
-  );
+    });
+
+    return {
+      direction,
+      label: getRouteLegendLabel(direction, route.station),
+      entries,
+      nextDeparture: getNextDeparture(hours, useWeekendSchedule, now),
+      upcomingDepartures: getUpcomingDepartures(hours, useWeekendSchedule, now, 5),
+      theme: getClockTheme(busNumber, direction),
+      geometry: ROUTE_GEOMETRY[direction],
+    };
+  });
 
   return { routeLayers, solarTimes, isSelectedScheduleToday, now };
 }

@@ -57,10 +57,38 @@ export interface PosterSection {
 }
 
 export const POSTER_SECTION_DEFS = [
-  { id: "noapte" as const, label: "Noapte", startMinutes: 0, endMinutes: 360, hourRange: "00:00 – 06:00", isDaylight: false },
-  { id: "dimineata" as const, label: "Dimineata", startMinutes: 360, endMinutes: 720, hourRange: "06:00 – 12:00", isDaylight: true },
-  { id: "dupa-amiaza" as const, label: "Dupa-amiaza", startMinutes: 720, endMinutes: 1080, hourRange: "12:00 – 18:00", isDaylight: true },
-  { id: "seara" as const, label: "Seara", startMinutes: 1080, endMinutes: 1440, hourRange: "18:00 – 00:00", isDaylight: false },
+  {
+    id: "noapte" as const,
+    label: "Noapte",
+    startMinutes: 0,
+    endMinutes: 360,
+    hourRange: "00:00 – 06:00",
+    isDaylight: false,
+  },
+  {
+    id: "dimineata" as const,
+    label: "Dimineata",
+    startMinutes: 360,
+    endMinutes: 720,
+    hourRange: "06:00 – 12:00",
+    isDaylight: true,
+  },
+  {
+    id: "dupa-amiaza" as const,
+    label: "Dupa-amiaza",
+    startMinutes: 720,
+    endMinutes: 1080,
+    hourRange: "12:00 – 18:00",
+    isDaylight: true,
+  },
+  {
+    id: "seara" as const,
+    label: "Seara",
+    startMinutes: 1080,
+    endMinutes: 1440,
+    hourRange: "18:00 – 00:00",
+    isDaylight: false,
+  },
 ] as const;
 
 // Total minutes in a 24-hour day; used for time normalization and circular minute calculations
@@ -318,8 +346,7 @@ export function getArcPath(startMinutes: number, endMinutes: number, radius: num
   const startPoint = getPointOnCircle(startMinutes, radius);
   const endPoint = getPointOnCircle(endMinutes, radius);
   const spanMinutes =
-    (((endMinutes - startMinutes) % MINUTES_PER_DAY) + MINUTES_PER_DAY) %
-    MINUTES_PER_DAY;
+    (((endMinutes - startMinutes) % MINUTES_PER_DAY) + MINUTES_PER_DAY) % MINUTES_PER_DAY;
   const largeArcFlag = spanMinutes > MINUTES_PER_DAY / 2 ? 1 : 0;
 
   return [
@@ -410,10 +437,7 @@ export function isDepartureInDaylight(
   totalMinutes: number,
   solarTimes: SolarTimesSummary,
 ): boolean {
-  return (
-    totalMinutes >= solarTimes.sunriseMinutes &&
-    totalMinutes < solarTimes.sunsetMinutes
-  );
+  return totalMinutes >= solarTimes.sunriseMinutes && totalMinutes < solarTimes.sunsetMinutes;
 }
 
 export function getNextDepartureSummary(nextDeparture: NextDeparture | null): string {
@@ -441,17 +465,13 @@ export function getNextDepartureSummary(nextDeparture: NextDeparture | null): st
   return `${weekday}, ${relativeTime}`;
 }
 
-export function getCompactNextDepartureSummary(
-  nextDeparture: NextDeparture | null,
-): string {
+export function getCompactNextDepartureSummary(nextDeparture: NextDeparture | null): string {
   if (!nextDeparture) {
     return "fara curse";
   }
 
   const relativeTime =
-    nextDeparture.minutesUntil <= 0
-      ? "acum"
-      : formatTimeDifference(nextDeparture.minutesUntil);
+    nextDeparture.minutesUntil <= 0 ? "acum" : formatTimeDifference(nextDeparture.minutesUntil);
 
   if (nextDeparture.dayOffset === 0) {
     return relativeTime;
@@ -480,22 +500,15 @@ export function getHeadwayOpacity(spanMinutes: number): number {
   return HEADWAY_STYLE.sparseOpacity;
 }
 
-function getCircularMinuteDistance(
-  fromMinutes: number,
-  toMinutes: number,
-): number {
+function getCircularMinuteDistance(fromMinutes: number, toMinutes: number): number {
   const distance = Math.abs(fromMinutes - toMinutes) % MINUTES_PER_DAY;
 
   return Math.min(distance, MINUTES_PER_DAY - distance);
 }
 
-function getSignedCircularMinuteDifference(
-  fromMinutes: number,
-  toMinutes: number,
-): number {
+function getSignedCircularMinuteDifference(fromMinutes: number, toMinutes: number): number {
   const wrappedDifference =
-    (((fromMinutes - toMinutes + MINUTES_PER_DAY / 2) % MINUTES_PER_DAY) +
-      MINUTES_PER_DAY) %
+    (((fromMinutes - toMinutes + MINUTES_PER_DAY / 2) % MINUTES_PER_DAY) + MINUTES_PER_DAY) %
     MINUTES_PER_DAY;
 
   return wrappedDifference - MINUTES_PER_DAY / 2;
@@ -515,10 +528,7 @@ function getMinuteSectorWeight(
   return 1 - distance / sectorRange;
 }
 
-function getDepartureLabelRadius(
-  routeLayer: RouteLayer,
-  departure: RouteEntry,
-): number {
+function getDepartureLabelRadius(routeLayer: RouteLayer, departure: RouteEntry): number {
   const previousDeparture = routeLayer.entries[departure.index - 1];
   const upcomingDeparture = routeLayer.entries[departure.index + 1];
   const previousGap = previousDeparture
@@ -553,10 +563,7 @@ export function getDepartureLabelPoint(routeLayer: RouteLayer, departure: RouteE
     LABEL_STYLE.bottomSectorRange,
   );
 
-  if (
-    bottomWeight === 0 ||
-    routeLayer.geometry.bottomTangentialPixelsPerMinute === 0
-  ) {
+  if (bottomWeight === 0 || routeLayer.geometry.bottomTangentialPixelsPerMinute === 0) {
     return basePoint;
   }
 
@@ -565,9 +572,7 @@ export function getDepartureLabelPoint(routeLayer: RouteLayer, departure: RouteE
     LABEL_STYLE.bottomTargetMinutes,
   );
   const tangentialShift =
-    signedBottomDifference *
-    routeLayer.geometry.bottomTangentialPixelsPerMinute *
-    bottomWeight;
+    signedBottomDifference * routeLayer.geometry.bottomTangentialPixelsPerMinute * bottomWeight;
   const angle = (timeToClockAngle(departure.totalMinutes) * Math.PI) / 180;
 
   return {

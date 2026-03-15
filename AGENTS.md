@@ -15,6 +15,7 @@
 **Stack**: Preact + Vite + TailwindCSS + TypeScript
 **Main entry**: `src/index.tsx`
 **Structure**:
+
 - `src/components/` - Reusable Preact components
 - `src/hooks/` - Custom React hooks
 - `src/solar.ts` - Solar calculation logic (uses suncalc)

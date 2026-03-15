@@ -33,11 +33,8 @@ export function StationHours({
     );
   }
 
-  const hours = useWeekendSchedule
-    ? busData.weekendHours
-    : busData.workingHours;
-  const stationName =
-    busData.station || (direction === "tur" ? "Vidra" : "Eroi Revoluției");
+  const hours = useWeekendSchedule ? busData.weekendHours : busData.workingHours;
+  const stationName = busData.station || (direction === "tur" ? "Vidra" : "Eroi Revoluției");
 
   // Define accent classes based on bus number and direction
   const getAccentClass = () => {
@@ -45,25 +42,15 @@ export function StationHours({
       return direction === "tur"
         ? "bg-blue-50 border-l-4 border-blue-400"
         : "bg-green-50 border-l-4 border-green-400";
-    } else {
-      return direction === "tur"
-        ? "bg-red-50 border-l-4 border-red-400"
-        : "bg-purple-50 border-l-4 border-purple-400";
     }
+    return direction === "tur"
+      ? "bg-red-50 border-l-4 border-red-400"
+      : "bg-purple-50 border-l-4 border-purple-400";
   };
 
   return (
-    <div
-      class={twMerge(
-        "bg-white rounded-lg shadow-sm p-2",
-        getAccentClass(),
-        className,
-      )}
-    >
-      <StationName
-        label={`${stationName} (${direction.toUpperCase()})`}
-        busNumber={busNumber}
-      />
+    <div class={twMerge("bg-white rounded-lg shadow-sm p-2", getAccentClass(), className)}>
+      <StationName label={`${stationName} (${direction.toUpperCase()})`} busNumber={busNumber} />
       <div class={twMerge("mt-1")}>
         <HoursDisplay
           hours={hours}

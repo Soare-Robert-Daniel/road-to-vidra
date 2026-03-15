@@ -57,12 +57,8 @@ export function PosterView({
     <div class="flex w-full flex-col gap-2 px-1">
       {/* Solar micro-labels */}
       <div class="font-ui flex items-center justify-center gap-3 text-[11px] font-medium text-slate-400">
-        <span>
-          ☀ Rasarit {minutesToTimeLabel(solarTimes.sunriseMinutes)}
-        </span>
-        <span>
-          ☽ Apus {minutesToTimeLabel(solarTimes.sunsetMinutes)}
-        </span>
+        <span>☀ Rasarit {minutesToTimeLabel(solarTimes.sunriseMinutes)}</span>
+        <span>☽ Apus {minutesToTimeLabel(solarTimes.sunsetMinutes)}</span>
       </div>
 
       {/* Section cards */}

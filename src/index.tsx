@@ -15,13 +15,7 @@ import {
   type ViewMode,
   type ClockDisplayMode,
 } from "./storage";
-import {
-  HolidayBanner,
-  Header,
-  SettingsMenu,
-  SolarClock,
-  StationHours,
-} from "./components";
+import { HolidayBanner, Header, SettingsMenu, SolarClock, StationHours } from "./components";
 
 // State management with localStorage persistence
 const selectedBusNumber = signal(getSelectedBus());

@@ -57,7 +57,7 @@ export function SolarClock({
 
   const clockFaceId = `clockFace-${busNumber}`;
   const shadowId = `clockShadow-${busNumber}`;
-  const formatUpcoming = (layer: typeof routeLayers[number]) => {
+  const formatUpcoming = (layer: (typeof routeLayers)[number]) => {
     if (layer.upcomingDepartures.length === 0) return "indisponibila";
     return layer.upcomingDepartures
       .map((d) => `${d.time} (${getNextDepartureSummary(d)})`)
@@ -87,9 +87,7 @@ export function SolarClock({
         <div class="font-ui rounded-full border border-slate-200 bg-white/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-600 shadow-sm shadow-slate-200/70">
           {useWeekendSchedule ? "Program weekend" : "Program lucru"}
         </div>
-        {clockDisplayMode && (
-          <ClockModeToggle clockDisplayMode={clockDisplayMode} />
-        )}
+        {clockDisplayMode && <ClockModeToggle clockDisplayMode={clockDisplayMode} />}
       </div>
 
       {/* Conditional view */}
@@ -108,10 +106,7 @@ export function SolarClock({
               aria-label={accessibilityLabel}
               role="img"
             >
-              <ClockDefs
-                clockFaceId={clockFaceId}
-                shadowId={shadowId}
-              />
+              <ClockDefs clockFaceId={clockFaceId} shadowId={shadowId} />
               <circle
                 cx={CENTER}
                 cy={CENTER}
@@ -123,9 +118,17 @@ export function SolarClock({
               <ClockFaceBackground clockFaceId={clockFaceId} />
               <SolarBand solarTimes={solarTimes} />
               <ClockFaceLegends routeLayers={routeLayers} />
-              <RouteMarkers routeLayers={routeLayers} directions={["retur"]} showMinuteLabels={false} />
+              <RouteMarkers
+                routeLayers={routeLayers}
+                directions={["retur"]}
+                showMinuteLabels={false}
+              />
               <ClockFaceLabels />
-              <RouteMarkers routeLayers={routeLayers} directions={["tur"]} showMinuteLabels={false} />
+              <RouteMarkers
+                routeLayers={routeLayers}
+                directions={["tur"]}
+                showMinuteLabels={false}
+              />
               <ClockHand currentMinutes={solarTimes.currentMinutes} />
             </svg>
           </div>

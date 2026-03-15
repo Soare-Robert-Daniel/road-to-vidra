@@ -7,11 +7,7 @@ interface HeaderProps {
   className?: string;
 }
 
-export function Header({
-  holidayName,
-  currentDate,
-  className,
-}: HeaderProps): JSX.Element {
+export function Header({ holidayName, currentDate, className }: HeaderProps): JSX.Element {
   if (!holidayName) {
     return <></>;
   }

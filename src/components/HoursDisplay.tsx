@@ -27,8 +27,7 @@ export function HoursDisplay({
   className,
 }: HoursDisplayProps): JSX.Element {
   const currentTimeSignal = useCurrentTime();
-  const initialCollapsedState =
-    getIsSectionCollapsed(busNumber, direction) ?? isTodaySchedule;
+  const initialCollapsedState = getIsSectionCollapsed(busNumber, direction) ?? isTodaySchedule;
   const [isCollapsed, setIsCollapsed] = useState(initialCollapsedState);
 
   useEffect(() => {
@@ -88,16 +87,10 @@ export function HoursDisplay({
   const shouldShowForTomorrow = futureHours.length === 0;
 
   return (
-    <div
-      class={twMerge("flex flex-col", className)}
-      role="button"
-      onClick={handleToggleCollapse}
-    >
+    <div class={twMerge("flex flex-col", className)} role="button" onClick={handleToggleCollapse}>
       <div class={twMerge("grid grid-cols-5 gap-1 text-center")}>
         {pastHours.length > 0 && (
-          <CollapsableHours
-            isCollapsed={shouldShowForTomorrow ? false : isCollapsed}
-          >
+          <CollapsableHours isCollapsed={shouldShowForTomorrow ? false : isCollapsed}>
             {pastHours.map((busInfo) => (
               <PastHours
                 key={`${busInfo.hour}-${busInfo.isToday}-past`}
@@ -127,19 +120,18 @@ export function HoursDisplay({
                 useWeekendSchedule={useWeekendSchedule}
               />
             );
-          } else {
-            return (
-              <FutureHours
-                key={`${busInfo.hour}-${busInfo.isToday}-future`}
-                hour={busInfo.hour}
-                currentTime={currentTime}
-                isToday={busInfo.isToday}
-                busNumber={busNumber}
-                direction={direction}
-                useWeekendSchedule={useWeekendSchedule}
-              />
-            );
           }
+          return (
+            <FutureHours
+              key={`${busInfo.hour}-${busInfo.isToday}-future`}
+              hour={busInfo.hour}
+              currentTime={currentTime}
+              isToday={busInfo.isToday}
+              busNumber={busNumber}
+              direction={direction}
+              useWeekendSchedule={useWeekendSchedule}
+            />
+          );
         })}
       </div>
     </div>

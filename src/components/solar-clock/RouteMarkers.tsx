@@ -41,8 +41,7 @@ export function RouteMarkers({
       {layers.map((routeLayer) =>
         routeLayer.entries.slice(0, -1).map((departure, index) => {
           const nextEntry = routeLayer.entries[index + 1];
-          const spanMinutes =
-            nextEntry.totalMinutes - departure.totalMinutes;
+          const spanMinutes = nextEntry.totalMinutes - departure.totalMinutes;
           const segmentOpacity = getHeadwayOpacity(spanMinutes);
 
           return (
@@ -59,8 +58,7 @@ export function RouteMarkers({
               stroke-linecap="round"
               opacity={
                 departure.isPast && nextEntry.isPast
-                  ? segmentOpacity *
-                    ROUTE_MARKER_STYLE.pastSegmentMultiplier
+                  ? segmentOpacity * ROUTE_MARKER_STYLE.pastSegmentMultiplier
                   : segmentOpacity
               }
             />
@@ -71,8 +69,7 @@ export function RouteMarkers({
       {layers.map((routeLayer) => (
         <g key={`route-layer-${routeLayer.direction}`}>
           {routeLayer.entries.map((departure) => {
-            const isNextDeparture =
-              routeLayer.nextDeparture?.time === departure.time;
+            const isNextDeparture = routeLayer.nextDeparture?.time === departure.time;
             const tickInset = isNextDeparture
               ? ROUTE_MARKER_STYLE.nextTickInset
               : ROUTE_MARKER_STYLE.tickInset;
@@ -88,10 +85,7 @@ export function RouteMarkers({
               departure.isPast && !isNextDeparture
                 ? ROUTE_MARKER_STYLE.pastTickOpacity
                 : ROUTE_MARKER_STYLE.tickOpacity;
-            const labelPoint = getDepartureLabelPoint(
-              routeLayer,
-              departure,
-            );
+            const labelPoint = getDepartureLabelPoint(routeLayer, departure);
             const labelOpacity =
               departure.isPast && !isNextDeparture
                 ? LABEL_STYLE.routePastOpacity
@@ -116,9 +110,7 @@ export function RouteMarkers({
                       values={`${ROUTE_MARKER_STYLE.nextGlowOpacity};${NEXT_GLOW_ANIMATION.peakOpacity};${ROUTE_MARKER_STYLE.nextGlowOpacity}`}
                       dur={NEXT_GLOW_ANIMATION.duration}
                       begin={
-                        routeLayer.direction === "retur"
-                          ? NEXT_GLOW_ANIMATION.staggerDelay
-                          : "0s"
+                        routeLayer.direction === "retur" ? NEXT_GLOW_ANIMATION.staggerDelay : "0s"
                       }
                       repeatCount="indefinite"
                     />
@@ -127,9 +119,7 @@ export function RouteMarkers({
                       values={`${ROUTE_MARKER_STYLE.nextGlowWidth};${ROUTE_MARKER_STYLE.nextGlowWidth + NEXT_GLOW_ANIMATION.peakWidthOffset};${ROUTE_MARKER_STYLE.nextGlowWidth}`}
                       dur={NEXT_GLOW_ANIMATION.duration}
                       begin={
-                        routeLayer.direction === "retur"
-                          ? NEXT_GLOW_ANIMATION.staggerDelay
-                          : "0s"
+                        routeLayer.direction === "retur" ? NEXT_GLOW_ANIMATION.staggerDelay : "0s"
                       }
                       repeatCount="indefinite"
                     />

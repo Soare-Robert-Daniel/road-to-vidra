@@ -16,8 +16,7 @@ export function ClockModeToggle({
   const baseButtonClass =
     "px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] rounded-xl transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500 focus:ring-offset-gray-100";
   const selectedClass = "bg-white text-slate-800 shadow-sm";
-  const unselectedClass =
-    "bg-transparent text-slate-400 hover:text-slate-600";
+  const unselectedClass = "bg-transparent text-slate-400 hover:text-slate-600";
 
   return (
     <div
