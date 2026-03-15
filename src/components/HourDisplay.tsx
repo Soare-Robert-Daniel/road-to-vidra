@@ -12,7 +12,6 @@ import { useCurrentTime } from "../hooks/useCurrentTime";
 interface HourDisplayProps {
   hour: string;
   isNext: boolean;
-  currentTime: number;
   isToday?: boolean;
   busNumber: string;
   direction: string;
@@ -23,7 +22,6 @@ interface HourDisplayProps {
 export function HourDisplay({
   hour,
   isNext,
-  currentTime,
   isToday = true,
   busNumber,
   direction,
@@ -119,19 +117,18 @@ export function HourDisplay({
         passedText: "text-gray-400",
         passedRemainingText: "text-gray-500",
       };
-    } else {
-      return {
-        bg: "bg-purple-50",
-        text: "text-purple-800",
-        nextBg: "bg-purple-100",
-        nextBorder: "border-purple-500",
-        nextText: "text-purple-800",
-        remainingText: "text-purple-600",
-        nextRemainingText: "text-purple-600",
-        passedText: "text-gray-400",
-        passedRemainingText: "text-gray-500",
-      };
     }
+    return {
+      bg: "bg-purple-50",
+      text: "text-purple-800",
+      nextBg: "bg-purple-100",
+      nextBorder: "border-purple-500",
+      nextText: "text-purple-800",
+      remainingText: "text-purple-600",
+      nextRemainingText: "text-purple-600",
+      passedText: "text-gray-400",
+      passedRemainingText: "text-gray-500",
+    };
   };
 
   const themeClasses = getThemeClasses();

@@ -2,8 +2,7 @@ import { JSX } from "preact";
 
 import { minutesToTimeLabel, type SolarTimesSummary } from "../../solar";
 
-import { POSTER_SECTION_DEFS } from "./constants";
-import type { PosterSection, RouteLayer } from "./constants";
+import { POSTER_SECTION_DEFS, type PosterSection, type RouteLayer } from "./constants";
 import { PosterSectionCard } from "./PosterSectionCard";
 
 interface PosterViewProps {

@@ -1,7 +1,6 @@
 import { JSX } from "preact";
 
-import { LEGEND_STYLE, getArcPath } from "./constants";
-import type { RouteLayer } from "./constants";
+import { LEGEND_STYLE, getArcPath, type RouteLayer } from "./constants";
 
 export function ClockFaceLegends({ routeLayers }: { routeLayers: RouteLayer[] }): JSX.Element {
   return (

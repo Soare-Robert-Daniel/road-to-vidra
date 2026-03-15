@@ -1,4 +1,4 @@
-import { signal, type Signal } from "@preact/signals";
+import { signal } from "@preact/signals";
 import { useEffect } from "preact/hooks";
 
 const currentTime = signal(Date.now());

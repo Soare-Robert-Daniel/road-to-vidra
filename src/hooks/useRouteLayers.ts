@@ -14,8 +14,8 @@ import {
   getTimeParts,
   isDepartureInDaylight,
   ROUTE_GEOMETRY,
+  type RouteLayer,
 } from "../components/solar-clock/constants";
-import type { RouteLayer } from "../components/solar-clock/constants";
 
 interface UseRouteLayersResult {
   routeLayers: RouteLayer[];

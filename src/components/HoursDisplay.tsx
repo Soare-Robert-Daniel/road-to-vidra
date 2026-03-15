@@ -95,7 +95,7 @@ export function HoursDisplay({
               <PastHours
                 key={`${busInfo.hour}-${busInfo.isToday}-past`}
                 hour={busInfo.hour}
-                currentTime={currentTime}
+
                 isToday={busInfo.isToday}
                 busNumber={busNumber}
                 direction={direction}
@@ -113,7 +113,7 @@ export function HoursDisplay({
               <AvailableHours
                 key={`${busInfo.hour}-${busInfo.isToday}-available`}
                 hour={busInfo.hour}
-                currentTime={currentTime}
+
                 isToday={busInfo.isToday}
                 busNumber={busNumber}
                 direction={direction}

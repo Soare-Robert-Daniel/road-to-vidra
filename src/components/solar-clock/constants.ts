@@ -1,5 +1,4 @@
-import type { NextDeparture, SolarTimesSummary } from "../../solar";
-import { timeToClockAngle } from "../../solar";
+import { timeToClockAngle, type NextDeparture, type SolarTimesSummary } from "../../solar";
 import { formatTimeDifference, timeToMinutes } from "../../utils";
 
 export type Direction = "tur" | "retur";

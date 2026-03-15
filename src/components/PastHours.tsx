@@ -3,7 +3,6 @@ import { HourDisplay } from "./HourDisplay";
 
 interface PastHoursProps {
   hour: string;
-  currentTime: number;
   isToday: boolean;
   busNumber: string;
   direction: string;
@@ -13,7 +12,6 @@ interface PastHoursProps {
 
 export function PastHours({
   hour,
-  currentTime,
   isToday,
   busNumber,
   direction,
@@ -24,7 +22,6 @@ export function PastHours({
     <HourDisplay
       hour={hour}
       isNext={false}
-      currentTime={currentTime}
       isToday={isToday}
       busNumber={busNumber}
       direction={direction}

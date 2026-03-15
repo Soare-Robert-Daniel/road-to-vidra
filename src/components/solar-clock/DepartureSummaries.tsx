@@ -3,7 +3,6 @@ import { twMerge } from "tailwind-merge";
 
 import { minutesToTimeLabel, type SolarTimesSummary } from "../../solar";
 import { formatTimeDifference } from "../../utils";
-import { getCompactNextDepartureSummary } from "./constants";
 import type { RouteLayer } from "./constants";
 
 interface DepartureSummariesProps {

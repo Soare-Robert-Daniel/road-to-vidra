@@ -1,7 +1,6 @@
 import { JSX } from "preact";
 
 import {
-  CENTER,
   CLOCK_COLORS,
   LABEL_STYLE,
   NEXT_GLOW_ANIMATION,
@@ -10,8 +9,9 @@ import {
   getDepartureLabelPoint,
   getHeadwayOpacity,
   getPointOnCircle,
+  type Direction,
+  type RouteLayer,
 } from "./constants";
-import type { Direction, RouteLayer } from "./constants";
 
 interface RouteMarkersProps {
   routeLayers: RouteLayer[];

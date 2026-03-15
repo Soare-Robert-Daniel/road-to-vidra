@@ -3,7 +3,6 @@ import { HourDisplay } from "./HourDisplay";
 
 interface AvailableHoursProps {
   hour: string;
-  currentTime: number;
   isToday: boolean;
   busNumber: string;
   direction: string;
@@ -13,7 +12,6 @@ interface AvailableHoursProps {
 
 export function AvailableHours({
   hour,
-  currentTime,
   isToday,
   busNumber,
   direction,
@@ -24,7 +22,6 @@ export function AvailableHours({
     <HourDisplay
       hour={hour}
       isNext={true}
-      currentTime={currentTime}
       isToday={isToday}
       busNumber={busNumber}
       direction={direction}
