@@ -16,6 +16,7 @@ import type { Direction, RouteLayer } from "./constants";
 interface RouteMarkersProps {
   routeLayers: RouteLayer[];
   directions?: Direction[];
+  showMinuteLabels?: boolean;
 }
 
 /**
@@ -29,6 +30,7 @@ interface RouteMarkersProps {
 export function RouteMarkers({
   routeLayers,
   directions,
+  showMinuteLabels = true,
 }: RouteMarkersProps): JSX.Element {
   const layers = directions
     ? routeLayers.filter((l) => directions.includes(l.direction))
@@ -149,27 +151,29 @@ export function RouteMarkers({
                   opacity={tickOpacity}
                 />
 
-                <text
-                  x={labelPoint.x}
-                  y={labelPoint.y + LABEL_STYLE.routeBaselineOffset}
-                  paint-order="stroke fill"
-                  stroke={CLOCK_COLORS.routeTextStroke}
-                  stroke-width={
-                    isNextDeparture
-                      ? String(LABEL_STYLE.routeNextStrokeWidth)
-                      : String(LABEL_STYLE.routeStrokeWidth)
-                  }
-                  stroke-linejoin="round"
-                  fill={routeLayer.theme.marker}
-                  opacity={isNextDeparture ? "1" : String(labelOpacity)}
-                  font-family="'Space Grotesk Variable', sans-serif"
-                  font-size={String(labelFontSize)}
-                  font-weight={isNextDeparture ? "800" : "700"}
-                  text-anchor="middle"
-                  dominant-baseline="middle"
-                >
-                  {departure.minute}
-                </text>
+                {showMinuteLabels && (
+                  <text
+                    x={labelPoint.x}
+                    y={labelPoint.y + LABEL_STYLE.routeBaselineOffset}
+                    paint-order="stroke fill"
+                    stroke={CLOCK_COLORS.routeTextStroke}
+                    stroke-width={
+                      isNextDeparture
+                        ? String(LABEL_STYLE.routeNextStrokeWidth)
+                        : String(LABEL_STYLE.routeStrokeWidth)
+                    }
+                    stroke-linejoin="round"
+                    fill={routeLayer.theme.marker}
+                    opacity={isNextDeparture ? "1" : String(labelOpacity)}
+                    font-family="'Space Grotesk Variable', sans-serif"
+                    font-size={String(labelFontSize)}
+                    font-weight={isNextDeparture ? "800" : "700"}
+                    text-anchor="middle"
+                    dominant-baseline="middle"
+                  >
+                    {departure.minute}
+                  </text>
+                )}
               </g>
             );
           })}

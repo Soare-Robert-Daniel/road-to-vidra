@@ -58,13 +58,19 @@ export function SolarClock({
   const clockFaceId = `clockFace-${busNumber}`;
   const daylightId = `daylight-${busNumber}`;
   const shadowId = `clockShadow-${busNumber}`;
+  const formatUpcoming = (layer: typeof routeLayers[number]) => {
+    if (layer.upcomingDepartures.length === 0) return "indisponibila";
+    return layer.upcomingDepartures
+      .map((d) => `${d.time} (${getNextDepartureSummary(d)})`)
+      .join(", ");
+  };
   const accessibilityLabel = [
     `Ceas solar integrat pentru autobuzul ${busNumber}`,
     `rasarit ${minutesToTimeLabel(solarTimes.sunriseMinutes)}`,
     `apus ${minutesToTimeLabel(solarTimes.sunsetMinutes)}`,
     `ora curenta ${minutesToTimeLabel(solarTimes.currentMinutes)}`,
-    `urmatoarea cursa tur ${routeLayers[0].nextDeparture?.time ?? "indisponibila"}, ${getNextDepartureSummary(routeLayers[0].nextDeparture)}`,
-    `urmatoarea cursa retur ${routeLayers[1].nextDeparture?.time ?? "indisponibila"}, ${getNextDepartureSummary(routeLayers[1].nextDeparture)}`,
+    `urmatoarele curse tur: ${formatUpcoming(routeLayers[0])}`,
+    `urmatoarele curse retur: ${formatUpcoming(routeLayers[1])}`,
   ].join(", ");
 
   return (
@@ -119,9 +125,9 @@ export function SolarClock({
               <ClockFaceBackground clockFaceId={clockFaceId} />
               <SolarBand solarTimes={solarTimes} daylightId={daylightId} />
               <ClockFaceLegends routeLayers={routeLayers} />
-              <RouteMarkers routeLayers={routeLayers} directions={["retur"]} />
+              <RouteMarkers routeLayers={routeLayers} directions={["retur"]} showMinuteLabels={false} />
               <ClockFaceLabels />
-              <RouteMarkers routeLayers={routeLayers} directions={["tur"]} />
+              <RouteMarkers routeLayers={routeLayers} directions={["tur"]} showMinuteLabels={false} />
               <ClockHand currentMinutes={solarTimes.currentMinutes} />
             </svg>
           </div>

@@ -121,6 +121,50 @@ export function getNextDeparture(
   return nextDeparture;
 }
 
+export function getUpcomingDepartures(
+  hours: string[],
+  useWeekendSchedule: boolean,
+  now: Date = new Date(),
+  limit: number = 3,
+): NextDeparture[] {
+  const candidates: NextDeparture[] = [];
+
+  for (const hour of hours) {
+    const busMinutes = timeToMinutes(hour);
+
+    for (let dayOffset = 0; dayOffset <= 7; dayOffset += 1) {
+      const candidateDate = new Date(now);
+      candidateDate.setDate(now.getDate() + dayOffset);
+
+      if (isWeekendProgram(candidateDate) !== useWeekendSchedule) {
+        continue;
+      }
+
+      candidateDate.setHours(Math.floor(busMinutes / 60), busMinutes % 60, 0, 0);
+      const minutesUntil = Math.floor(
+        (candidateDate.getTime() - now.getTime()) / (1000 * 60)
+      );
+
+      if (minutesUntil < 0) {
+        continue;
+      }
+
+      candidates.push({
+        time: hour,
+        minutesUntil,
+        dayOffset,
+        targetDate: candidateDate,
+      });
+
+      break;
+    }
+  }
+
+  candidates.sort((a, b) => a.minutesUntil - b.minutesUntil);
+
+  return candidates.slice(0, limit);
+}
+
 export function formatNextDeparture(nextDeparture: NextDeparture | null): string {
   if (!nextDeparture) {
     return "Nu exista curse disponibile";

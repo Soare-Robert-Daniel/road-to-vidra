@@ -39,6 +39,7 @@ export interface RouteLayer {
   label: string;
   entries: RouteEntry[];
   nextDeparture: NextDeparture | null;
+  upcomingDepartures: NextDeparture[];
   theme: RouteTheme;
   geometry: RouteGeometry;
 }
@@ -118,6 +119,11 @@ export const LABEL_STYLE = {
   dialHourSize: 34,
   dialHourStrokeWidth: 6.5,
   dialHourBaselineOffset: 2,
+  intermediateHourRadiusOffset: 20,
+  intermediateHourSizeRatio: 0.7,
+  intermediateHourWeight: 500,
+  intermediateHourOpacity: 0.8,
+  intermediateHourColor: "#1e293b",
   routeBaseOpacity: 0.96,
   routePastOpacity: 0.3,
   routeStrokeWidth: 4,
@@ -276,7 +282,7 @@ export const BUS_ROUTE_THEMES: Record<string, Record<Direction, RouteTheme>> = {
 // Geometric radii and properties for positioning departure labels on tur (outbound) and retur (return) routes
 export const ROUTE_GEOMETRY: Record<Direction, RouteGeometry> = {
   tur: {
-    laneRadius: 153,
+    laneRadius: 180,
     guideDash: "2 8",
     labelRadius: 123,
     denseLabelRadius: 159,

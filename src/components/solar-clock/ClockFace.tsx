@@ -30,6 +30,7 @@ export function ClockFaceBackground({ clockFaceId }: ClockFaceBackgroundProps): 
 }
 
 const CARDINAL_HOURS = [0, 6, 12, 18];
+const INTERMEDIATE_HOURS = [3, 9, 15, 21];
 const CARDINAL_LABEL_RADIUS = TICK_OUTER_RADIUS + 18;
 
 export function ClockFaceLabels(): JSX.Element {
@@ -97,6 +98,34 @@ export function ClockFaceLabels(): JSX.Element {
             font-weight="700"
             text-anchor="middle"
             dominant-baseline="middle"
+          >
+            {String(hour)}
+          </text>
+        );
+      })}
+
+      {INTERMEDIATE_HOURS.map((hour) => {
+        const point = getPointOnCircle(
+          hour * 60,
+          CARDINAL_LABEL_RADIUS + LABEL_STYLE.intermediateHourRadiusOffset,
+        );
+
+        return (
+          <text
+            key={`label-${hour}`}
+            x={point.x}
+            y={point.y + LABEL_STYLE.dialHourBaselineOffset}
+            paint-order="stroke fill"
+            stroke={CLOCK_COLORS.dialTextStroke}
+            stroke-width={String(LABEL_STYLE.dialHourStrokeWidth)}
+            stroke-linejoin="round"
+            fill={LABEL_STYLE.intermediateHourColor}
+            font-family="'Space Grotesk Variable', sans-serif"
+            font-size={String(LABEL_STYLE.dialHourSize * LABEL_STYLE.intermediateHourSizeRatio)}
+            font-weight={String(LABEL_STYLE.intermediateHourWeight)}
+            text-anchor="middle"
+            dominant-baseline="middle"
+            opacity={String(LABEL_STYLE.intermediateHourOpacity)}
           >
             {String(hour)}
           </text>

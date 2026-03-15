@@ -1,5 +1,5 @@
 import { busScheduleData } from "../config";
-import { getNextDeparture, getSolarTimes, type SolarTimesSummary } from "../solar";
+import { getNextDeparture, getUpcomingDepartures, getSolarTimes, type SolarTimesSummary } from "../solar";
 import { isWeekendProgram } from "../utils";
 
 import { useCurrentTime } from "./useCurrentTime";
@@ -59,6 +59,7 @@ export function useRouteLayers(
         label: getRouteLegendLabel(direction, route.station),
         entries,
         nextDeparture: getNextDeparture(hours, useWeekendSchedule, now),
+        upcomingDepartures: getUpcomingDepartures(hours, useWeekendSchedule, now, 5),
         theme: getClockTheme(busNumber, direction),
         geometry: ROUTE_GEOMETRY[direction],
       };
