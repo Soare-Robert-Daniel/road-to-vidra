@@ -1,16 +1,18 @@
 import { JSX } from "preact";
+import { Signal } from "@preact/signals";
 import { twMerge } from "tailwind-merge";
 
-import { busScheduleData } from "../../config";
-import { useCurrentTime } from "../../hooks/useCurrentTime";
-import { getNextDeparture, getSolarTimes, minutesToTimeLabel } from "../../solar";
-import { isWeekendProgram } from "../../utils";
+import { type ClockDisplayMode } from "../../storage";
+import { useRouteLayers } from "../../hooks/useRouteLayers";
+import { minutesToTimeLabel } from "../../solar";
 
 import { ClockDefs } from "./ClockDefs";
 import { ClockFaceBackground, ClockFaceLabels } from "./ClockFace";
 import { ClockFaceLegends } from "./ClockFaceLegends";
 import { ClockHand } from "./ClockHand";
+import { ClockModeToggle } from "./ClockModeToggle";
 import { DepartureSummaries } from "./DepartureSummaries";
+import { PosterView } from "./PosterView";
 import { RouteMarkers } from "./RouteMarkers";
 import { SolarBand } from "./SolarBand";
 import {
@@ -18,43 +20,25 @@ import {
   CLOCK_COLORS,
   CLOCK_LAYOUT,
   CLOCK_SIZE,
-  getClockTheme,
   getNextDepartureSummary,
-  getRouteLegendLabel,
-  getTimeParts,
-  isDepartureInDaylight,
-  ROUTE_GEOMETRY,
 } from "./constants";
-import type { RouteLayer } from "./constants";
 
 interface SolarClockProps {
   busNumber: string;
   useWeekendSchedule: boolean;
+  clockDisplayMode?: Signal<ClockDisplayMode>;
   className?: string;
 }
 
-/**
- * Main solar clock component that displays a 24-hour clock with bus departure times.
- * 
- * Renders:
- * - Bus number and schedule type badge at the top
- * - SVG clock visualization with:
- *   - Clock face with hour labels (0-24) and minute ticks
- *   - Sunrise-to-sunset golden band
- *   - Current time hand pointing to now
- *   - Route layers (tur/retur) showing all departure times as colored tick marks
- *   - Timeline ring showing current time position
- *   - Next departure highlighted with pulsing glow animation
- * - Text summaries below showing next departure time and when it leaves for each route
- */
 export function SolarClock({
   busNumber,
   useWeekendSchedule,
+  clockDisplayMode,
   className,
 }: SolarClockProps): JSX.Element {
-  const busData = busScheduleData.bus[busNumber];
+  const result = useRouteLayers(busNumber, useWeekendSchedule);
 
-  if (!busData?.tur || !busData?.retur) {
+  if (!result) {
     return (
       <div
         class={twMerge(
@@ -67,40 +51,9 @@ export function SolarClock({
     );
   }
 
-  const currentTimeSignal = useCurrentTime();
-  const now = new Date(currentTimeSignal.value);
-  const solarTimes = getSolarTimes(now);
-  const isSelectedScheduleToday = isWeekendProgram(now) === useWeekendSchedule;
-  const routeLayers: RouteLayer[] = (["tur", "retur"] as const).map(
-    (direction) => {
-      const route = busData[direction];
-      const hours = useWeekendSchedule
-        ? route.weekendHours
-        : route.workingHours;
-      const entries = hours.map((hour, index) => {
-        const timeParts = getTimeParts(hour);
+  const { routeLayers, solarTimes, isSelectedScheduleToday } = result;
 
-        return {
-          index,
-          time: hour,
-          ...timeParts,
-          isDaylight: isDepartureInDaylight(timeParts.totalMinutes, solarTimes),
-          isPast:
-            isSelectedScheduleToday &&
-            timeParts.totalMinutes < solarTimes.currentMinutes,
-        };
-      });
-
-      return {
-        direction,
-        label: getRouteLegendLabel(direction, route.station),
-        entries,
-        nextDeparture: getNextDeparture(hours, useWeekendSchedule, now),
-        theme: getClockTheme(busNumber, direction),
-        geometry: ROUTE_GEOMETRY[direction],
-      };
-    },
-  );
+  const displayMode = clockDisplayMode?.value ?? "round";
 
   const clockFaceId = `clockFace-${busNumber}`;
   const daylightId = `daylight-${busNumber}`;
@@ -121,46 +74,60 @@ export function SolarClock({
         className,
       )}
     >
-      <div class="flex w-full items-center justify-center gap-2 px-1 pt-0.5">
-        <div class="font-display text-4xl font-black tracking-tight text-slate-950">
+      {/* Compact header: bus number + schedule badge + mode toggle */}
+      <div class="flex w-full items-center justify-between gap-2 px-1 pt-0.5">
+        <div class="font-display text-2xl font-black tracking-tight text-slate-950">
           {busNumber}
         </div>
         <div class="font-ui rounded-full border border-slate-200 bg-white/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-600 shadow-sm shadow-slate-200/70">
           {useWeekendSchedule ? "Program weekend" : "Program lucru"}
         </div>
+        {clockDisplayMode && (
+          <ClockModeToggle clockDisplayMode={clockDisplayMode} />
+        )}
       </div>
 
-      <div class="w-full px-1">
-        <svg
-          viewBox={`0 0 ${CLOCK_SIZE} ${CLOCK_SIZE}`}
-          class="mx-auto block w-full max-w-xl"
-          aria-label={accessibilityLabel}
-          role="img"
-        >
-          <ClockDefs
-            clockFaceId={clockFaceId}
-            daylightId={daylightId}
-            shadowId={shadowId}
-          />
-          <circle
-            cx={CENTER}
-            cy={CENTER}
-            r={CLOCK_LAYOUT.faceRadius + 10}
-            fill={CLOCK_COLORS.surface}
-            opacity={String(CLOCK_COLORS.shadowSurfaceOpacity)}
-            filter={`url(#${shadowId})`}
-          />
-          <ClockFaceBackground clockFaceId={clockFaceId} />
-          <SolarBand solarTimes={solarTimes} daylightId={daylightId} />
-          <ClockFaceLegends routeLayers={routeLayers} />
-          <RouteMarkers routeLayers={routeLayers} directions={["retur"]} />
-          <ClockFaceLabels />
-          <RouteMarkers routeLayers={routeLayers} directions={["tur"]} />
-          <ClockHand currentMinutes={solarTimes.currentMinutes} />
-        </svg>
-      </div>
-
-      <DepartureSummaries routeLayers={routeLayers} />
+      {/* Conditional view */}
+      {displayMode === "poster" ? (
+        <PosterView
+          routeLayers={routeLayers}
+          solarTimes={solarTimes}
+          isSelectedScheduleToday={isSelectedScheduleToday}
+        />
+      ) : (
+        <>
+          <div class="w-full px-1">
+            <svg
+              viewBox={`0 0 ${CLOCK_SIZE} ${CLOCK_SIZE}`}
+              class="mx-auto block w-full max-w-xl"
+              aria-label={accessibilityLabel}
+              role="img"
+            >
+              <ClockDefs
+                clockFaceId={clockFaceId}
+                daylightId={daylightId}
+                shadowId={shadowId}
+              />
+              <circle
+                cx={CENTER}
+                cy={CENTER}
+                r={CLOCK_LAYOUT.faceRadius + 10}
+                fill={CLOCK_COLORS.surface}
+                opacity={String(CLOCK_COLORS.shadowSurfaceOpacity)}
+                filter={`url(#${shadowId})`}
+              />
+              <ClockFaceBackground clockFaceId={clockFaceId} />
+              <SolarBand solarTimes={solarTimes} daylightId={daylightId} />
+              <ClockFaceLegends routeLayers={routeLayers} />
+              <RouteMarkers routeLayers={routeLayers} directions={["retur"]} />
+              <ClockFaceLabels />
+              <RouteMarkers routeLayers={routeLayers} directions={["tur"]} />
+              <ClockHand currentMinutes={solarTimes.currentMinutes} />
+            </svg>
+          </div>
+          <DepartureSummaries routeLayers={routeLayers} />
+        </>
+      )}
     </div>
   );
 }

@@ -43,6 +43,25 @@ export interface RouteLayer {
   geometry: RouteGeometry;
 }
 
+export interface PosterSection {
+  id: "noapte" | "dimineata" | "dupa-amiaza" | "seara";
+  label: string;
+  startMinutes: number;
+  endMinutes: number;
+  hourRange: string;
+  turEntries: RouteEntry[];
+  returEntries: RouteEntry[];
+  containsNow: boolean;
+  isDaylight: boolean;
+}
+
+export const POSTER_SECTION_DEFS = [
+  { id: "noapte" as const, label: "Noapte", startMinutes: 0, endMinutes: 360, hourRange: "00:00 – 06:00", isDaylight: false },
+  { id: "dimineata" as const, label: "Dimineata", startMinutes: 360, endMinutes: 720, hourRange: "06:00 – 12:00", isDaylight: true },
+  { id: "dupa-amiaza" as const, label: "Dupa-amiaza", startMinutes: 720, endMinutes: 1080, hourRange: "12:00 – 18:00", isDaylight: true },
+  { id: "seara" as const, label: "Seara", startMinutes: 1080, endMinutes: 1440, hourRange: "18:00 – 00:00", isDaylight: false },
+] as const;
+
 // Total minutes in a 24-hour day; used for time normalization and circular minute calculations
 export const MINUTES_PER_DAY = 24 * 60;
 
