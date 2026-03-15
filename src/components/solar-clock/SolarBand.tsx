@@ -3,52 +3,64 @@ import { JSX } from "preact";
 import type { SolarTimesSummary } from "../../solar";
 
 import {
-  CENTER,
-  CLOCK_COLORS,
   SOLAR_BAND_STYLE,
   getArcPath,
+  getPointOnCircle,
 } from "./constants";
 
 interface SolarBandProps {
   solarTimes: SolarTimesSummary;
-  daylightId: string;
 }
 
 /**
- * Renders the sunrise-to-sunset band on the clock.
- * 
+ * Renders a thin split sky ring on the clock perimeter.
+ *
  * Draws:
- * - Full circle background band (light gray) representing the entire day
- * - Colored arc (golden/orange gradient) from sunrise to sunset representing daylight hours
+ * - Daylight arc (sunrise → sunset) in a warm neutral tone
+ * - Night arc (sunset → sunrise) in a cool neutral tone
+ * - Small dot markers at sunrise and sunset positions
  */
 export function SolarBand({
   solarTimes,
-  daylightId,
 }: SolarBandProps): JSX.Element {
-  const daylightArcPath = getArcPath(
-    solarTimes.sunriseMinutes,
-    solarTimes.sunsetMinutes,
-    SOLAR_BAND_STYLE.radius,
-  );
+  const { sunriseMinutes, sunsetMinutes } = solarTimes;
+  const { radius, width, dayColor, nightColor, dayOpacity, nightOpacity, markerRadius, markerColor, markerOpacity } = SOLAR_BAND_STYLE;
+
+  const daylightArcPath = getArcPath(sunriseMinutes, sunsetMinutes, radius);
+  const nightArcPath = getArcPath(sunsetMinutes, sunriseMinutes, radius);
+
+  const sunrisePoint = getPointOnCircle(sunriseMinutes, radius);
+  const sunsetPoint = getPointOnCircle(sunsetMinutes, radius);
 
   return (
     <>
-      <circle
-        cx={CENTER}
-        cy={CENTER}
-        r={SOLAR_BAND_STYLE.radius}
+      <path
+        d={nightArcPath}
         fill="none"
-        stroke={CLOCK_COLORS.solarBandBase}
-        stroke-width={String(SOLAR_BAND_STYLE.width)}
-        opacity={String(SOLAR_BAND_STYLE.baseOpacity)}
-        stroke-linecap="round"
+        stroke={nightColor}
+        stroke-width={String(width)}
+        opacity={String(nightOpacity)}
       />
       <path
         d={daylightArcPath}
         fill="none"
-        stroke={`url(#${daylightId})`}
-        stroke-width={String(SOLAR_BAND_STYLE.width)}
-        stroke-linecap="round"
+        stroke={dayColor}
+        stroke-width={String(width)}
+        opacity={String(dayOpacity)}
+      />
+      <circle
+        cx={sunrisePoint.x}
+        cy={sunrisePoint.y}
+        r={String(markerRadius)}
+        fill={markerColor}
+        opacity={String(markerOpacity)}
+      />
+      <circle
+        cx={sunsetPoint.x}
+        cy={sunsetPoint.y}
+        r={String(markerRadius)}
+        fill={markerColor}
+        opacity={String(markerOpacity)}
       />
     </>
   );

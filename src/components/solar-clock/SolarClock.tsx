@@ -56,7 +56,6 @@ export function SolarClock({
   const displayMode = clockDisplayMode?.value ?? "round";
 
   const clockFaceId = `clockFace-${busNumber}`;
-  const daylightId = `daylight-${busNumber}`;
   const shadowId = `clockShadow-${busNumber}`;
   const formatUpcoming = (layer: typeof routeLayers[number]) => {
     if (layer.upcomingDepartures.length === 0) return "indisponibila";
@@ -111,7 +110,6 @@ export function SolarClock({
             >
               <ClockDefs
                 clockFaceId={clockFaceId}
-                daylightId={daylightId}
                 shadowId={shadowId}
               />
               <circle
@@ -123,7 +121,7 @@ export function SolarClock({
                 filter={`url(#${shadowId})`}
               />
               <ClockFaceBackground clockFaceId={clockFaceId} />
-              <SolarBand solarTimes={solarTimes} daylightId={daylightId} />
+              <SolarBand solarTimes={solarTimes} />
               <ClockFaceLegends routeLayers={routeLayers} />
               <RouteMarkers routeLayers={routeLayers} directions={["retur"]} showMinuteLabels={false} />
               <ClockFaceLabels />
@@ -131,7 +129,7 @@ export function SolarClock({
               <ClockHand currentMinutes={solarTimes.currentMinutes} />
             </svg>
           </div>
-          <DepartureSummaries routeLayers={routeLayers} />
+          <DepartureSummaries routeLayers={routeLayers} solarTimes={solarTimes} />
         </>
       )}
     </div>

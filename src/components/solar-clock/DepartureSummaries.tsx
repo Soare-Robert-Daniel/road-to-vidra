@@ -1,12 +1,14 @@
 import { JSX } from "preact";
 import { twMerge } from "tailwind-merge";
 
+import { minutesToTimeLabel, type SolarTimesSummary } from "../../solar";
 import { formatTimeDifference } from "../../utils";
 import { getCompactNextDepartureSummary } from "./constants";
 import type { RouteLayer } from "./constants";
 
 interface DepartureSummariesProps {
   routeLayers: RouteLayer[];
+  solarTimes?: SolarTimesSummary;
 }
 
 /**
@@ -17,9 +19,11 @@ interface DepartureSummariesProps {
  */
 export function DepartureSummaries({
   routeLayers,
+  solarTimes,
 }: DepartureSummariesProps): JSX.Element {
   return (
-    <div class="inline-flex w-full gap-2 px-1 pb-1">
+    <div class="flex w-full flex-col gap-2 px-1 pb-1">
+      <div class="inline-flex w-full gap-2">
       {routeLayers.map((routeLayer) => {
         const [primary, ...followUps] = routeLayer.upcomingDepartures;
 
@@ -100,6 +104,14 @@ export function DepartureSummaries({
           </div>
         );
       })}
+      </div>
+
+      {solarTimes && (
+        <div class="font-ui flex items-center justify-between px-2 text-[10px] font-medium uppercase tracking-[0.14em] text-slate-400">
+          <span>Rasarit {minutesToTimeLabel(solarTimes.sunriseMinutes)}</span>
+          <span>Apus {minutesToTimeLabel(solarTimes.sunsetMinutes)}</span>
+        </div>
+      )}
     </div>
   );
 }

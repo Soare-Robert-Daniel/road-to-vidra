@@ -94,8 +94,14 @@ export const CLOCK_LAYOUT = {
 // Styling for the sunrise-to-sunset band on the clock
 export const SOLAR_BAND_STYLE = {
   radius: 263,
-  width: 8,
-  baseOpacity: 1,
+  width: 2.5,
+  dayColor: "#b8a070",
+  nightColor: "#7e8fa3",
+  dayOpacity: 1,
+  nightOpacity: 0.8,
+  markerRadius: 3.5,
+  markerColor: "#64748b",
+  markerOpacity: 1,
 } as const;
 
 // SVG path geometry properties for the clock hand (current time indicator)
@@ -213,10 +219,6 @@ export const CLOCK_COLORS = {
   currentTipOpacity: 0.9,
   centerOuterStroke: "#d8e1ec",
   centerInnerFill: "#f8fafc",
-  solarBandBase: "#e8f0f8",
-  daylightStart: "#f7d986",
-  daylightMid: "#f2be58",
-  daylightEnd: "#f29b38",
 } as const;
 
 // Derived convenience constants extracted from CLOCK_LAYOUT
