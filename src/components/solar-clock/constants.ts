@@ -284,7 +284,7 @@ export const ROUTE_GEOMETRY: Record<Direction, RouteGeometry> = {
   tur: {
     laneRadius: 180,
     guideDash: "2 8",
-    labelRadius: 123,
+    labelRadius: 163,
     denseLabelRadius: 159,
     bottomLabelOffset: 0,
     bottomTangentialPixelsPerMinute: 0,
@@ -293,7 +293,7 @@ export const ROUTE_GEOMETRY: Record<Direction, RouteGeometry> = {
   retur: {
     laneRadius: 210,
     guideDash: "2 10",
-    labelRadius: 185,
+    labelRadius: 195,
     denseLabelRadius: 204,
     bottomLabelOffset: 0,
     bottomTangentialPixelsPerMinute: 0,
