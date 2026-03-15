@@ -9,6 +9,46 @@
 @theme {
   --font-display: 'Space Grotesk Variable', sans-serif;
   --font-ui: 'IBM Plex Sans Condensed', sans-serif;
+
+  /* Clock face */
+  --color-clock-hand: oklch(0.3462 0.0736 256.04);
+  --color-clock-hand-shadow: oklch(0.2077 0.0398 265.75);
+  --color-clock-surface: oklch(1 0 0);
+  --color-clock-face-mid: oklch(0.987 0.0062 255.47);
+  --color-clock-face-end: oklch(0.9639 0.012 247.95);
+  --color-clock-face-stroke: oklch(0.9115 0.0185 250.6);
+  --color-clock-timeline-frame: oklch(0.9651 0.0097 252.81);
+  --color-clock-timeline-base: oklch(0.9222 0.0198 245.65);
+  --color-clock-tick-major: oklch(0.5544 0.0407 257.42);
+  --color-clock-tick-minor: oklch(0.8489 0.0241 250.1);
+  --color-clock-dial-text: oklch(0.2077 0.0398 265.75);
+  --color-clock-shadow: oklch(0.7107 0.0351 256.79);
+  --color-clock-center-outer: oklch(0.9062 0.0179 253.35);
+  --color-clock-center-inner: oklch(0.9842 0.0034 247.86);
+
+  /* Solar band */
+  --color-solar-day: oklch(0.7155 0.0704 84.18);
+  --color-solar-night: oklch(0.6434 0.0359 252.59);
+  --color-solar-marker: oklch(0.5544 0.0407 257.42);
+
+  /* Label */
+  --color-label-intermediate: oklch(0.2795 0.0368 260.03);
+
+  /* Route: 420 tur (blue) */
+  --color-route-420-tur: oklch(0.4882 0.2172 264.38);
+  --color-route-420-tur-soft: oklch(0.8091 0.0956 251.81);
+
+  /* Route: 420 retur (emerald) */
+  --color-route-420-retur: oklch(0.5081 0.1049 165.61);
+  --color-route-420-retur-soft: oklch(0.8452 0.1299 164.98);
+
+  /* Route: default tur (red) */
+  --color-route-default-tur: oklch(0.5054 0.1905 27.52);
+  --color-route-default-tur-soft: oklch(0.8077 0.1035 19.57);
+
+  /* Route: default retur (violet) */
+  --color-route-default-retur: oklch(0.4907 0.2412 292.58);
+  --color-route-default-retur-soft: oklch(0.8112 0.1013 293.57);
 }
 
 body {

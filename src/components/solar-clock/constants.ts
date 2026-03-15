@@ -95,12 +95,12 @@ export const CLOCK_LAYOUT = {
 export const SOLAR_BAND_STYLE = {
   radius: 263,
   width: 2.5,
-  dayColor: "#b8a070",
-  nightColor: "#7e8fa3",
+  dayColor: "var(--color-solar-day)",
+  nightColor: "var(--color-solar-night)",
   dayOpacity: 1,
   nightOpacity: 0.8,
   markerRadius: 3.5,
-  markerColor: "#64748b",
+  markerColor: "var(--color-solar-marker)",
   markerOpacity: 1,
 } as const;
 
@@ -129,7 +129,7 @@ export const LABEL_STYLE = {
   intermediateHourSizeRatio: 0.7,
   intermediateHourWeight: 500,
   intermediateHourOpacity: 0.8,
-  intermediateHourColor: "#1e293b",
+  intermediateHourColor: "var(--color-label-intermediate)",
   routeBaseOpacity: 0.96,
   routePastOpacity: 0.3,
   routeStrokeWidth: 4,
@@ -197,28 +197,28 @@ export const HEADWAY_STYLE = {
 
 // RGB/hex color palette for the entire clock visualization
 export const CLOCK_COLORS = {
-  hand: "#1e3a5f",
-  handShadow: "#0f172a",
-  currentRingIndicator: "#0f172a",
-  surface: "#ffffff",
-  faceGradientStart: "#ffffff",
-  faceGradientMid: "#f8fbff",
-  faceGradientEnd: "#edf4fb",
-  faceStroke: "#d9e3ee",
-  timelineFrame: "#eff4fa",
-  timelineBase: "#dbe7f2",
-  tickMajor: "#64748b",
-  tickMinor: "#c2cfdd",
-  dialText: "#0f172a",
-  dialTextStroke: "rgba(255,255,255,0.9)",
-  routeTextStroke: "rgba(255,255,255,0.95)",
-  shadowColor: "#94a3b8",
+  hand: "var(--color-clock-hand)",
+  handShadow: "var(--color-clock-hand-shadow)",
+  currentRingIndicator: "var(--color-clock-hand-shadow)",
+  surface: "var(--color-clock-surface)",
+  faceGradientStart: "var(--color-clock-surface)",
+  faceGradientMid: "var(--color-clock-face-mid)",
+  faceGradientEnd: "var(--color-clock-face-end)",
+  faceStroke: "var(--color-clock-face-stroke)",
+  timelineFrame: "var(--color-clock-timeline-frame)",
+  timelineBase: "var(--color-clock-timeline-base)",
+  tickMajor: "var(--color-clock-tick-major)",
+  tickMinor: "var(--color-clock-tick-minor)",
+  dialText: "var(--color-clock-dial-text)",
+  dialTextStroke: "oklch(1 0 0 / 0.9)",
+  routeTextStroke: "oklch(1 0 0 / 0.95)",
+  shadowColor: "var(--color-clock-shadow)",
   shadowOpacity: 0.18,
   shadowSurfaceOpacity: 0.92,
-  currentTipFill: "#ffffff",
+  currentTipFill: "var(--color-clock-surface)",
   currentTipOpacity: 0.9,
-  centerOuterStroke: "#d8e1ec",
-  centerInnerFill: "#f8fafc",
+  centerOuterStroke: "var(--color-clock-center-outer)",
+  centerInnerFill: "var(--color-clock-center-inner)",
 } as const;
 
 // Derived convenience constants extracted from CLOCK_LAYOUT
@@ -237,8 +237,8 @@ export const CURRENT_HAND_TAIL = CLOCK_LAYOUT.currentHandTail;
 export const BUS_ROUTE_THEMES: Record<string, Record<Direction, RouteTheme>> = {
   "420": {
     tur: {
-      marker: "#1d4ed8",
-      markerSoft: "#93c5fd",
+      marker: "var(--color-route-420-tur)",
+      markerSoft: "var(--color-route-420-tur-soft)",
       legendBg: "bg-blue-50/80",
       legendText: "text-blue-800",
       summaryBorder: "border-blue-200/80",
@@ -247,8 +247,8 @@ export const BUS_ROUTE_THEMES: Record<string, Record<Direction, RouteTheme>> = {
       summaryMuted: "text-blue-800",
     },
     retur: {
-      marker: "#047857",
-      markerSoft: "#6ee7b7",
+      marker: "var(--color-route-420-retur)",
+      markerSoft: "var(--color-route-420-retur-soft)",
       legendBg: "bg-emerald-50/80",
       legendText: "text-emerald-800",
       summaryBorder: "border-emerald-200/80",
@@ -259,8 +259,8 @@ export const BUS_ROUTE_THEMES: Record<string, Record<Direction, RouteTheme>> = {
   },
   default: {
     tur: {
-      marker: "#b91c1c",
-      markerSoft: "#fca5a5",
+      marker: "var(--color-route-default-tur)",
+      markerSoft: "var(--color-route-default-tur-soft)",
       legendBg: "bg-red-50/80",
       legendText: "text-red-800",
       summaryBorder: "border-red-200/80",
@@ -269,8 +269,8 @@ export const BUS_ROUTE_THEMES: Record<string, Record<Direction, RouteTheme>> = {
       summaryMuted: "text-red-800",
     },
     retur: {
-      marker: "#6d28d9",
-      markerSoft: "#c4b5fd",
+      marker: "var(--color-route-default-retur)",
+      markerSoft: "var(--color-route-default-retur-soft)",
       legendBg: "bg-violet-50/80",
       legendText: "text-violet-800",
       summaryBorder: "border-violet-200/80",
