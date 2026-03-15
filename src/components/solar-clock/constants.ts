@@ -88,6 +88,17 @@ export const POSTER_SECTION_DEFS = [
   },
 ] as const;
 
+// Temperature wave label configuration
+export const TEMP_LABEL_CONFIG = {
+  tempFontSize: 16,
+  tempFontWeight: "700",
+  tempOffsetY: -8,
+  hourFontSize: 12,
+  hourFontWeight: "500",
+  hourOffsetY: -24,
+  dotRadius: 4.5,
+};
+
 // Total minutes in a 24-hour day; used for time normalization and circular minute calculations
 export const MINUTES_PER_DAY = 24 * 60;
 

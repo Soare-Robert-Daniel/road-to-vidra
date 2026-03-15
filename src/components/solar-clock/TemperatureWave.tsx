@@ -1,5 +1,6 @@
 import { JSX } from "preact";
 import type { HourlyTemperature } from "../../hooks/useWeatherData";
+import { TEMP_LABEL_CONFIG } from "./constants";
 
 interface TemperatureWaveProps {
   temperatures: HourlyTemperature[];
@@ -7,11 +8,11 @@ interface TemperatureWaveProps {
 }
 
 const WIDTH = 480;
-const HEIGHT = 110;
+const HEIGHT = 116;
 const PAD_LEFT = 16;
 const PAD_RIGHT = 16;
-const CHART_TOP = 28;
-const CHART_BOTTOM = 96;
+const CHART_TOP = 32;
+const CHART_BOTTOM = 98;
 const CHART_WIDTH = WIDTH - PAD_LEFT - PAD_RIGHT;
 const CHART_HEIGHT = CHART_BOTTOM - CHART_TOP;
 
@@ -21,6 +22,35 @@ const COLORS = {
   fillEnd: "var(--color-temp-fill-end)",
   label: "var(--color-temp-label)",
 };
+
+// OKLCH color stops: [temp °C, lightness, chroma, hue]
+const TEMP_COLOR_STOPS: Array<[number, number, number, number]> = [
+  [0, 0.55, 0.1, 250], // deep blue
+  [10, 0.6, 0.1, 200], // cyan/teal
+  [20, 0.62, 0.12, 145], // green
+  [30, 0.62, 0.14, 65], // orange
+  [35, 0.55, 0.16, 25], // red
+];
+
+function temperatureToColor(temp: number): string {
+  if (temp <= TEMP_COLOR_STOPS[0][0]) {
+    const [, l, c, h] = TEMP_COLOR_STOPS[0];
+    return `oklch(${l} ${c} ${h})`;
+  }
+  for (let i = 1; i < TEMP_COLOR_STOPS.length; i++) {
+    if (temp <= TEMP_COLOR_STOPS[i][0]) {
+      const [t0, l0, c0, h0] = TEMP_COLOR_STOPS[i - 1];
+      const [t1, l1, c1, h1] = TEMP_COLOR_STOPS[i];
+      const t = (temp - t0) / (t1 - t0);
+      const l = l0 + t * (l1 - l0);
+      const c = c0 + t * (c1 - c0);
+      const h = h0 + t * (h1 - h0);
+      return `oklch(${l.toFixed(3)} ${c.toFixed(3)} ${h.toFixed(1)})`;
+    }
+  }
+  const [, l, c, h] = TEMP_COLOR_STOPS[TEMP_COLOR_STOPS.length - 1];
+  return `oklch(${l} ${c} ${h})`;
+}
 
 function buildMonotonePath(points: Array<{ x: number; y: number }>): string {
   const n = points.length;
@@ -103,6 +133,7 @@ export function TemperatureWave({
     y: number;
     hour: string;
     temp: string;
+    color: string;
   }> = [];
   for (let i = 0; i < temperatures.length; i += 3) {
     const pt = points[i];
@@ -111,6 +142,7 @@ export function TemperatureWave({
       y: pt.y,
       hour: i === 0 ? "Acum" : temperatures[i].hour,
       temp: `${Math.round(temperatures[i].temperature)}\u00B0`,
+      color: temperatureToColor(temperatures[i].temperature),
     });
   }
 
@@ -169,26 +201,26 @@ export function TemperatureWave({
         {/* On-curve temperature + hour labels — always above the curve */}
         {curveLabels.map((label) => (
           <g key={label.hour}>
-            <circle cx={label.x} cy={label.y} r="1.5" fill={COLORS.stroke} />
+            <circle cx={label.x} cy={label.y} r={TEMP_LABEL_CONFIG.dotRadius} fill={label.color} />
             <text
               x={label.x}
-              y={label.y - 7}
+              y={label.y + TEMP_LABEL_CONFIG.tempOffsetY}
               text-anchor="middle"
-              fill={COLORS.stroke}
+              fill={label.color}
               font-family="var(--font-display)"
-              font-size="11"
-              font-weight="700"
+              font-size={TEMP_LABEL_CONFIG.tempFontSize}
+              font-weight={TEMP_LABEL_CONFIG.tempFontWeight}
             >
               {label.temp}
             </text>
             <text
               x={label.x}
-              y={label.y - 19}
+              y={label.y + TEMP_LABEL_CONFIG.hourOffsetY}
               text-anchor="middle"
               fill={COLORS.label}
               font-family="var(--font-ui)"
-              font-size="9"
-              font-weight="500"
+              font-size={TEMP_LABEL_CONFIG.hourFontSize}
+              font-weight={TEMP_LABEL_CONFIG.hourFontWeight}
             >
               {label.hour}
             </text>
