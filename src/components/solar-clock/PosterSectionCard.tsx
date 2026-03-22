@@ -13,6 +13,22 @@ function formatCountdown(minutes: number): string | null {
   return `${hours.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}`;
 }
 
+// Get urgency color based on minutes until departure
+function getUrgencyColor(minutes: number, routeColor: string): string {
+  if (minutes < 5) return "#dc2626"; // red-600
+  if (minutes < 30) return "#ea580c"; // orange-600
+  return routeColor;
+}
+
+// Calculate minutes until next occurrence of this hour (regardless of program type)
+function getMinutesUntilHour(timeStr: string, currentMinutes: number): number {
+  const [hour, minute] = timeStr.split(":").map(Number);
+  const totalMinutes = hour * 60 + minute;
+  const diff = totalMinutes - currentMinutes;
+  // If already past today, next occurrence is tomorrow
+  return diff > 0 ? diff : diff + 1440;
+}
+
 interface PosterSectionCardProps {
   section: PosterSection;
   routeLayers: RouteLayer[];
@@ -25,27 +41,22 @@ interface PosterSectionCardProps {
 function DepartureTime({
   entry,
   isNext,
-  nextMinutesUntil,
   markerColor,
   selectedMinutesUntil,
   onSelect,
 }: {
   entry: RouteEntry;
   isNext: boolean;
-  nextMinutesUntil: number | null;
   markerColor: string;
   selectedMinutesUntil: number | null;
   onSelect: () => void;
 }): JSX.Element {
-  // Determine badge content and styles
-  const minutesUntil = isNext ? nextMinutesUntil : selectedMinutesUntil;
-  const badgeText = formatCountdown(minutesUntil ?? 0);
+  // Only show badge for manually selected hours, not for next departure
+  const badgeText = selectedMinutesUntil !== null ? formatCountdown(selectedMinutesUntil) : null;
   const showBadge = badgeText !== null;
 
-  // Badge styles based on state
-  const badgeStyles = isNext
-    ? { backgroundColor: markerColor, color: "white" }
-    : { borderColor: markerColor, color: markerColor, backgroundColor: "transparent" };
+  // Get urgency color for countdown text
+  const countdownColor = selectedMinutesUntil !== null ? getUrgencyColor(selectedMinutesUntil, markerColor) : markerColor;
 
   // Time text styles based on state
   const timeClass = isNext
@@ -64,12 +75,11 @@ function DepartureTime({
       </span>
       <span
         class={twMerge(
-          "font-ui min-w-0 rounded px-0.5 py-0 text-xs font-semibold tabular-nums transition-opacity overflow-hidden text-ellipsis whitespace-nowrap",
-          isNext ? "" : "border",
+          "font-ui min-w-0 px-0.5 py-0 text-xs font-semibold tabular-nums transition-opacity overflow-hidden text-ellipsis whitespace-nowrap",
           !showBadge && "opacity-0 pointer-events-none h-0",
           showBadge && "h-[1.25rem]",
         )}
-        style={showBadge ? { ...badgeStyles, lineHeight: "inherit" } : { borderColor: "transparent" }}
+        style={showBadge ? { color: countdownColor, lineHeight: "inherit" } : {}}
       >
         {badgeText}
       </span>
@@ -90,21 +100,8 @@ function DepartureColumn({
   currentMinutes: number;
   onHourSelect: (time: string) => void;
 }): JSX.Element {
-  const directionArrow = routeLayer.direction === "tur" ? "→" : "←";
-
   return (
     <div class="flex flex-col gap-0.5">
-      <div
-        class={twMerge(
-          "mb-1 inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.14em]",
-          routeLayer.theme.legendText,
-        )}
-      >
-        <span class="h-2 w-2 rounded-full" style={{ backgroundColor: routeLayer.theme.marker }} />
-        <span class="truncate">
-          {directionArrow} {routeLayer.label}
-        </span>
-      </div>
       {entries.length === 0 ? (
         <span class="font-ui text-xs text-slate-400 italic">Fara curse</span>
       ) : (
@@ -114,11 +111,9 @@ function DepartureColumn({
               routeLayer.nextDeparture !== null && entry.time === routeLayer.nextDeparture.time;
             const isSelected = selectedHour === entry.time;
 
-            // Calculate minutes until for selected hour (next day if past)
+            // Calculate minutes until next occurrence of this hour
             const selectedMinutesUntil = isSelected
-              ? entry.isPast
-                ? entry.totalMinutes + 1440 - currentMinutes // Add 24h for next day
-                : entry.totalMinutes - currentMinutes
+              ? getMinutesUntilHour(entry.time, currentMinutes)
               : null;
 
             return (
@@ -126,7 +121,6 @@ function DepartureColumn({
                 key={entry.time}
                 entry={entry}
                 isNext={isNext}
-                nextMinutesUntil={isNext ? routeLayer.nextDeparture!.minutesUntil : null}
                 markerColor={routeLayer.theme.marker}
                 selectedMinutesUntil={selectedMinutesUntil}
                 onSelect={() => onHourSelect(entry.time)}

@@ -138,3 +138,28 @@ export const timeUntilNextOccurrence = (
 
   return { minutes: -1, days: -1 };
 };
+
+/**
+ * Calculate time until the next occurrence of a specific hour, regardless of program type.
+ * Finds when this hour occurs next (today or any future day).
+ * @param {string} timeStr Time in format "HH:MM"
+ * @returns {number} Minutes until next occurrence, or -1 if not found
+ */
+export const timeUntilNextHour = (timeStr: string): number => {
+  const now = new Date();
+  const [hour, minute] = timeStr.split(":").map(Number);
+
+  // Check if this hour is still upcoming today
+  const todayTime = new Date();
+  todayTime.setHours(hour, minute, 0, 0);
+  const diffToday = Math.floor((todayTime.getTime() - now.getTime()) / (1000 * 60));
+  if (diffToday > 0) {
+    return diffToday;
+  }
+
+  // Otherwise, it's tomorrow at the same hour
+  const tomorrowTime = new Date();
+  tomorrowTime.setDate(now.getDate() + 1);
+  tomorrowTime.setHours(hour, minute, 0, 0);
+  return Math.floor((tomorrowTime.getTime() - now.getTime()) / (1000 * 60));
+};
