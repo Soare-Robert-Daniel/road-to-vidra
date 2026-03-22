@@ -60,11 +60,6 @@ function LiveStatusCard({ routeLayer }: { routeLayer: RouteLayer }): JSX.Element
   const future = upcoming.slice(1, 4);
   const isAcum = primary.minutesUntil < 1;
 
-  // Calculate additional wait time for future departures (relative to primary)
-  const getAdditionalWait = (depMinutes: number, primaryMinutes: number): number => {
-    return depMinutes - primaryMinutes;
-  };
-
   return (
     <div class="flex flex-col gap-1 rounded-lg px-1.5 py-1.5">
       {/* Row 1: Colored dot • Destination — Countdown (large, bold) */}
@@ -102,7 +97,6 @@ function LiveStatusCard({ routeLayer }: { routeLayer: RouteLayer }): JSX.Element
       {future.length > 0 && (
         <div class="flex items-start justify-end gap-3">
           {future.map((dep) => {
-            const additionalWait = getAdditionalWait(dep.minutesUntil, primary.minutesUntil);
             return (
               <div key={dep.time} class="flex flex-col items-center">
                 <small class="font-ui text-[10px] text-slate-400 tabular-nums">{dep.time}</small>
@@ -110,7 +104,7 @@ function LiveStatusCard({ routeLayer }: { routeLayer: RouteLayer }): JSX.Element
                   class="font-ui text-sm font-semibold tabular-nums"
                   style={{ color: routeLayer.theme.marker }}
                 >
-                  +{formatCountdownCompact(additionalWait)}
+                  în {formatCountdownCompact(dep.minutesUntil)}
                 </span>
               </div>
             );
