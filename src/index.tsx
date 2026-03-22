@@ -8,27 +8,22 @@ import {
   setSelectedBus,
   getShowPastHours,
   setShowPastHours,
-  getViewMode,
-  setViewMode,
   getClockDisplayMode,
   setClockDisplayMode,
-  type ViewMode,
   type ClockDisplayMode,
 } from "./storage";
-import { HolidayBanner, Header, SettingsMenu, SolarClock, StationHours } from "./components";
+import { HolidayBanner, Header, SettingsMenu, SolarClock } from "./components";
 
 // State management with localStorage persistence
 const selectedBusNumber = signal(getSelectedBus());
 // 'auto': determined by day, 'lucru': forced workday, 'weekend': forced weekend
 const programMode = signal<"auto" | "lucru" | "weekend">("auto");
 const showPastHours = signal(getShowPastHours());
-const viewMode = signal<ViewMode>(getViewMode());
 const clockDisplayMode = signal<ClockDisplayMode>(getClockDisplayMode());
 
 // Persist changes to localStorage
 selectedBusNumber.subscribe((value) => setSelectedBus(value));
 showPastHours.subscribe((value) => setShowPastHours(value));
-viewMode.subscribe((value) => setViewMode(value));
 clockDisplayMode.subscribe((value) => setClockDisplayMode(value));
 
 export function App() {
@@ -39,8 +34,6 @@ export function App() {
   // By reading the signals here, we ensure this component re-renders on change.
   const busNumber = selectedBusNumber.value;
   const mode = programMode.value;
-  const showPast = showPastHours.value;
-  const selectedViewMode = viewMode.value;
 
   let useWeekendSchedule;
   if (mode === "auto") {
@@ -48,8 +41,6 @@ export function App() {
   } else {
     useWeekendSchedule = mode === "weekend";
   }
-
-  const isTodaySchedule = useWeekendSchedule === isCurrentlyWeekendProgram;
 
   return (
     <div class="min-h-screen bg-gray-50 p-0.5 sm:p-1">
@@ -65,36 +56,16 @@ export function App() {
           selectedBusNumber={selectedBusNumber}
           programMode={programMode}
           showPastHours={showPastHours}
-          viewMode={viewMode}
           isWeekendProgram={isCurrentlyWeekendProgram}
           holidayName={holidayName}
         />
 
-        {/* Bus Hours Display */}
-        {selectedViewMode === "clock" ? (
-          <SolarClock
-            busNumber={busNumber}
-            useWeekendSchedule={useWeekendSchedule}
-            clockDisplayMode={clockDisplayMode}
-          />
-        ) : (
-          <div class="space-y-2 lg:grid lg:grid-cols-2 lg:gap-2 lg:space-y-0">
-            <StationHours
-              busNumber={busNumber}
-              direction="tur"
-              useWeekendSchedule={useWeekendSchedule}
-              showPastHours={showPast}
-              isTodaySchedule={isTodaySchedule}
-            />
-            <StationHours
-              busNumber={busNumber}
-              direction="retur"
-              useWeekendSchedule={useWeekendSchedule}
-              showPastHours={showPast}
-              isTodaySchedule={isTodaySchedule}
-            />
-          </div>
-        )}
+        {/* Solar Clock Display */}
+        <SolarClock
+          busNumber={busNumber}
+          useWeekendSchedule={useWeekendSchedule}
+          clockDisplayMode={clockDisplayMode}
+        />
       </div>
     </div>
   );

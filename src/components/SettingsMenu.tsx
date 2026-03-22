@@ -3,14 +3,11 @@ import { Signal } from "@preact/signals";
 import { twMerge } from "tailwind-merge";
 import { BusSelector } from "./BusSelector";
 import { ProgramModeButtons } from "./ProgramModeButtons";
-import { HoursViewSelector } from "./HoursViewSelector";
-import { type ViewMode } from "../storage";
 
 interface SettingsMenuProps {
   selectedBusNumber: Signal<string>;
   programMode: Signal<"auto" | "lucru" | "weekend">;
   showPastHours: Signal<boolean>;
-  viewMode: Signal<ViewMode>;
   isWeekendProgram: boolean;
   holidayName: string | null;
   className?: string;
@@ -19,7 +16,6 @@ interface SettingsMenuProps {
 export function SettingsMenu({
   selectedBusNumber,
   programMode,
-  viewMode,
   isWeekendProgram,
   className,
 }: SettingsMenuProps): JSX.Element {
@@ -44,7 +40,6 @@ export function SettingsMenu({
           currentScheduleType={currentScheduleType}
           className="min-w-0 flex-1"
         />
-        <HoursViewSelector viewMode={viewMode} className="shrink-0" />
       </div>
     </div>
   );

@@ -4,11 +4,9 @@ const STORAGE_KEYS = {
   SHOW_PAST_HOURS: "vidra-show-past-hours",
   SELECTED_BUS: "vidra-selected-bus",
   COLLAPSED_SECTIONS: "vidra-collapsed-sections",
-  VIEW_MODE: "vidra-view-mode",
   CLOCK_DISPLAY_MODE: "vidra-clock-display-mode",
 } as const;
 
-export type ViewMode = "table" | "clock";
 export type ClockDisplayMode = "round" | "poster";
 
 /**
@@ -102,20 +100,6 @@ export const getSelectedBus = (): string => {
  */
 export const setSelectedBus = (busNumber: string): void => {
   setStorageValue(STORAGE_KEYS.SELECTED_BUS, busNumber);
-};
-
-/**
- * Get the preferred hours view mode from localStorage.
- */
-export const getViewMode = (): ViewMode => {
-  return getStorageValue<ViewMode>(STORAGE_KEYS.VIEW_MODE, "table");
-};
-
-/**
- * Set the preferred hours view mode in localStorage.
- */
-export const setViewMode = (value: ViewMode): void => {
-  setStorageValue(STORAGE_KEYS.VIEW_MODE, value);
 };
 
 export const getClockDisplayMode = (): ClockDisplayMode => {
