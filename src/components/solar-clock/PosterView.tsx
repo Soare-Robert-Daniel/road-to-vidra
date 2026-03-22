@@ -36,13 +36,6 @@ function formatCountdownCompact(minutes: number): string {
   return `${mins} min`;
 }
 
-// Get urgency color based on minutes until departure
-function getUrgencyColor(minutes: number, routeColor: string): string {
-  if (minutes < 5) return "#dc2626"; // red-600
-  if (minutes < 30) return "#ea580c"; // orange-600
-  return routeColor;
-}
-
 function LiveStatusCard({ routeLayer }: { routeLayer: RouteLayer }): JSX.Element {
   const destination = getDestinationFromLabel(routeLayer.label);
   const upcoming = routeLayer.upcomingDepartures;
@@ -66,7 +59,6 @@ function LiveStatusCard({ routeLayer }: { routeLayer: RouteLayer }): JSX.Element
   const primary = upcoming[0];
   const future = upcoming.slice(1, 3);
   const isAcum = primary.minutesUntil < 1;
-  const urgencyColor = getUrgencyColor(primary.minutesUntil, routeLayer.theme.marker);
 
   // Calculate additional wait time for future departures (relative to primary)
   const getAdditionalWait = (depMinutes: number, primaryMinutes: number): number => {
@@ -90,12 +82,15 @@ function LiveStatusCard({ routeLayer }: { routeLayer: RouteLayer }): JSX.Element
           {isAcum ? (
             <span
               class="animate-pulse font-ui text-lg font-bold uppercase"
-              style={{ color: urgencyColor }}
+              style={{ color: routeLayer.theme.marker }}
             >
               ACUM
             </span>
           ) : (
-            <span class="font-ui text-lg font-bold tabular-nums" style={{ color: urgencyColor }}>
+            <span
+              class="font-ui text-lg font-bold tabular-nums"
+              style={{ color: routeLayer.theme.marker }}
+            >
               în {formatCountdownCompact(primary.minutesUntil)}
             </span>
           )}
@@ -187,8 +182,8 @@ export function PosterView({
     <div class="flex w-full flex-col gap-2 px-1">
       {/* Global header with next departures - two rows */}
       <div class="flex flex-col gap-1 px-1 pb-1">
-        <LiveStatusCard routeLayer={turLayer} />
-        <LiveStatusCard routeLayer={returLayer} />
+        <LiveStatusCard key="tur-status" routeLayer={turLayer} />
+        <LiveStatusCard key="retur-status" routeLayer={returLayer} />
       </div>
 
       {/* Section cards */}

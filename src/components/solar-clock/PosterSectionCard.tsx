@@ -121,15 +121,22 @@ function DepartureColumn({
   selectedHour,
   currentMinutes,
   onHourSelect,
+  direction,
 }: {
   entries: RouteEntry[];
   routeLayer: RouteLayer;
   selectedHour: string | null;
   currentMinutes: number;
   onHourSelect: (time: string) => void;
+  direction: "tur" | "retur";
 }): JSX.Element {
+  const headerLabel = direction === "tur" ? "Tur →" : "← Retur";
+
   return (
     <div class="flex flex-col gap-0.5">
+      <span class="font-ui text-xs font-semibold mb-1" style={{ color: routeLayer.theme.marker }}>
+        {headerLabel}
+      </span>
       {entries.length === 0 ? (
         <span class="font-ui text-xs text-slate-400 italic">Fara curse</span>
       ) : (
@@ -231,13 +238,14 @@ export function PosterSectionCard({
       {isEmpty ? (
         <p class="font-ui py-3 text-center text-sm text-slate-400 italic">Fara curse</p>
       ) : (
-        <div class="grid grid-cols-2 gap-3">
+        <div class="grid grid-cols-2 gap-3 divide-x divide-slate-400/60">
           <DepartureColumn
             entries={section.turEntries}
             routeLayer={turLayer}
             selectedHour={selectedTurHour.value}
             currentMinutes={solarTimes.currentMinutes}
             onHourSelect={(time) => onHourSelect("tur", time)}
+            direction="tur"
           />
           <DepartureColumn
             entries={section.returEntries}
@@ -245,6 +253,7 @@ export function PosterSectionCard({
             selectedHour={selectedReturHour.value}
             currentMinutes={solarTimes.currentMinutes}
             onHourSelect={(time) => onHourSelect("retur", time)}
+            direction="retur"
           />
         </div>
       )}
