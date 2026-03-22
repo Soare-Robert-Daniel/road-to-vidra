@@ -59,9 +59,7 @@ export function PosterView({
 }: PosterViewProps): JSX.Element {
   const sections = buildSections(routeLayers, solarTimes, isSelectedScheduleToday);
 
-  const handleHourSelect = (direction: "tur" | "retur", time: string, isPast: boolean) => {
-    if (isPast) return; // Ignore past hours
-
+  const handleHourSelect = (direction: "tur" | "retur", time: string) => {
     const selectedSignal = direction === "tur" ? selectedTurHour : selectedReturHour;
 
     // Toggle: if same hour selected, deselect
@@ -80,7 +78,6 @@ export function PosterView({
           key={section.id}
           section={section}
           routeLayers={routeLayers}
-          isSelectedScheduleToday={isSelectedScheduleToday}
           solarTimes={solarTimes}
           selectedTurHour={selectedTurHour}
           selectedReturHour={selectedReturHour}
