@@ -64,7 +64,7 @@ function buildMonotonePath(points: Array<{ x: number; y: number }>): string {
     slopes.push((points[i + 1].y - points[i].y) / deltas[i]);
   }
 
-  const tangents = new Array(n).fill(0);
+  const tangents = Array.from({ length: n }, () => 0);
   tangents[0] = slopes[0];
   tangents[n - 1] = slopes[n - 2];
   for (let i = 1; i < n - 1; i++) {
