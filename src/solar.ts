@@ -98,11 +98,11 @@ export function getNextDeparture(
     for (let dayOffset = 0; dayOffset <= 7; dayOffset += 1) {
       // Calculate candidate time in Romania timezone
       let candidateMinutes = busMinutes + dayOffset * 1440 - currentMinutes;
-      
+
       // Determine which Romania day this candidate falls on
       const candidateDayOffset = Math.floor((currentMinutes + candidateMinutes) / 1440);
       const candidateDate = new Date(now.getTime() + candidateMinutes * 60 * 1000);
-      
+
       if (isWeekendProgram(candidateDate) !== useWeekendSchedule) {
         continue;
       }
@@ -144,11 +144,11 @@ export function getUpcomingDepartures(
     for (let dayOffset = 0; dayOffset <= 7; dayOffset += 1) {
       // Calculate candidate time in Romania timezone
       let candidateMinutes = busMinutes + dayOffset * 1440 - currentMinutes;
-      
+
       // Determine which Romania day this candidate falls on
       const candidateDayOffset = Math.floor((currentMinutes + candidateMinutes) / 1440);
       const candidateDate = new Date(now.getTime() + candidateMinutes * 60 * 1000);
-      
+
       if (isWeekendProgram(candidateDate) !== useWeekendSchedule) {
         continue;
       }

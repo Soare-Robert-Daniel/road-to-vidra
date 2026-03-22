@@ -11,7 +11,8 @@ export function BusSelector({ selectedBusNumber, className }: BusSelectorProps):
   const baseButtonClass =
     "min-w-11 px-2.5 py-1 text-sm font-medium rounded-[11px] transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500 sm:min-w-12 sm:px-3 sm:py-1.5 sm:text-base";
   // Active: raised button with soft shadow (tactile, elevated)
-  const selectedClass = "bg-white text-blue-600 shadow-[0_2px_6px_rgba(0,0,0,0.1),0_1px_2px_rgba(0,0,0,0.08)]";
+  const selectedClass =
+    "bg-white text-blue-600 shadow-[0_2px_6px_rgba(0,0,0,0.1),0_1px_2px_rgba(0,0,0,0.08)]";
   // Inactive: recessed into the track (scobitură effect)
   const unselectedClass = "bg-transparent text-slate-400 hover:text-slate-600";
 

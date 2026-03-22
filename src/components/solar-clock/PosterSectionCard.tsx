@@ -84,7 +84,10 @@ function DepartureTime({
   const showBadge = badgeText !== null;
 
   // Get urgency color for countdown text
-  const countdownColor = selectedMinutesUntil !== null ? getUrgencyColor(selectedMinutesUntil, markerColor) : markerColor;
+  const countdownColor =
+    selectedMinutesUntil !== null
+      ? getUrgencyColor(selectedMinutesUntil, markerColor)
+      : markerColor;
 
   // Time text styles based on state
   const timeClass = isNext
@@ -94,10 +97,7 @@ function DepartureTime({
   const timeColor = entry.isPast ? "var(--color-past-time)" : markerColor;
 
   return (
-    <div
-      class={twMerge("flex flex-col items-start min-w-0 cursor-pointer")}
-      onClick={onSelect}
-    >
+    <div class={twMerge("flex flex-col items-start min-w-0 cursor-pointer")} onClick={onSelect}>
       <span class={timeClass} style={{ color: timeColor }}>
         {entry.time}
       </span>
@@ -177,9 +177,11 @@ export function PosterSectionCard({
 
   // Check if sunrise/sunset fall within this section
   const sunriseInSection =
-    solarTimes.sunriseMinutes >= section.startMinutes && solarTimes.sunriseMinutes < section.endMinutes;
+    solarTimes.sunriseMinutes >= section.startMinutes &&
+    solarTimes.sunriseMinutes < section.endMinutes;
   const sunsetInSection =
-    solarTimes.sunsetMinutes >= section.startMinutes && solarTimes.sunsetMinutes < section.endMinutes;
+    solarTimes.sunsetMinutes >= section.startMinutes &&
+    solarTimes.sunsetMinutes < section.endMinutes;
 
   // Get section temperature
   const sectionTemp = getSectionTemperature(temperatures, section.startMinutes, section.endMinutes);
@@ -197,16 +199,17 @@ export function PosterSectionCard({
         >
           {section.label}
         </h3>
-        <span class="font-ui text-xs font-medium tracking-wide" style={{ color: "var(--color-time-range)" }}>
+        <span
+          class="font-ui text-xs font-medium tracking-wide"
+          style={{ color: "var(--color-time-range)" }}
+        >
           {section.hourRange}
         </span>
         {/* Inline temperature indicator */}
         {sectionTemp !== null && (
           <>
             <span class="font-ui text-xs text-slate-300">|</span>
-            <span class="font-ui text-xs font-medium text-slate-500">
-              {sectionTemp}°
-            </span>
+            <span class="font-ui text-xs font-medium text-slate-500">{sectionTemp}°</span>
           </>
         )}
         {(sunriseInSection || sunsetInSection) && (

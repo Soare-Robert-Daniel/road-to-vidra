@@ -87,13 +87,9 @@ function buildMonotonePath(points: Array<{ x: number; y: number }>): string {
   return path;
 }
 
-function interpolateY(
-  points: Array<{ x: number; y: number }>,
-  targetX: number,
-): number {
+function interpolateY(points: Array<{ x: number; y: number }>, targetX: number): number {
   if (targetX <= points[0].x) return points[0].y;
-  if (targetX >= points[points.length - 1].x)
-    return points[points.length - 1].y;
+  if (targetX >= points[points.length - 1].x) return points[points.length - 1].y;
 
   for (let i = 0; i < points.length - 1; i++) {
     if (targetX >= points[i].x && targetX <= points[i + 1].x) {
@@ -128,11 +124,9 @@ export function TemperatureWave({
   const firstHourNum = Number.parseInt(temperatures[0].hour, 10);
   let hoursFromStart = currentHourFraction - firstHourNum;
   if (hoursFromStart < 0) hoursFromStart += 24;
-  const currentX =
-    PAD_LEFT + (hoursFromStart / (temperatures.length - 1)) * CHART_WIDTH;
+  const currentX = PAD_LEFT + (hoursFromStart / (temperatures.length - 1)) * CHART_WIDTH;
   const currentY = interpolateY(points, currentX);
-  const showTimeLine =
-    currentX >= PAD_LEFT && currentX <= PAD_LEFT + CHART_WIDTH;
+  const showTimeLine = currentX >= PAD_LEFT && currentX <= PAD_LEFT + CHART_WIDTH;
 
   // On-curve labels every 3 hours
   const curveLabels: Array<{

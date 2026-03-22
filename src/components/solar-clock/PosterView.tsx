@@ -4,11 +4,7 @@ import { signal } from "@preact/signals";
 import type { SolarTimesSummary } from "../../solar";
 import { useWeatherData } from "../../hooks/useWeatherData";
 
-import {
-  POSTER_SECTION_DEFS,
-  type PosterSection,
-  type RouteLayer,
-} from "./constants";
+import { POSTER_SECTION_DEFS, type PosterSection, type RouteLayer } from "./constants";
 import { PosterSectionCard } from "./PosterSectionCard";
 
 interface PosterViewProps {
@@ -47,11 +43,7 @@ function getUrgencyColor(minutes: number, routeColor: string): string {
   return routeColor;
 }
 
-function LiveStatusCard({
-  routeLayer,
-}: {
-  routeLayer: RouteLayer;
-}): JSX.Element {
+function LiveStatusCard({ routeLayer }: { routeLayer: RouteLayer }): JSX.Element {
   const destination = getDestinationFromLabel(routeLayer.label);
   const upcoming = routeLayer.upcomingDepartures;
 
@@ -63,15 +55,10 @@ function LiveStatusCard({
           class="inline-block h-2 w-2 rounded-full mr-1.5"
           style={{ backgroundColor: routeLayer.theme.marker }}
         />
-        <span
-          class="font-ui text-base font-bold"
-          style={{ color: routeLayer.theme.marker }}
-        >
+        <span class="font-ui text-base font-bold" style={{ color: routeLayer.theme.marker }}>
           {destination}
         </span>
-        <span class="font-ui text-sm text-slate-400 italic ml-2">
-          Indisponibil
-        </span>
+        <span class="font-ui text-sm text-slate-400 italic ml-2">Indisponibil</span>
       </div>
     );
   }
@@ -79,10 +66,7 @@ function LiveStatusCard({
   const primary = upcoming[0];
   const future = upcoming.slice(1, 3);
   const isAcum = primary.minutesUntil < 1;
-  const urgencyColor = getUrgencyColor(
-    primary.minutesUntil,
-    routeLayer.theme.marker,
-  );
+  const urgencyColor = getUrgencyColor(primary.minutesUntil, routeLayer.theme.marker);
 
   // Calculate additional wait time for future departures (relative to primary)
   const getAdditionalWait = (depMinutes: number, primaryMinutes: number): number => {
@@ -98,10 +82,7 @@ function LiveStatusCard({
             class="inline-block h-2 w-2 rounded-full shrink-0"
             style={{ backgroundColor: routeLayer.theme.marker }}
           />
-          <span
-            class="font-ui text-base font-bold"
-            style={{ color: routeLayer.theme.marker }}
-          >
+          <span class="font-ui text-base font-bold" style={{ color: routeLayer.theme.marker }}>
             {destination}
           </span>
         </div>
@@ -114,16 +95,11 @@ function LiveStatusCard({
               ACUM
             </span>
           ) : (
-            <span
-              class="font-ui text-lg font-bold tabular-nums"
-              style={{ color: urgencyColor }}
-            >
+            <span class="font-ui text-lg font-bold tabular-nums" style={{ color: urgencyColor }}>
               în {formatCountdownCompact(primary.minutesUntil)}
             </span>
           )}
-          <small class="font-ui text-xs text-slate-400">
-            ({primary.time})
-          </small>
+          <small class="font-ui text-xs text-slate-400">({primary.time})</small>
         </div>
       </div>
 
@@ -134,9 +110,7 @@ function LiveStatusCard({
             const additionalWait = getAdditionalWait(dep.minutesUntil, primary.minutesUntil);
             return (
               <div key={dep.time} class="flex flex-col items-center">
-                <small class="font-ui text-[10px] text-slate-400 tabular-nums">
-                  {dep.time}
-                </small>
+                <small class="font-ui text-[10px] text-slate-400 tabular-nums">{dep.time}</small>
                 <span
                   class="font-ui text-sm font-semibold tabular-nums"
                   style={{ color: routeLayer.theme.marker }}
@@ -162,12 +136,10 @@ function buildSections(
 
   return POSTER_SECTION_DEFS.map((def) => {
     const turEntries = turLayer.entries.filter(
-      (e) =>
-        e.totalMinutes >= def.startMinutes && e.totalMinutes < def.endMinutes,
+      (e) => e.totalMinutes >= def.startMinutes && e.totalMinutes < def.endMinutes,
     );
     const returEntries = returLayer.entries.filter(
-      (e) =>
-        e.totalMinutes >= def.startMinutes && e.totalMinutes < def.endMinutes,
+      (e) => e.totalMinutes >= def.startMinutes && e.totalMinutes < def.endMinutes,
     );
     const containsNow =
       isSelectedScheduleToday &&
@@ -195,18 +167,13 @@ export function PosterView({
   solarTimes,
   isSelectedScheduleToday,
 }: PosterViewProps): JSX.Element {
-  const sections = buildSections(
-    routeLayers,
-    solarTimes,
-    isSelectedScheduleToday,
-  );
+  const sections = buildSections(routeLayers, solarTimes, isSelectedScheduleToday);
   const turLayer = routeLayers.find((r) => r.direction === "tur")!;
   const returLayer = routeLayers.find((r) => r.direction === "retur")!;
   const { data: weatherData } = useWeatherData();
 
   const handleHourSelect = (direction: "tur" | "retur", time: string) => {
-    const selectedSignal =
-      direction === "tur" ? selectedTurHour : selectedReturHour;
+    const selectedSignal = direction === "tur" ? selectedTurHour : selectedReturHour;
 
     // Toggle: if same hour selected, deselect
     if (selectedSignal.value === time) {
