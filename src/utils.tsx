@@ -1,16 +1,33 @@
 import { nonFixedHolidays, romanianNationalHolidays } from "./config";
 
+const ROMANIA_TIMEZONE = "Europe/Bucharest";
+
 /**
- * Check if the given date is a holiday.
+ * Get Romania date components (month-day) in Romania timezone
+ */
+const getRomaniaDateStr = (date: Date): string => {
+  const month = date.toLocaleString("en-CA", { month: "2-digit", timeZone: ROMANIA_TIMEZONE });
+  const day = date.toLocaleString("en-CA", { day: "2-digit", timeZone: ROMANIA_TIMEZONE });
+  return `${month}-${day}`;
+};
+
+/**
+ * Get Romania day of week (0=Sunday, 6=Saturday) in Romania timezone
+ */
+const getRomaniaDayOfWeek = (date: Date): number => {
+  const weekday = date.toLocaleString("en-CA", { weekday: "short", timeZone: ROMANIA_TIMEZONE });
+  const map: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+  return map[weekday] ?? 0;
+};
+
+/**
+ * Check if the given date is a holiday (in Romania timezone).
  *
  * @param {Date} date The date to check.
  * @returns {boolean} True if the date is a holiday, false otherwise.
  */
-export const isHoliday = (date) => {
-  const month = (date.getMonth() + 1).toString().padStart(2, "0");
-  const day = date.getDate().toString().padStart(2, "0");
-  const dateStr = `${month}-${day}`;
-
+export const isHoliday = (date: Date): boolean => {
+  const dateStr = getRomaniaDateStr(date);
   return (
     romanianNationalHolidays.some((h) => h.date === dateStr) ||
     nonFixedHolidays.some((h) => h.date === dateStr)
@@ -22,26 +39,23 @@ export const isHoliday = (date) => {
  * @param {Date} date The date to check
  * @returns {string|null} The holiday name or null if not a holiday
  */
-export const getHolidayName = (date) => {
-  const month = (date.getMonth() + 1).toString().padStart(2, "0");
-  const day = date.getDate().toString().padStart(2, "0");
-  const dateStr = `${month}-${day}`;
-
+export const getHolidayName = (date: Date): string | null => {
+  const dateStr = getRomaniaDateStr(date);
   const holiday =
     romanianNationalHolidays.find((h) => h.date === dateStr) ||
     nonFixedHolidays.find((h) => h.date === dateStr);
-
   return holiday ? holiday.name : null;
 };
 
 /**
- * Check if the given date is a weekend.
+ * Check if the given date is a weekend (in Romania timezone).
  *
  * @param {Date} date The date to check.
  * @returns {boolean} True if the date is a weekend, false otherwise.
  */
-export const isWeekend = (date) => {
-  return date.getDay() === 0 || date.getDay() === 6;
+export const isWeekend = (date: Date): boolean => {
+  const day = getRomaniaDayOfWeek(date);
+  return day === 0 || day === 6;
 };
 
 /**
@@ -50,7 +64,7 @@ export const isWeekend = (date) => {
  * @param {Date} date The date to check.
  * @returns {boolean} True if the date is a holiday or a weekend, false otherwise.
  */
-export const isWeekendProgram = (date) => {
+export const isWeekendProgram = (date: Date): boolean => {
   return isWeekend(date) || isHoliday(date);
 };
 

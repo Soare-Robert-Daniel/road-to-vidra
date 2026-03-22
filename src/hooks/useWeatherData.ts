@@ -47,7 +47,6 @@ async function fetchTemperatures(): Promise<void> {
       return;
     }
 
-    const utcOffsetSeconds = response.utcOffsetSeconds();
     const startTimestamp = Number(hourly.time());
     const interval = hourly.interval();
     const temps = hourly.variables(0)?.valuesArray();
@@ -59,9 +58,14 @@ async function fetchTemperatures(): Promise<void> {
 
     const temperatures: HourlyTemperature[] = [];
     for (let i = 0; i < temps.length; i++) {
-      const date = new Date((startTimestamp + interval * i + utcOffsetSeconds) * 1000);
+      const date = new Date((startTimestamp + interval * i) * 1000);
+      const hour = date.toLocaleString("en-CA", {
+        hour: "2-digit",
+        hour12: false,
+        timeZone: "Europe/Bucharest",
+      });
       temperatures.push({
-        hour: `${date.getHours().toString().padStart(2, "0")}:00`,
+        hour: `${hour}:00`,
         temperature: Math.round(temps[i] * 10) / 10,
       });
     }

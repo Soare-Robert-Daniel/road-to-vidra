@@ -8,11 +8,11 @@ interface TemperatureWaveProps {
 }
 
 const WIDTH = 480;
-const HEIGHT = 116;
+const HEIGHT = 128; // increased for better label spacing
 const PAD_LEFT = 16;
 const PAD_RIGHT = 16;
-const CHART_TOP = 32;
-const CHART_BOTTOM = 98;
+const CHART_TOP = 36;
+const CHART_BOTTOM = 100;
 const CHART_WIDTH = WIDTH - PAD_LEFT - PAD_RIGHT;
 const CHART_HEIGHT = CHART_BOTTOM - CHART_TOP;
 
@@ -21,6 +21,7 @@ const COLORS = {
   fillStart: "var(--color-temp-fill-start)",
   fillEnd: "var(--color-temp-fill-end)",
   label: "var(--color-temp-label)",
+  accent: "var(--color-clock-hand)",
 };
 
 // OKLCH color stops: [temp °C, lightness, chroma, hue]
@@ -86,9 +87,13 @@ function buildMonotonePath(points: Array<{ x: number; y: number }>): string {
   return path;
 }
 
-function interpolateY(points: Array<{ x: number; y: number }>, targetX: number): number {
+function interpolateY(
+  points: Array<{ x: number; y: number }>,
+  targetX: number,
+): number {
   if (targetX <= points[0].x) return points[0].y;
-  if (targetX >= points[points.length - 1].x) return points[points.length - 1].y;
+  if (targetX >= points[points.length - 1].x)
+    return points[points.length - 1].y;
 
   for (let i = 0; i < points.length - 1; i++) {
     if (targetX >= points[i].x && targetX <= points[i + 1].x) {
@@ -123,9 +128,11 @@ export function TemperatureWave({
   const firstHourNum = Number.parseInt(temperatures[0].hour, 10);
   let hoursFromStart = currentHourFraction - firstHourNum;
   if (hoursFromStart < 0) hoursFromStart += 24;
-  const currentX = PAD_LEFT + (hoursFromStart / (temperatures.length - 1)) * CHART_WIDTH;
+  const currentX =
+    PAD_LEFT + (hoursFromStart / (temperatures.length - 1)) * CHART_WIDTH;
   const currentY = interpolateY(points, currentX);
-  const showTimeLine = currentX >= PAD_LEFT && currentX <= PAD_LEFT + CHART_WIDTH;
+  const showTimeLine =
+    currentX >= PAD_LEFT && currentX <= PAD_LEFT + CHART_WIDTH;
 
   // On-curve labels every 3 hours
   const curveLabels: Array<{
@@ -134,20 +141,22 @@ export function TemperatureWave({
     hour: string;
     temp: string;
     color: string;
+    isNow: boolean;
   }> = [];
   for (let i = 0; i < temperatures.length; i += 3) {
     const pt = points[i];
     curveLabels.push({
-      x: Math.max(PAD_LEFT + 8, Math.min(pt.x, WIDTH - PAD_RIGHT - 8)),
+      x: Math.max(PAD_LEFT + 12, Math.min(pt.x, WIDTH - PAD_RIGHT - 12)),
       y: pt.y,
       hour: i === 0 ? "Acum" : temperatures[i].hour,
       temp: `${Math.round(temperatures[i].temperature)}\u00B0`,
       color: temperatureToColor(temperatures[i].temperature),
+      isNow: i === 0,
     });
   }
 
   return (
-    <div class="w-full px-1">
+    <div class="w-full rounded-2xl">
       <svg
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
         class="block w-full"
@@ -189,30 +198,40 @@ export function TemperatureWave({
               y1={CHART_TOP}
               x2={currentX}
               y2={CHART_BOTTOM}
-              stroke="var(--color-clock-hand)"
+              stroke={COLORS.accent}
               stroke-width="0.75"
               stroke-dasharray="3 2"
               opacity="0.4"
             />
-            <circle cx={currentX} cy={currentY} r="3" fill="var(--color-clock-hand)" />
+            <circle cx={currentX} cy={currentY} r="3.5" fill={COLORS.accent} />
           </>
         )}
 
-        {/* On-curve temperature + hour labels — always above the curve */}
+        {/* Temperature labels (above) and hour labels (below) */}
         {curveLabels.map((label) => (
           <g key={label.hour}>
-            <circle cx={label.x} cy={label.y} r={TEMP_LABEL_CONFIG.dotRadius} fill={label.color} />
+            {/* Hollow dot */}
+            <circle
+              cx={label.x}
+              cy={label.y}
+              r={label.isNow ? 4 : TEMP_LABEL_CONFIG.dotRadius}
+              fill="white"
+              stroke={label.isNow ? COLORS.accent : label.color}
+              stroke-width={TEMP_LABEL_CONFIG.dotStrokeWidth}
+            />
+            {/* Temperature above */}
             <text
               x={label.x}
               y={label.y + TEMP_LABEL_CONFIG.tempOffsetY}
               text-anchor="middle"
-              fill={label.color}
+              fill={label.isNow ? COLORS.accent : label.color}
               font-family="var(--font-display)"
               font-size={TEMP_LABEL_CONFIG.tempFontSize}
               font-weight={TEMP_LABEL_CONFIG.tempFontWeight}
             >
               {label.temp}
             </text>
+            {/* Hour below */}
             <text
               x={label.x}
               y={label.y + TEMP_LABEL_CONFIG.hourOffsetY}

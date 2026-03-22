@@ -9,6 +9,7 @@ export interface SolarLocation {
   name: string;
   latitude: number;
   longitude: number;
+  timezone?: string;
 }
 
 export interface SolarTimesSummary {
@@ -31,10 +32,21 @@ export const vidraLocation: SolarLocation = {
   name: "Vidra",
   latitude: 44.2667,
   longitude: 26.15,
+  timezone: "Europe/Bucharest",
 };
 
+// Convert Date to minutes in Romania timezone (EET/EEST)
 export function dateToMinutes(date: Date): number {
-  return date.getHours() * 60 + date.getMinutes();
+  const hourStr = date.toLocaleString("en-CA", {
+    hour: "2-digit",
+    hour12: false,
+    timeZone: "Europe/Bucharest",
+  });
+  const minuteStr = date.toLocaleString("en-CA", {
+    minute: "2-digit",
+    timeZone: "Europe/Bucharest",
+  });
+  return parseInt(hourStr, 10) * 60 + parseInt(minuteStr, 10);
 }
 
 export function minutesToTimeLabel(totalMinutes: number): string {
@@ -59,6 +71,7 @@ export function getSolarTimes(
   const times = SunCalc.getTimes(date, location.latitude, location.longitude);
   const sunriseMinutes = dateToMinutes(times.sunrise);
   const sunsetMinutes = dateToMinutes(times.sunset);
+  // Get current time in Romania timezone
   const currentMinutes = dateToMinutes(date);
 
   return {
@@ -77,29 +90,31 @@ export function getNextDeparture(
   now: Date = new Date(),
 ): NextDeparture | null {
   let nextDeparture: NextDeparture | null = null;
+  const currentMinutes = dateToMinutes(now);
 
   for (const hour of hours) {
     const busMinutes = timeToMinutes(hour);
 
     for (let dayOffset = 0; dayOffset <= 7; dayOffset += 1) {
-      const candidateDate = new Date(now);
-      candidateDate.setDate(now.getDate() + dayOffset);
-
+      // Calculate candidate time in Romania timezone
+      let candidateMinutes = busMinutes + dayOffset * 1440 - currentMinutes;
+      
+      // Determine which Romania day this candidate falls on
+      const candidateDayOffset = Math.floor((currentMinutes + candidateMinutes) / 1440);
+      const candidateDate = new Date(now.getTime() + candidateMinutes * 60 * 1000);
+      
       if (isWeekendProgram(candidateDate) !== useWeekendSchedule) {
         continue;
       }
 
-      candidateDate.setHours(Math.floor(busMinutes / 60), busMinutes % 60, 0, 0);
-      const minutesUntil = Math.floor((candidateDate.getTime() - now.getTime()) / (1000 * 60));
-
-      if (minutesUntil < 0) {
+      if (candidateMinutes < 0) {
         continue;
       }
 
       const candidate: NextDeparture = {
         time: hour,
-        minutesUntil,
-        dayOffset,
+        minutesUntil: candidateMinutes,
+        dayOffset: candidateDayOffset,
         targetDate: candidateDate,
       };
 
@@ -121,29 +136,31 @@ export function getUpcomingDepartures(
   limit: number = 3,
 ): NextDeparture[] {
   const candidates: NextDeparture[] = [];
+  const currentMinutes = dateToMinutes(now);
 
   for (const hour of hours) {
     const busMinutes = timeToMinutes(hour);
 
     for (let dayOffset = 0; dayOffset <= 7; dayOffset += 1) {
-      const candidateDate = new Date(now);
-      candidateDate.setDate(now.getDate() + dayOffset);
-
+      // Calculate candidate time in Romania timezone
+      let candidateMinutes = busMinutes + dayOffset * 1440 - currentMinutes;
+      
+      // Determine which Romania day this candidate falls on
+      const candidateDayOffset = Math.floor((currentMinutes + candidateMinutes) / 1440);
+      const candidateDate = new Date(now.getTime() + candidateMinutes * 60 * 1000);
+      
       if (isWeekendProgram(candidateDate) !== useWeekendSchedule) {
         continue;
       }
 
-      candidateDate.setHours(Math.floor(busMinutes / 60), busMinutes % 60, 0, 0);
-      const minutesUntil = Math.floor((candidateDate.getTime() - now.getTime()) / (1000 * 60));
-
-      if (minutesUntil < 0) {
+      if (candidateMinutes < 0) {
         continue;
       }
 
       candidates.push({
         time: hour,
-        minutesUntil,
-        dayOffset,
+        minutesUntil: candidateMinutes,
+        dayOffset: candidateDayOffset,
         targetDate: candidateDate,
       });
 

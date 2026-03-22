@@ -2,6 +2,7 @@ import { JSX } from "preact";
 import { signal } from "@preact/signals";
 
 import type { SolarTimesSummary } from "../../solar";
+import { useWeatherData } from "../../hooks/useWeatherData";
 
 import {
   POSTER_SECTION_DEFS,
@@ -201,6 +202,7 @@ export function PosterView({
   );
   const turLayer = routeLayers.find((r) => r.direction === "tur")!;
   const returLayer = routeLayers.find((r) => r.direction === "retur")!;
+  const { data: weatherData } = useWeatherData();
 
   const handleHourSelect = (direction: "tur" | "retur", time: string) => {
     const selectedSignal =
@@ -232,6 +234,7 @@ export function PosterView({
           selectedTurHour={selectedTurHour}
           selectedReturHour={selectedReturHour}
           onHourSelect={handleHourSelect}
+          temperatures={weatherData.value?.temperatures ?? null}
         />
       ))}
     </div>

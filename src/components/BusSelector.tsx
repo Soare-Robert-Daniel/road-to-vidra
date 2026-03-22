@@ -9,14 +9,16 @@ interface BusSelectorProps {
 
 export function BusSelector({ selectedBusNumber, className }: BusSelectorProps): JSX.Element {
   const baseButtonClass =
-    "min-w-11 px-2.5 py-1 text-sm font-bold rounded-xl transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500 focus:ring-offset-gray-100 sm:min-w-12 sm:px-3 sm:py-1.5 sm:text-base";
-  const selectedClass = "bg-white text-blue-600 shadow-sm";
-  const unselectedClass = "bg-transparent text-gray-500 hover:text-gray-800";
+    "min-w-11 px-2.5 py-1 text-sm font-medium rounded-[11px] transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500 sm:min-w-12 sm:px-3 sm:py-1.5 sm:text-base";
+  // Active: raised button with soft shadow (tactile, elevated)
+  const selectedClass = "bg-white text-blue-600 shadow-[0_2px_6px_rgba(0,0,0,0.1),0_1px_2px_rgba(0,0,0,0.08)]";
+  // Inactive: recessed into the track (scobitură effect)
+  const unselectedClass = "bg-transparent text-slate-400 hover:text-slate-600";
 
   return (
     <div
       class={twMerge(
-        "inline-flex items-center gap-0.5 bg-gray-100 rounded-2xl p-0.5 shadow-inner",
+        "inline-flex items-center gap-0.5 bg-slate-100/80 rounded-2xl p-1 shadow-[inset_0_2px_4px_rgba(0,0,0,0.06),inset_0_1px_2px_rgba(0,0,0,0.04)]",
         className,
       )}
     >

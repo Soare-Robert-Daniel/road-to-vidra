@@ -3,6 +3,7 @@ import { Signal } from "@preact/signals";
 import { twMerge } from "tailwind-merge";
 
 import { minutesToTimeLabel, type SolarTimesSummary } from "../../solar";
+import type { HourlyTemperature } from "../../hooks/useWeatherData";
 import type { PosterSection, RouteEntry, RouteLayer } from "./constants";
 
 // Compact countdown format: hh:mm (e.g., "02:30" for 2h 30m)
@@ -29,6 +30,32 @@ function getMinutesUntilHour(timeStr: string, currentMinutes: number): number {
   return diff > 0 ? diff : diff + 1440;
 }
 
+// Get average temperature for a section time range
+function getSectionTemperature(
+  temperatures: HourlyTemperature[] | null,
+  startMinutes: number,
+  endMinutes: number,
+): number | null {
+  if (!temperatures || temperatures.length === 0) return null;
+
+  const startHour = Math.floor(startMinutes / 60);
+  const endHour = Math.floor(endMinutes / 60);
+
+  const sectionTemps = temperatures.filter((t) => {
+    const hour = Number.parseInt(t.hour, 10);
+    // Handle midnight wrap (endMinutes = 1440 means 00:00 next day)
+    if (endHour === 24 || endHour === 0) {
+      return hour >= startHour || hour < endHour;
+    }
+    return hour >= startHour && hour < endHour;
+  });
+
+  if (sectionTemps.length === 0) return null;
+
+  const avg = sectionTemps.reduce((sum, t) => sum + t.temperature, 0) / sectionTemps.length;
+  return Math.round(avg);
+}
+
 interface PosterSectionCardProps {
   section: PosterSection;
   routeLayers: RouteLayer[];
@@ -36,6 +63,7 @@ interface PosterSectionCardProps {
   selectedTurHour: Signal<string | null>;
   selectedReturHour: Signal<string | null>;
   onHourSelect: (direction: "tur" | "retur", time: string) => void;
+  temperatures: HourlyTemperature[] | null;
 }
 
 function DepartureTime({
@@ -140,6 +168,7 @@ export function PosterSectionCard({
   selectedTurHour,
   selectedReturHour,
   onHourSelect,
+  temperatures,
 }: PosterSectionCardProps): JSX.Element {
   const turLayer = routeLayers.find((r) => r.direction === "tur")!;
   const returLayer = routeLayers.find((r) => r.direction === "retur")!;
@@ -151,6 +180,9 @@ export function PosterSectionCard({
     solarTimes.sunriseMinutes >= section.startMinutes && solarTimes.sunriseMinutes < section.endMinutes;
   const sunsetInSection =
     solarTimes.sunsetMinutes >= section.startMinutes && solarTimes.sunsetMinutes < section.endMinutes;
+
+  // Get section temperature
+  const sectionTemp = getSectionTemperature(temperatures, section.startMinutes, section.endMinutes);
 
   return (
     <div
@@ -168,6 +200,15 @@ export function PosterSectionCard({
         <span class="font-ui text-xs font-medium tracking-wide" style={{ color: "var(--color-time-range)" }}>
           {section.hourRange}
         </span>
+        {/* Inline temperature indicator */}
+        {sectionTemp !== null && (
+          <>
+            <span class="font-ui text-xs text-slate-300">|</span>
+            <span class="font-ui text-xs font-medium text-slate-500">
+              {sectionTemp}°
+            </span>
+          </>
+        )}
         {(sunriseInSection || sunsetInSection) && (
           <span class="ml-auto flex items-baseline gap-3">
             {sunriseInSection && (
