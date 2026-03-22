@@ -51,6 +51,8 @@ export interface PosterSection {
   returEntries: RouteEntry[];
   containsNow: boolean;
   isDaylight: boolean;
+  titleColor: string;
+  bgColor: string;
 }
 
 export const POSTER_SECTION_DEFS = [
@@ -61,6 +63,8 @@ export const POSTER_SECTION_DEFS = [
     endMinutes: 360,
     hourRange: "00:00 – 06:00",
     isDaylight: false,
+    titleColor: "var(--color-section-noapte)",
+    bgColor: "var(--color-bg-noapte)",
   },
   {
     id: "dimineata" as const,
@@ -69,6 +73,8 @@ export const POSTER_SECTION_DEFS = [
     endMinutes: 720,
     hourRange: "06:00 – 12:00",
     isDaylight: true,
+    titleColor: "var(--color-section-dimineata)",
+    bgColor: "var(--color-bg-dimineata)",
   },
   {
     id: "dupa-amiaza" as const,
@@ -77,6 +83,8 @@ export const POSTER_SECTION_DEFS = [
     endMinutes: 1080,
     hourRange: "12:00 – 18:00",
     isDaylight: true,
+    titleColor: "var(--color-section-dupa-amiaza)",
+    bgColor: "var(--color-bg-dupa-amiaza)",
   },
   {
     id: "seara" as const,
@@ -85,6 +93,8 @@ export const POSTER_SECTION_DEFS = [
     endMinutes: 1440,
     hourRange: "18:00 – 00:00",
     isDaylight: false,
+    titleColor: "var(--color-section-seara)",
+    bgColor: "var(--color-bg-seara)",
   },
 ] as const;
 

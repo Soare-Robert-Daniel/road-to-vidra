@@ -43,12 +43,34 @@
   --color-label-intermediate: oklch(0.2795 0.0368 260.03);
 
   /* Route: 420 tur (blue) */
-  --color-route-420-tur: oklch(0.5461 0.2152 262.88);
+  --color-route-420-tur: oklch(0.4934 0.203952 260.2423);
   --color-route-420-tur-soft: oklch(0.8091 0.0956 251.81);
 
   /* Route: 420 retur (amber) */
-  --color-route-420-retur: oklch(0.6658 0.1574 58.32);
+  --color-route-420-retur: oklch(0.5534 0.1739 38.4);
   --color-route-420-retur-soft: oklch(0.879 0.1534 91.61);
+
+  /* Past time indicator */
+  --color-past-time: oklch(0.5007 0.0047 286.23);
+
+  /* Section title colors */
+  --color-section-noapte: oklch(0.4461 0.0263 256.8);
+  --color-section-dimineata: oklch(0.4318 0.0865 166.91);
+  --color-section-dupa-amiaza: oklch(0.4732 0.1247 46.2);
+  --color-section-seara: oklch(0.3984 0.1773 277.37);
+
+  /* Section background tints */
+  --color-bg-noapte: oklch(0.9683 0.0069 247.9);
+  --color-bg-dimineata: oklch(0.9819 0.0181 155.83);
+  --color-bg-dupa-amiaza: oklch(0.9869 0.0214 95.28);
+  --color-bg-seara: oklch(0.9691 0.0161 293.76);
+
+  /* Time range text (accessible grey) */
+  --color-time-range: oklch(0.42 0.01 256);
+
+  /* Sunrise/sunset icons */
+  --color-sunrise: oklch(0.52 0.12 75);
+  --color-sunset: oklch(0.3984 0.1773 277.37);
 
   /* Route: default tur (cyan) */
   --color-route-default-tur: oklch(0.6089 0.1109 221.72);

@@ -1,7 +1,9 @@
 import { JSX } from "preact";
+import { Signal } from "@preact/signals";
 import { twMerge } from "tailwind-merge";
 
 import { formatTimeDifference } from "../../utils";
+import { minutesToTimeLabel, type SolarTimesSummary } from "../../solar";
 import type { PosterSection, RouteEntry, RouteLayer } from "./constants";
 
 interface PosterSectionCardProps {
@@ -9,6 +11,10 @@ interface PosterSectionCardProps {
   routeLayers: RouteLayer[];
   currentMinutes: number;
   isSelectedScheduleToday: boolean;
+  solarTimes: SolarTimesSummary;
+  selectedTurHour: Signal<string | null>;
+  selectedReturHour: Signal<string | null>;
+  onHourSelect: (direction: "tur" | "retur", time: string, isPast: boolean) => void;
 }
 
 function DepartureTime({
@@ -16,11 +22,17 @@ function DepartureTime({
   isNext,
   nextMinutesUntil,
   markerColor,
+  isSelected,
+  selectedMinutesUntil,
+  onSelect,
 }: {
   entry: RouteEntry;
   isNext: boolean;
   nextMinutesUntil: number | null;
   markerColor: string;
+  isSelected: boolean;
+  selectedMinutesUntil: number | null;
+  onSelect: () => void;
 }): JSX.Element {
   if (isNext) {
     return (
@@ -43,12 +55,52 @@ function DepartureTime({
     );
   }
 
+  // Selected hour (outlined badge style)
+  if (isSelected) {
+    return (
+      <div class="flex flex-col cursor-pointer" onClick={onSelect}>
+        <span
+          class="font-display text-base font-bold tabular-nums tracking-tight sm:text-lg"
+          style={{ color: markerColor }}
+        >
+          {entry.time}
+        </span>
+        <span
+          class="font-ui w-fit rounded-full border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
+          style={{
+            borderColor: markerColor,
+            color: markerColor,
+            backgroundColor: "transparent",
+          }}
+        >
+          {selectedMinutesUntil !== null && selectedMinutesUntil <= 0
+            ? "acum"
+            : `in ${formatTimeDifference(selectedMinutesUntil ?? 0)}`}
+        </span>
+      </div>
+    );
+  }
+
+  // Regular future hour (clickable)
+  if (!entry.isPast) {
+    return (
+      <span
+        class="font-display text-base font-bold tabular-nums tracking-tight sm:text-lg cursor-pointer hover:opacity-70 transition-opacity"
+        onClick={onSelect}
+      >
+        {entry.time}
+      </span>
+    );
+  }
+
+  // Past hour (not clickable)
   return (
     <span
       class={twMerge(
         "font-display text-base tabular-nums tracking-tight sm:text-lg",
-        entry.isPast ? "font-medium opacity-30" : "font-bold",
+        "font-medium line-through",
       )}
+      style={{ color: "var(--color-past-time)" }}
     >
       {entry.time}
     </span>
@@ -58,10 +110,18 @@ function DepartureTime({
 function DepartureColumn({
   entries,
   routeLayer,
+  selectedHour,
+  currentMinutes,
+  onHourSelect,
 }: {
   entries: RouteEntry[];
   routeLayer: RouteLayer;
+  selectedHour: string | null;
+  currentMinutes: number;
+  onHourSelect: (time: string, isPast: boolean) => void;
 }): JSX.Element {
+  const directionArrow = routeLayer.direction === "tur" ? "→" : "←";
+
   return (
     <div class="flex flex-col gap-0.5">
       <div
@@ -71,7 +131,9 @@ function DepartureColumn({
         )}
       >
         <span class="h-2 w-2 rounded-full" style={{ backgroundColor: routeLayer.theme.marker }} />
-        <span class="truncate">{routeLayer.label}</span>
+        <span class="truncate">
+          {directionArrow} {routeLayer.label}
+        </span>
       </div>
       {entries.length === 0 ? (
         <span class="font-ui text-xs text-slate-400 italic">Fara curse</span>
@@ -80,6 +142,13 @@ function DepartureColumn({
           {entries.map((entry) => {
             const isNext =
               routeLayer.nextDeparture !== null && entry.time === routeLayer.nextDeparture.time;
+            const isSelected = selectedHour === entry.time;
+
+            // Calculate minutes until for selected hour
+            const selectedMinutesUntil = isSelected
+              ? entry.totalMinutes - currentMinutes
+              : null;
+
             return (
               <DepartureTime
                 key={entry.time}
@@ -87,6 +156,9 @@ function DepartureColumn({
                 isNext={isNext}
                 nextMinutesUntil={isNext ? routeLayer.nextDeparture!.minutesUntil : null}
                 markerColor={routeLayer.theme.marker}
+                isSelected={isSelected}
+                selectedMinutesUntil={selectedMinutesUntil}
+                onSelect={() => onHourSelect(entry.time, entry.isPast)}
               />
             );
           })}
@@ -100,6 +172,10 @@ export function PosterSectionCard({
   section,
   routeLayers,
   isSelectedScheduleToday,
+  solarTimes,
+  selectedTurHour,
+  selectedReturHour,
+  onHourSelect,
 }: PosterSectionCardProps): JSX.Element {
   const turLayer = routeLayers.find((r) => r.direction === "tur")!;
   const returLayer = routeLayers.find((r) => r.direction === "retur")!;
@@ -108,27 +184,45 @@ export function PosterSectionCard({
 
   const isCurrentSection = section.containsNow && isSelectedScheduleToday;
 
+  // Check if sunrise/sunset fall within this section
+  const sunriseInSection =
+    solarTimes.sunriseMinutes >= section.startMinutes && solarTimes.sunriseMinutes < section.endMinutes;
+  const sunsetInSection =
+    solarTimes.sunsetMinutes >= section.startMinutes && solarTimes.sunsetMinutes < section.endMinutes;
+
   return (
     <div
-      class={twMerge(
-        "rounded-2xl border px-3 py-2.5 sm:px-4 sm:py-3",
-        section.isDaylight
-          ? "border-amber-200/60 bg-amber-50/40"
-          : "border-slate-200/80 bg-slate-50/50",
-        isCurrentSection && "border-l-4 border-l-slate-900/25",
-      )}
+      class="rounded-2xl border border-slate-200/60 px-3 py-2.5 sm:px-4 sm:py-3"
+      style={{ backgroundColor: section.bgColor }}
     >
       {/* Section header */}
       <div class="mb-2 flex items-baseline gap-2">
-        <h3 class="font-display text-xl font-bold tracking-tight text-slate-900">
+        <h3
+          class="font-display text-xl font-bold tracking-tight"
+          style={{ color: section.titleColor }}
+        >
           {section.label}
         </h3>
-        <span class="font-ui text-xs font-medium tracking-wide text-slate-400">
+        <span class="font-ui text-xs font-medium tracking-wide" style={{ color: "var(--color-time-range)" }}>
           {section.hourRange}
         </span>
         {isCurrentSection && (
           <span class="font-ui rounded-full bg-slate-900/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-slate-500">
             acum
+          </span>
+        )}
+        {(sunriseInSection || sunsetInSection) && (
+          <span class="ml-auto flex items-baseline gap-3">
+            {sunriseInSection && (
+              <span class="font-ui text-xs font-medium" style={{ color: "var(--color-sunrise)" }}>
+                ☀ Rasarit {minutesToTimeLabel(solarTimes.sunriseMinutes)}
+              </span>
+            )}
+            {sunsetInSection && (
+              <span class="font-ui text-xs font-medium" style={{ color: "var(--color-sunset)" }}>
+                ☽ Apus {minutesToTimeLabel(solarTimes.sunsetMinutes)}
+              </span>
+            )}
           </span>
         )}
       </div>
@@ -137,8 +231,20 @@ export function PosterSectionCard({
         <p class="font-ui py-3 text-center text-sm text-slate-400 italic">Fara curse</p>
       ) : (
         <div class="grid grid-cols-2 gap-3">
-          <DepartureColumn entries={section.turEntries} routeLayer={turLayer} />
-          <DepartureColumn entries={section.returEntries} routeLayer={returLayer} />
+          <DepartureColumn
+            entries={section.turEntries}
+            routeLayer={turLayer}
+            selectedHour={selectedTurHour.value}
+            currentMinutes={solarTimes.currentMinutes}
+            onHourSelect={(time, isPast) => onHourSelect("tur", time, isPast)}
+          />
+          <DepartureColumn
+            entries={section.returEntries}
+            routeLayer={returLayer}
+            selectedHour={selectedReturHour.value}
+            currentMinutes={solarTimes.currentMinutes}
+            onHourSelect={(time, isPast) => onHourSelect("retur", time, isPast)}
+          />
         </div>
       )}
     </div>
