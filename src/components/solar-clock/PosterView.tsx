@@ -57,7 +57,7 @@ function LiveStatusCard({ routeLayer }: { routeLayer: RouteLayer }): JSX.Element
   }
 
   const primary = upcoming[0];
-  const future = upcoming.slice(1, 3);
+  const future = upcoming.slice(1, 4);
   const isAcum = primary.minutesUntil < 1;
 
   // Calculate additional wait time for future departures (relative to primary)
