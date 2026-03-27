@@ -50,6 +50,17 @@ export function ClockModeToggle({
       >
         Poster
       </button>
+      <button
+        type="button"
+        aria-label="Afisare tabel"
+        class={twMerge(
+          baseButtonClass,
+          clockDisplayMode.value === "tabel" ? selectedClass : unselectedClass,
+        )}
+        onClick={() => (clockDisplayMode.value = "tabel")}
+      >
+        Tabel
+      </button>
     </div>
   );
 }

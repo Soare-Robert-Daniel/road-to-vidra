@@ -7,7 +7,7 @@ const STORAGE_KEYS = {
   CLOCK_DISPLAY_MODE: "vidra-clock-display-mode",
 } as const;
 
-export type ClockDisplayMode = "round" | "poster";
+export type ClockDisplayMode = "round" | "poster" | "tabel";
 
 /**
  * Get a value from localStorage with a fallback default

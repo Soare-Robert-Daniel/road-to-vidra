@@ -14,6 +14,7 @@ import { ClockHand } from "./ClockHand";
 import { ClockModeToggle } from "./ClockModeToggle";
 import { DepartureSummaries } from "./DepartureSummaries";
 import { PosterView } from "./PosterView";
+import { TableView } from "./TableView";
 import { TemperatureWave } from "./TemperatureWave";
 import { RouteMarkers } from "./RouteMarkers";
 import { SolarBand } from "./SolarBand";
@@ -101,6 +102,12 @@ export function SolarClock({
       {/* Conditional view */}
       {displayMode === "poster" ? (
         <PosterView
+          routeLayers={routeLayers}
+          solarTimes={solarTimes}
+          isSelectedScheduleToday={isSelectedScheduleToday}
+        />
+      ) : displayMode === "tabel" ? (
+        <TableView
           routeLayers={routeLayers}
           solarTimes={solarTimes}
           isSelectedScheduleToday={isSelectedScheduleToday}
