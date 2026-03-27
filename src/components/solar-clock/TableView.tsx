@@ -4,10 +4,7 @@ import { twMerge } from "tailwind-merge";
 
 import type { SolarTimesSummary } from "../../solar";
 
-import {
-  type RouteEntry,
-  type RouteLayer,
-} from "./constants";
+import { type RouteEntry, type RouteLayer } from "./constants";
 
 interface TableViewProps {
   routeLayers: RouteLayer[];
@@ -106,10 +103,7 @@ function DirectionCard({
           class="inline-block h-1.5 w-1.5 rounded-full shrink-0"
           style={{ backgroundColor: theme.marker }}
         />
-        <span
-          class="font-ui text-[11px] font-bold tracking-wide"
-          style={{ color: theme.marker }}
-        >
+        <span class="font-ui text-[11px] font-bold tracking-wide" style={{ color: theme.marker }}>
           {stationHeader}
         </span>
       </div>
@@ -117,8 +111,7 @@ function DirectionCard({
       {/* Hour-grouped rows */}
       <div class="flex flex-col p-1">
         {groups.map(({ hour, entries }) => {
-          const isCurrentHour =
-            isSelectedScheduleToday && hour === currentHour;
+          const isCurrentHour = isSelectedScheduleToday && hour === currentHour;
 
           return (
             <div
@@ -134,9 +127,8 @@ function DirectionCard({
                 const isTapped = selectedTime.value === entry.time;
 
                 // Tapped past times: compute countdown to next day
-                const tappedCountdown = isTapped && isPast
-                  ? minutesUntilNext(currentMinutes, entry.totalMinutes)
-                  : null;
+                const tappedCountdown =
+                  isTapped && isPast ? minutesUntilNext(currentMinutes, entry.totalMinutes) : null;
 
                 return (
                   <button
@@ -157,13 +149,14 @@ function DirectionCard({
                       isNext
                         ? { color: theme.marker, backgroundColor: theme.markerSoft }
                         : isTapped
-                          ? { color: "oklch(0.2795 0.0368 260.03)", backgroundColor: "oklch(0.95 0.005 260)" }
+                          ? {
+                              color: "oklch(0.2795 0.0368 260.03)",
+                              backgroundColor: "oklch(0.95 0.005 260)",
+                            }
                           : undefined
                     }
                   >
-                    <span class="font-ui text-xl">
-                      {entry.time}
-                    </span>
+                    <span class="font-ui text-xl">{entry.time}</span>
                     {isNext && routeLayer.nextDeparture && (
                       <span class="font-ui text-xs font-semibold leading-none opacity-80">
                         {formatCountdown(routeLayer.nextDeparture.minutesUntil)}

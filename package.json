@@ -18,16 +18,16 @@
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.10.5",
-    "@preact/signals": "^2.8.2",
+    "@preact/signals": "^2.9.0",
     "@tailwindcss/vite": "^4.2.2",
     "@types/suncalc": "^1.9.2",
-    "oxfmt": "^0.41.0",
-    "oxlint": "^1.56.0",
-    "oxlint-tsgolint": "^0.17.1",
+    "oxfmt": "^0.42.0",
+    "oxlint": "^1.57.0",
+    "oxlint-tsgolint": "^0.18.0",
     "preact": "^10.29.0",
     "tailwind-merge": "^3.5.0",
     "tailwindcss": "^4.2.2",
-    "typescript": "^5.9.3",
-    "vite": "^8.0.1"
+    "typescript": "^6.0.2",
+    "vite": "^8.0.3"
   }
 }
