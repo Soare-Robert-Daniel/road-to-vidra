@@ -168,6 +168,10 @@ function DepartureColumn({
   );
 }
 
+const EMPTY_STATE = (
+  <p class="font-ui py-3 text-center text-sm text-slate-400 italic">Fara curse</p>
+);
+
 export function PosterSectionCard({
   section,
   routeLayers,
@@ -236,7 +240,7 @@ export function PosterSectionCard({
       </div>
 
       {isEmpty ? (
-        <p class="font-ui py-3 text-center text-sm text-slate-400 italic">Fara curse</p>
+        EMPTY_STATE
       ) : (
         <div class="grid grid-cols-2 gap-3 divide-x divide-slate-400/60">
           <DepartureColumn

@@ -12,7 +12,10 @@ import {
   setClockDisplayMode,
   type ClockDisplayMode,
 } from "./storage";
-import { HolidayBanner, Header, SettingsMenu, SolarClock } from "./components";
+import { HolidayBanner } from "./components/shared-ui/HolidayBanner";
+import { Header } from "./components/shared-ui/Header";
+import { SettingsMenu } from "./components/settings/SettingsMenu";
+import { SolarClock } from "./components/solar-clock";
 
 // State management with localStorage persistence
 const selectedBusNumber = signal(getSelectedBus());

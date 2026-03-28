@@ -35,16 +35,21 @@ function setStorageValue<T>(key: string, value: T): void {
 }
 
 /**
- * Get the map of collapsed sections from localStorage
+ * Get the map of collapsed sections from localStorage (cached)
  */
+let collapsedSectionsCache: Record<string, boolean> | null = null;
+
 const getCollapsedSections = (): Record<string, boolean> => {
-  return getStorageValue(STORAGE_KEYS.COLLAPSED_SECTIONS, {});
+  if (collapsedSectionsCache !== null) return collapsedSectionsCache;
+  collapsedSectionsCache = getStorageValue(STORAGE_KEYS.COLLAPSED_SECTIONS, {});
+  return collapsedSectionsCache;
 };
 
 /**
  * Set the map of collapsed sections in localStorage
  */
 const setCollapsedSections = (sections: Record<string, boolean>): void => {
+  collapsedSectionsCache = sections;
   setStorageValue(STORAGE_KEYS.COLLAPSED_SECTIONS, sections);
 };
 
