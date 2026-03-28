@@ -3,6 +3,7 @@ import { signal } from "@preact/signals";
 import { twMerge } from "tailwind-merge";
 
 import type { SolarTimesSummary } from "../../solar";
+import { useWeatherData } from "../../hooks/useWeatherData";
 
 import { type RouteEntry, type RouteLayer } from "./constants";
 
@@ -84,6 +85,7 @@ function DirectionCard({
   const theme = routeLayer.theme;
   const nextTime = routeLayer.nextDeparture?.time ?? null;
   const stationHeader = getStationHeader(routeLayer.direction, routeLayer.label);
+  const { data: weatherData } = useWeatherData();
 
   const handleTimeClick = (time: string) => {
     selectedTime.value = selectedTime.value === time ? null : time;
@@ -175,6 +177,16 @@ function DirectionCard({
                   </button>
                 );
               })}
+              {weatherData.value && (() => {
+                const hourStr = `${hour.toString().padStart(2, "0")}:00`;
+                const temp = weatherData.value.temperatures.find((t) => t.hour === hourStr);
+                if (!temp) return null;
+                return (
+                  <span class="ms-auto font-ui text-[11px] font-medium text-slate-400 tabular-nums">
+                    {temp.temperature}°
+                  </span>
+                );
+              })()}
             </div>
           );
         })}
