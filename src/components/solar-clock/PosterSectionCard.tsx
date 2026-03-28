@@ -2,7 +2,7 @@ import { JSX } from "preact";
 import { Signal } from "@preact/signals";
 import { twMerge } from "tailwind-merge";
 
-import { minutesToTimeLabel, type SolarTimesSummary } from "../../solar";
+import { MINUTES_PER_DAY, minutesToTimeLabel, type SolarTimesSummary } from "../../solar";
 import type { HourlyTemperature } from "../../hooks/useWeatherData";
 import type { PosterSection, RouteEntry, RouteLayer } from "./constants";
 
@@ -27,7 +27,7 @@ function getMinutesUntilHour(timeStr: string, currentMinutes: number): number {
   const totalMinutes = hour * 60 + minute;
   const diff = totalMinutes - currentMinutes;
   // If already past today, next occurrence is tomorrow
-  return diff > 0 ? diff : diff + 1440;
+  return diff > 0 ? diff : diff + MINUTES_PER_DAY;
 }
 
 // Get average temperature for a section time range
@@ -58,7 +58,8 @@ function getSectionTemperature(
 
 interface PosterSectionCardProps {
   section: PosterSection;
-  routeLayers: RouteLayer[];
+  turLayer: RouteLayer;
+  returLayer: RouteLayer;
   solarTimes: SolarTimesSummary;
   selectedTurHour: Signal<string | null>;
   selectedReturHour: Signal<string | null>;
@@ -174,16 +175,14 @@ const EMPTY_STATE = (
 
 export function PosterSectionCard({
   section,
-  routeLayers,
+  turLayer,
+  returLayer,
   solarTimes,
   selectedTurHour,
   selectedReturHour,
   onHourSelect,
   temperatures,
 }: PosterSectionCardProps): JSX.Element {
-  const turLayer = routeLayers.find((r) => r.direction === "tur")!;
-  const returLayer = routeLayers.find((r) => r.direction === "retur")!;
-
   const isEmpty = section.turEntries.length === 0 && section.returEntries.length === 0;
 
   // Check if sunrise/sunset fall within this section

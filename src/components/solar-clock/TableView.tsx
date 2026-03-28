@@ -56,13 +56,8 @@ function minutesUntilNext(currentMinutes: number, targetMinutes: number): number
 
 // Extract full station name with direction arrow prefix
 function getStationHeader(direction: "tur" | "retur", label: string): string {
-  // label = "Tur · Bucuresti" or "Retur · C.F.R. PROGRESUL"
   const destination = label.split(" · ")[1] ?? label;
   const prefix = direction === "tur" ? "\u2192" : "\u2190";
-  // Reconstruct full direction text
-  if (direction === "tur") {
-    return `${prefix} Spre ${destination}`;
-  }
   return `${prefix} Spre ${destination}`;
 }
 
@@ -177,16 +172,17 @@ function DirectionCard({
                   </button>
                 );
               })}
-              {weatherData.value && (() => {
-                const hourStr = `${hour.toString().padStart(2, "0")}:00`;
-                const temp = weatherData.value.temperatures.find((t) => t.hour === hourStr);
-                if (!temp) return null;
-                return (
-                  <span class="ms-auto font-ui text-[11px] font-medium text-slate-400 tabular-nums">
-                    {temp.temperature}°
-                  </span>
-                );
-              })()}
+              {weatherData.value &&
+                (() => {
+                  const hourStr = `${hour.toString().padStart(2, "0")}:00`;
+                  const temp = weatherData.value.temperatures.find((t) => t.hour === hourStr);
+                  if (!temp) return null;
+                  return (
+                    <span class="ms-auto font-ui text-[11px] font-medium text-slate-400 tabular-nums">
+                      {temp.temperature}°
+                    </span>
+                  );
+                })()}
             </div>
           );
         })}

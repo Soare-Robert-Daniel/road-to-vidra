@@ -3,7 +3,7 @@ import { useEffect } from "preact/hooks";
 
 const currentTime = signal(Date.now());
 let lastMinute = new Date().getMinutes();
-let intervalId: ReturnType<typeof setInterval> | null = null;
+let timerId: ReturnType<typeof setTimeout> | null = null;
 let subscriberCount = 0;
 
 function updateCurrentTime(): void {
@@ -16,22 +16,31 @@ function updateCurrentTime(): void {
   }
 }
 
+function scheduleNextTick(): void {
+  const msUntilNextMinute = 60_000 - (Date.now() % 60_000);
+  timerId = window.setTimeout(() => {
+    updateCurrentTime();
+    timerId = window.setInterval(updateCurrentTime, 60_000);
+  }, msUntilNextMinute);
+}
+
 function startTicker(): void {
-  if (intervalId !== null || typeof window === "undefined") {
+  if (timerId !== null || typeof window === "undefined") {
     return;
   }
 
   updateCurrentTime();
-  intervalId = window.setInterval(updateCurrentTime, 1000);
+  scheduleNextTick();
 }
 
 function stopTicker(): void {
-  if (intervalId === null) {
+  if (timerId === null) {
     return;
   }
 
-  window.clearInterval(intervalId);
-  intervalId = null;
+  window.clearTimeout(timerId);
+  window.clearInterval(timerId);
+  timerId = null;
 }
 
 export function useCurrentTime() {

@@ -7,9 +7,7 @@ import { ProgramModeButtons } from "./ProgramModeButtons";
 interface SettingsMenuProps {
   selectedBusNumber: Signal<string>;
   programMode: Signal<"auto" | "lucru" | "weekend">;
-  showPastHours: Signal<boolean>;
   isWeekendProgram: boolean;
-  holidayName: string | null;
   className?: string;
 }
 

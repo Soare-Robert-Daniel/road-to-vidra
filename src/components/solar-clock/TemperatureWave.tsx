@@ -100,12 +100,24 @@ function interpolateY(points: Array<{ x: number; y: number }>, targetX: number):
   return points[0].y;
 }
 
-export function TemperatureWave({
-  temperatures,
-  currentMinutes,
-}: TemperatureWaveProps): JSX.Element | null {
-  if (!temperatures || temperatures.length < 2) return null;
+interface ChartData {
+  points: Array<{ x: number; y: number }>;
+  strokePath: string;
+  fillPath: string;
+  curveLabels: Array<{
+    x: number;
+    y: number;
+    hour: string;
+    temp: string;
+    color: string;
+    isNow: boolean;
+  }>;
+  firstHourNum: number;
+}
 
+let chartCache: { hash: string; data: ChartData } | null = null;
+
+function buildChartData(temperatures: HourlyTemperature[]): ChartData {
   const temps = temperatures.map((t) => t.temperature);
   const minTemp = Math.min(...temps);
   const maxTemp = Math.max(...temps);
@@ -119,24 +131,7 @@ export function TemperatureWave({
   const strokePath = buildMonotonePath(points);
   const fillPath = `${strokePath} L ${points[points.length - 1].x},${CHART_BOTTOM} L ${points[0].x},${CHART_BOTTOM} Z`;
 
-  // Current time position
-  const currentHourFraction = currentMinutes / 60;
-  const firstHourNum = Number.parseInt(temperatures[0].hour, 10);
-  let hoursFromStart = currentHourFraction - firstHourNum;
-  if (hoursFromStart < 0) hoursFromStart += 24;
-  const currentX = PAD_LEFT + (hoursFromStart / (temperatures.length - 1)) * CHART_WIDTH;
-  const currentY = interpolateY(points, currentX);
-  const showTimeLine = currentX >= PAD_LEFT && currentX <= PAD_LEFT + CHART_WIDTH;
-
-  // On-curve labels every 3 hours
-  const curveLabels: Array<{
-    x: number;
-    y: number;
-    hour: string;
-    temp: string;
-    color: string;
-    isNow: boolean;
-  }> = [];
+  const curveLabels: ChartData["curveLabels"] = [];
   for (let i = 0; i < temperatures.length; i += 3) {
     const pt = points[i];
     curveLabels.push({
@@ -149,6 +144,45 @@ export function TemperatureWave({
     });
   }
 
+  return {
+    points,
+    strokePath,
+    fillPath,
+    curveLabels,
+    firstHourNum: Number.parseInt(temperatures[0].hour, 10),
+  };
+}
+
+function getChartData(temperatures: HourlyTemperature[]): ChartData {
+  const hash = temperatures.map((t) => `${t.hour}:${t.temperature}`).join(",");
+  if (chartCache && chartCache.hash === hash) {
+    return chartCache.data;
+  }
+  const data = buildChartData(temperatures);
+  chartCache = { hash, data };
+  return data;
+}
+
+let gradientIdCounter = 0;
+
+export function TemperatureWave({
+  temperatures,
+  currentMinutes,
+}: TemperatureWaveProps): JSX.Element | null {
+  if (!temperatures || temperatures.length < 2) return null;
+
+  const { points, strokePath, fillPath, curveLabels, firstHourNum } = getChartData(temperatures);
+
+  // Current time position (recomputed every render)
+  const currentHourFraction = currentMinutes / 60;
+  let hoursFromStart = currentHourFraction - firstHourNum;
+  if (hoursFromStart < 0) hoursFromStart += 24;
+  const currentX = PAD_LEFT + (hoursFromStart / (temperatures.length - 1)) * CHART_WIDTH;
+  const currentY = interpolateY(points, currentX);
+  const showTimeLine = currentX >= PAD_LEFT && currentX <= PAD_LEFT + CHART_WIDTH;
+
+  const gradientId = `tempFillGrad-${gradientIdCounter}`;
+
   return (
     <div class="w-full rounded-2xl">
       <svg
@@ -159,7 +193,7 @@ export function TemperatureWave({
       >
         <defs>
           <linearGradient
-            id="tempFillGrad"
+            id={gradientId}
             x1="0"
             y1={String(CHART_TOP)}
             x2="0"
@@ -172,7 +206,7 @@ export function TemperatureWave({
         </defs>
 
         {/* Filled area */}
-        <path d={fillPath} fill="url(#tempFillGrad)" />
+        <path d={fillPath} fill={`url(#${gradientId})`} />
 
         {/* Stroke line */}
         <path

@@ -1,4 +1,9 @@
-import { timeToClockAngle, type NextDeparture, type SolarTimesSummary } from "../../solar";
+import {
+  MINUTES_PER_DAY,
+  timeToClockAngle,
+  type NextDeparture,
+  type SolarTimesSummary,
+} from "../../solar";
 import { formatTimeDifference, timeToMinutes } from "../../utils";
 
 export type Direction = "tur" | "retur";
@@ -109,9 +114,6 @@ export const TEMP_LABEL_CONFIG = {
   dotRadius: 3,
   dotStrokeWidth: 1.5,
 };
-
-// Total minutes in a 24-hour day; used for time normalization and circular minute calculations
-export const MINUTES_PER_DAY = 24 * 60;
 
 // SVG canvas and geometric dimensions for the clock face layout
 export const CLOCK_LAYOUT = {

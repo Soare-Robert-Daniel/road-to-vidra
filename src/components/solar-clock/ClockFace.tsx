@@ -33,104 +33,108 @@ const CARDINAL_HOURS = [0, 6, 12, 18];
 const INTERMEDIATE_HOURS = [3, 9, 15, 21];
 const CARDINAL_LABEL_RADIUS = TICK_OUTER_RADIUS + 18;
 
+const TICK_MARKS = Array.from({ length: 288 }, (_, index) => {
+  const minutes = index * 5;
+  const isHour = minutes % 60 === 0;
+  const isCardinal = isHour && CARDINAL_HOURS.includes(minutes / 60);
+  const isHalfHour = minutes % 30 === 0;
+  const isQuarterHour = minutes % 15 === 0;
+
+  let strokeWidth: number;
+  let stroke: string;
+  let innerRadius = TICK_INNER_RADIUS;
+  let outerRadius = TICK_OUTER_RADIUS;
+
+  if (isHour) {
+    strokeWidth = isCardinal ? 4.5 : TICK_STYLE.hourWidth;
+    stroke = CLOCK_COLORS.dialText;
+  } else if (isHalfHour || isQuarterHour) {
+    strokeWidth = TICK_STYLE.minuteWidth;
+    stroke = CLOCK_COLORS.tickMinor;
+    innerRadius += CLOCK_LAYOUT.minorTickInset;
+  } else {
+    strokeWidth = 1.2;
+    stroke = CLOCK_COLORS.tickMinor;
+    innerRadius += CLOCK_LAYOUT.minorTickInset + 4;
+    outerRadius -= 4;
+  }
+
+  const start = getPointOnCircle(minutes, innerRadius);
+  const end = getPointOnCircle(minutes, outerRadius);
+
+  return (
+    <line
+      key={`tick-${minutes}`}
+      x1={start.x}
+      y1={start.y}
+      x2={end.x}
+      y2={end.y}
+      stroke={stroke}
+      stroke-width={String(strokeWidth)}
+      stroke-linecap="round"
+      opacity={!isHour && !isHalfHour && !isQuarterHour ? 0.5 : undefined}
+    />
+  );
+});
+
+const CARDINAL_LABELS = CARDINAL_HOURS.map((hour) => {
+  const point = getPointOnCircle(hour * 60, CARDINAL_LABEL_RADIUS);
+
+  return (
+    <text
+      key={`label-${hour}`}
+      x={point.x}
+      y={point.y + LABEL_STYLE.dialHourBaselineOffset}
+      paint-order="stroke fill"
+      stroke={CLOCK_COLORS.dialTextStroke}
+      stroke-width={String(LABEL_STYLE.dialHourStrokeWidth)}
+      stroke-linejoin="round"
+      fill={CLOCK_COLORS.dialText}
+      font-family="'Space Grotesk Variable', sans-serif"
+      font-size={String(LABEL_STYLE.dialHourSize)}
+      font-weight="700"
+      text-anchor="middle"
+      dominant-baseline="middle"
+    >
+      {String(hour)}
+    </text>
+  );
+});
+
+const INTERMEDIATE_LABELS = INTERMEDIATE_HOURS.map((hour) => {
+  const point = getPointOnCircle(
+    hour * 60,
+    CARDINAL_LABEL_RADIUS + LABEL_STYLE.intermediateHourRadiusOffset,
+  );
+
+  return (
+    <text
+      key={`label-${hour}`}
+      x={point.x}
+      y={point.y + LABEL_STYLE.dialHourBaselineOffset}
+      paint-order="stroke fill"
+      stroke={CLOCK_COLORS.dialTextStroke}
+      stroke-width={String(LABEL_STYLE.dialHourStrokeWidth)}
+      stroke-linejoin="round"
+      fill={LABEL_STYLE.intermediateHourColor}
+      font-family="'Space Grotesk Variable', sans-serif"
+      font-size={String(LABEL_STYLE.dialHourSize * LABEL_STYLE.intermediateHourSizeRatio)}
+      font-weight={String(LABEL_STYLE.intermediateHourWeight)}
+      text-anchor="middle"
+      dominant-baseline="middle"
+      opacity={String(LABEL_STYLE.intermediateHourOpacity)}
+    >
+      {String(hour)}
+    </text>
+  );
+});
+
 export function ClockFaceLabels(): JSX.Element {
   return (
     <>
-      {Array.from({ length: 288 }, (_, index) => {
-        const minutes = index * 5;
-        const isHour = minutes % 60 === 0;
-        const isCardinal = isHour && CARDINAL_HOURS.includes(minutes / 60);
-        const isHalfHour = minutes % 30 === 0;
-        const isQuarterHour = minutes % 15 === 0;
-
-        let strokeWidth: number;
-        let stroke: string;
-        let innerRadius = TICK_INNER_RADIUS;
-        let outerRadius = TICK_OUTER_RADIUS;
-
-        if (isHour) {
-          strokeWidth = isCardinal ? 4.5 : TICK_STYLE.hourWidth;
-          stroke = CLOCK_COLORS.dialText;
-        } else if (isHalfHour || isQuarterHour) {
-          strokeWidth = TICK_STYLE.minuteWidth;
-          stroke = CLOCK_COLORS.tickMinor;
-          innerRadius += CLOCK_LAYOUT.minorTickInset;
-        } else {
-          strokeWidth = 1.2;
-          stroke = CLOCK_COLORS.tickMinor;
-          innerRadius += CLOCK_LAYOUT.minorTickInset + 4;
-          outerRadius -= 4;
-        }
-
-        const start = getPointOnCircle(minutes, innerRadius);
-        const end = getPointOnCircle(minutes, outerRadius);
-
-        return (
-          <line
-            key={`tick-${minutes}`}
-            x1={start.x}
-            y1={start.y}
-            x2={end.x}
-            y2={end.y}
-            stroke={stroke}
-            stroke-width={String(strokeWidth)}
-            stroke-linecap="round"
-            opacity={!isHour && !isHalfHour && !isQuarterHour ? 0.5 : undefined}
-          />
-        );
-      })}
-
-      {CARDINAL_HOURS.map((hour) => {
-        const point = getPointOnCircle(hour * 60, CARDINAL_LABEL_RADIUS);
-
-        return (
-          <text
-            key={`label-${hour}`}
-            x={point.x}
-            y={point.y + LABEL_STYLE.dialHourBaselineOffset}
-            paint-order="stroke fill"
-            stroke={CLOCK_COLORS.dialTextStroke}
-            stroke-width={String(LABEL_STYLE.dialHourStrokeWidth)}
-            stroke-linejoin="round"
-            fill={CLOCK_COLORS.dialText}
-            font-family="'Space Grotesk Variable', sans-serif"
-            font-size={String(LABEL_STYLE.dialHourSize)}
-            font-weight="700"
-            text-anchor="middle"
-            dominant-baseline="middle"
-          >
-            {String(hour)}
-          </text>
-        );
-      })}
-
-      {INTERMEDIATE_HOURS.map((hour) => {
-        const point = getPointOnCircle(
-          hour * 60,
-          CARDINAL_LABEL_RADIUS + LABEL_STYLE.intermediateHourRadiusOffset,
-        );
-
-        return (
-          <text
-            key={`label-${hour}`}
-            x={point.x}
-            y={point.y + LABEL_STYLE.dialHourBaselineOffset}
-            paint-order="stroke fill"
-            stroke={CLOCK_COLORS.dialTextStroke}
-            stroke-width={String(LABEL_STYLE.dialHourStrokeWidth)}
-            stroke-linejoin="round"
-            fill={LABEL_STYLE.intermediateHourColor}
-            font-family="'Space Grotesk Variable', sans-serif"
-            font-size={String(LABEL_STYLE.dialHourSize * LABEL_STYLE.intermediateHourSizeRatio)}
-            font-weight={String(LABEL_STYLE.intermediateHourWeight)}
-            text-anchor="middle"
-            dominant-baseline="middle"
-            opacity={String(LABEL_STYLE.intermediateHourOpacity)}
-          >
-            {String(hour)}
-          </text>
-        );
-      })}
+      {TICK_MARKS}
+      {CARDINAL_LABELS}
+      {INTERMEDIATE_LABELS}
     </>
   );
 }

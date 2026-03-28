@@ -1,9 +1,9 @@
 import * as SunCalc from "suncalc";
 
-import { formatTimeDifference, isWeekendProgram, timeToMinutes } from "./utils";
+import { isWeekendProgram, timeToMinutes } from "./utils";
 
 // Total minutes in a 24-hour day, used to normalize times and calculate clock angles
-const MINUTES_PER_DAY = 24 * 60;
+export const MINUTES_PER_DAY = 24 * 60;
 
 export interface SolarLocation {
   name: string;
@@ -84,56 +84,10 @@ export function getSolarTimes(
   };
 }
 
-export function getNextDeparture(
+export function findDepartureCandidates(
   hours: string[],
   useWeekendSchedule: boolean,
   now: Date = new Date(),
-): NextDeparture | null {
-  let nextDeparture: NextDeparture | null = null;
-  const currentMinutes = dateToMinutes(now);
-
-  for (const hour of hours) {
-    const busMinutes = timeToMinutes(hour);
-
-    for (let dayOffset = 0; dayOffset <= 7; dayOffset += 1) {
-      // Calculate candidate time in Romania timezone
-      let candidateMinutes = busMinutes + dayOffset * 1440 - currentMinutes;
-
-      // Determine which Romania day this candidate falls on
-      const candidateDayOffset = Math.floor((currentMinutes + candidateMinutes) / 1440);
-      const candidateDate = new Date(now.getTime() + candidateMinutes * 60 * 1000);
-
-      if (isWeekendProgram(candidateDate) !== useWeekendSchedule) {
-        continue;
-      }
-
-      if (candidateMinutes < 0) {
-        continue;
-      }
-
-      const candidate: NextDeparture = {
-        time: hour,
-        minutesUntil: candidateMinutes,
-        dayOffset: candidateDayOffset,
-        targetDate: candidateDate,
-      };
-
-      if (nextDeparture === null || candidate.minutesUntil < nextDeparture.minutesUntil) {
-        nextDeparture = candidate;
-      }
-
-      break;
-    }
-  }
-
-  return nextDeparture;
-}
-
-export function getUpcomingDepartures(
-  hours: string[],
-  useWeekendSchedule: boolean,
-  now: Date = new Date(),
-  limit: number = 3,
 ): NextDeparture[] {
   const candidates: NextDeparture[] = [];
   const currentMinutes = dateToMinutes(now);
@@ -142,18 +96,16 @@ export function getUpcomingDepartures(
     const busMinutes = timeToMinutes(hour);
 
     for (let dayOffset = 0; dayOffset <= 7; dayOffset += 1) {
-      // Calculate candidate time in Romania timezone
-      let candidateMinutes = busMinutes + dayOffset * 1440 - currentMinutes;
+      const candidateMinutes = busMinutes + dayOffset * MINUTES_PER_DAY - currentMinutes;
 
-      // Determine which Romania day this candidate falls on
-      const candidateDayOffset = Math.floor((currentMinutes + candidateMinutes) / 1440);
-      const candidateDate = new Date(now.getTime() + candidateMinutes * 60 * 1000);
-
-      if (isWeekendProgram(candidateDate) !== useWeekendSchedule) {
+      if (candidateMinutes < 0) {
         continue;
       }
 
-      if (candidateMinutes < 0) {
+      const candidateDayOffset = Math.floor((currentMinutes + candidateMinutes) / MINUTES_PER_DAY);
+      const candidateDate = new Date(now.getTime() + candidateMinutes * 60 * 1000);
+
+      if (isWeekendProgram(candidateDate) !== useWeekendSchedule) {
         continue;
       }
 
@@ -169,28 +121,22 @@ export function getUpcomingDepartures(
   }
 
   candidates.sort((a, b) => a.minutesUntil - b.minutesUntil);
-
-  return candidates.slice(0, limit);
+  return candidates;
 }
 
-export function formatNextDeparture(nextDeparture: NextDeparture | null): string {
-  if (!nextDeparture) {
-    return "Nu exista curse disponibile";
-  }
+export function getNextDeparture(
+  hours: string[],
+  useWeekendSchedule: boolean,
+  now: Date = new Date(),
+): NextDeparture | null {
+  return findDepartureCandidates(hours, useWeekendSchedule, now)[0] ?? null;
+}
 
-  const relativeTime = formatTimeDifference(nextDeparture.minutesUntil);
-
-  if (nextDeparture.dayOffset === 0) {
-    return `Astazi, peste ${relativeTime}`;
-  }
-
-  if (nextDeparture.dayOffset === 1) {
-    return `Maine, peste ${relativeTime}`;
-  }
-
-  const weekday = nextDeparture.targetDate.toLocaleDateString("ro-RO", {
-    weekday: "long",
-  });
-
-  return `${weekday}, peste ${relativeTime}`;
+export function getUpcomingDepartures(
+  hours: string[],
+  useWeekendSchedule: boolean,
+  now: Date = new Date(),
+  limit: number = 3,
+): NextDeparture[] {
+  return findDepartureCandidates(hours, useWeekendSchedule, now).slice(0, limit);
 }

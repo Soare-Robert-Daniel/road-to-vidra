@@ -116,13 +116,11 @@ function LiveStatusCard({ routeLayer }: { routeLayer: RouteLayer }): JSX.Element
 }
 
 function buildSections(
-  routeLayers: RouteLayer[],
+  turLayer: RouteLayer,
+  returLayer: RouteLayer,
   solarTimes: SolarTimesSummary,
   isSelectedScheduleToday: boolean,
 ): PosterSection[] {
-  const turLayer = routeLayers.find((r) => r.direction === "tur")!;
-  const returLayer = routeLayers.find((r) => r.direction === "retur")!;
-
   return POSTER_SECTION_DEFS.map((def) => {
     const turEntries = turLayer.entries.filter(
       (e) => e.totalMinutes >= def.startMinutes && e.totalMinutes < def.endMinutes,
@@ -156,9 +154,9 @@ export function PosterView({
   solarTimes,
   isSelectedScheduleToday,
 }: PosterViewProps): JSX.Element {
-  const sections = buildSections(routeLayers, solarTimes, isSelectedScheduleToday);
-  const turLayer = routeLayers.find((r) => r.direction === "tur")!;
-  const returLayer = routeLayers.find((r) => r.direction === "retur")!;
+  const turLayer = routeLayers[0];
+  const returLayer = routeLayers[1];
+  const sections = buildSections(turLayer, returLayer, solarTimes, isSelectedScheduleToday);
   const { data: weatherData } = useWeatherData();
 
   const handleHourSelect = (direction: "tur" | "retur", time: string) => {
@@ -185,7 +183,8 @@ export function PosterView({
         <PosterSectionCard
           key={section.id}
           section={section}
-          routeLayers={routeLayers}
+          turLayer={turLayer}
+          returLayer={returLayer}
           solarTimes={solarTimes}
           selectedTurHour={selectedTurHour}
           selectedReturHour={selectedReturHour}

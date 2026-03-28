@@ -73,7 +73,7 @@ export const isWeekendProgram = (date: Date): boolean => {
  * @param {string} timeStr Time in format "HH:MM"
  * @returns {number} Minutes since midnight
  */
-export const timeToMinutes = (timeStr) => {
+export const timeToMinutes = (timeStr: string) => {
   const [hour, minute] = timeStr.split(":").map(Number);
   return hour * 60 + minute;
 };
@@ -99,81 +99,4 @@ export const formatTimeDifference = (minutes: number): string => {
   }
 
   return `${mins}'`;
-};
-
-/**
- * Calculate time until a specific bus tomorrow
- * @param {string} timeStr Time in format "HH:MM"
- * @returns {number} Minutes until the bus tomorrow
- */
-export const timeUntilTomorrow = (timeStr) => {
-  const now = new Date();
-  const tomorrow = new Date(now);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  tomorrow.setHours(0, 0, 0, 0);
-
-  const minutesUntilTomorrow = Math.floor((tomorrow.getTime() - now.getTime()) / (1000 * 60));
-  const busTime = timeToMinutes(timeStr);
-
-  return minutesUntilTomorrow + busTime;
-};
-
-/**
- * Calculate time until the next occurrence of a specific bus hour.
- * Finds the next day with the same schedule type and calculates time until that bus.
- * @param {string} timeStr Time in format "HH:MM"
- * @param {boolean} useWeekendSchedule The type of schedule to look for.
- * @returns {{minutes: number, days: number}}
- */
-export const timeUntilNextOccurrence = (
-  timeStr: string,
-  useWeekendSchedule: boolean,
-): { minutes: number; days: number } => {
-  const now = new Date();
-
-  // Today is the selected schedule type: show time until next bus today, or next occurrence
-  const [hour, minute] = timeStr.split(":").map(Number);
-  const todayBusTime = new Date();
-  todayBusTime.setHours(hour, minute, 0, 0);
-  const diffMinutesToday = Math.floor((todayBusTime.getTime() - now.getTime()) / (1000 * 60));
-  if (diffMinutesToday > 0) {
-    return { minutes: diffMinutesToday, days: 0 };
-  }
-  // Otherwise, find the next occurrence of this schedule type and return time until first bus
-  for (let i = 1; i <= 7; i++) {
-    const futureDate = new Date();
-    futureDate.setDate(now.getDate() + i);
-    if (isWeekendProgram(futureDate) === useWeekendSchedule) {
-      futureDate.setHours(hour, minute, 0, 0);
-      const diffMinutes = Math.floor((futureDate.getTime() - now.getTime()) / (1000 * 60));
-      return { minutes: diffMinutes, days: i };
-    }
-  }
-
-  return { minutes: -1, days: -1 };
-};
-
-/**
- * Calculate time until the next occurrence of a specific hour, regardless of program type.
- * Finds when this hour occurs next (today or any future day).
- * @param {string} timeStr Time in format "HH:MM"
- * @returns {number} Minutes until next occurrence, or -1 if not found
- */
-export const timeUntilNextHour = (timeStr: string): number => {
-  const now = new Date();
-  const [hour, minute] = timeStr.split(":").map(Number);
-
-  // Check if this hour is still upcoming today
-  const todayTime = new Date();
-  todayTime.setHours(hour, minute, 0, 0);
-  const diffToday = Math.floor((todayTime.getTime() - now.getTime()) / (1000 * 60));
-  if (diffToday > 0) {
-    return diffToday;
-  }
-
-  // Otherwise, it's tomorrow at the same hour
-  const tomorrowTime = new Date();
-  tomorrowTime.setDate(now.getDate() + 1);
-  tomorrowTime.setHours(hour, minute, 0, 0);
-  return Math.floor((tomorrowTime.getTime() - now.getTime()) / (1000 * 60));
 };

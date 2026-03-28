@@ -58,9 +58,7 @@ export function App() {
         <SettingsMenu
           selectedBusNumber={selectedBusNumber}
           programMode={programMode}
-          showPastHours={showPastHours}
           isWeekendProgram={isCurrentlyWeekendProgram}
-          holidayName={holidayName}
         />
 
         {/* Solar Clock Display */}
