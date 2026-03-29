@@ -18,6 +18,7 @@ import { TableView } from "./TableView";
 import { TemperatureWave } from "./TemperatureWave";
 import { RouteMarkers } from "./RouteMarkers";
 import { SolarBand } from "./SolarBand";
+import { TimelineView } from "./TimelineView";
 import {
   CENTER,
   CLOCK_COLORS,
@@ -109,6 +110,8 @@ export function SolarClock({
           solarTimes={solarTimes}
           isSelectedScheduleToday={isSelectedScheduleToday}
         />
+      ) : displayMode === "timeline" ? (
+        <TimelineView routeLayers={routeLayers} solarTimes={solarTimes} />
       ) : (
         <>
           <div class="w-full px-1">

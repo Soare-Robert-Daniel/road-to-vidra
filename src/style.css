@@ -126,3 +126,14 @@ body {
     font-size: 0.85rem;
   }
 }
+
+/* Timeline: pulsing glow on the "now" indicator dot */
+@keyframes now-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(15, 23, 42, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(15, 23, 42, 0);
+  }
+}

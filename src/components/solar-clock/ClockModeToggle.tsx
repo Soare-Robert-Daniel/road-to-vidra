@@ -61,6 +61,17 @@ export function ClockModeToggle({
       >
         Tabel
       </button>
+      <button
+        type="button"
+        aria-label="Afisare timeline"
+        class={twMerge(
+          baseButtonClass,
+          clockDisplayMode.value === "timeline" ? selectedClass : unselectedClass,
+        )}
+        onClick={() => (clockDisplayMode.value = "timeline")}
+      >
+        Linie
+      </button>
     </div>
   );
 }
