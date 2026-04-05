@@ -98,6 +98,53 @@ interface RouteGeometry {
   coordinates: [number, number][];
 }
 
+interface BusMotionState {
+  lat: number;
+  lng: number;
+  projectedKm?: number;
+  computedDirectionId?: number;
+}
+
+const MIN_MOVEMENT_KM = 0.02;
+const MIN_DIRECTION_SCORE = 0.15;
+
+function normalizeRouteDirection(coords: [number, number][]): {
+  canonicalCoords: [number, number][];
+  totalLengthKm: number;
+} {
+  if (coords.length < 2) {
+    return { canonicalCoords: coords, totalLengthKm: 0 };
+  }
+
+  const first = coords[0];
+  const last = coords[coords.length - 1];
+  const shouldReverse = first[1] > last[1];
+  const canonicalCoords = shouldReverse ? [...coords].reverse() : coords;
+  const totalLengthKm = turf.length(turf.lineString(canonicalCoords), {
+    units: "kilometers",
+  });
+
+  return { canonicalCoords, totalLengthKm };
+}
+
+function getTangentAt(
+  coords: [number, number][],
+  nearestIndex: number,
+): { x: number; y: number } | null {
+  if (coords.length < 2) return null;
+
+  const clampedIndex = Math.max(0, Math.min(nearestIndex, coords.length - 2));
+  const from = coords[clampedIndex];
+  const to = coords[clampedIndex + 1];
+
+  const dx = to[0] - from[0];
+  const dy = to[1] - from[1];
+  const len = Math.hypot(dx, dy);
+
+  if (len === 0) return null;
+  return { x: dx / len, y: dy / len };
+}
+
 export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
   const mapRef = useRef<HTMLDivElement>(null);
   const leafletMapRef = useRef<L.Map | null>(null);
@@ -115,32 +162,87 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
     lastUpdate,
   } = useBusPositions(busNumber);
 
-  // Augment buses with calculated distance
+  // Track previous bus states to compute direction if missing
+  const prevBusStatesRef = useRef<Record<string, BusMotionState>>({});
+
+  // Augment buses with direction from movement projection and remaining distance
   const busesWithDistance = useMemo(() => {
-    return buses.map((bus) => {
+    const nextStates: Record<string, BusMotionState> = {};
+
+    const augmentedBuses = buses.map((bus) => {
       let distance: number | null = null;
-      if (routeFeatures.length > 0 && bus.directionId !== undefined) {
+      let finalDirectionId = bus.directionId;
+      let projectedKm: number | undefined;
+
+      if (routeFeatures.length > 0) {
         try {
-          const featureIdx = bus.directionId === 0 ? 0 : Math.min(1, routeFeatures.length - 1);
-          const feature = routeFeatures[featureIdx];
-
-          if (feature && feature.geometry && feature.geometry.coordinates) {
-            const coords = feature.geometry.coordinates;
-            const line = turf.lineString(coords);
+          const referenceFeature = routeFeatures[0];
+          const rawCoords = referenceFeature?.geometry?.coordinates as
+            | [number, number][]
+            | undefined;
+          if (rawCoords && rawCoords.length >= 2) {
+            const { canonicalCoords, totalLengthKm } = normalizeRouteDirection(rawCoords);
+            const routeLine = turf.lineString(canonicalCoords);
             const busPoint = turf.point([bus.longitude, bus.latitude]);
+            const snapped = turf.nearestPointOnLine(routeLine, busPoint);
+            projectedKm = (snapped.properties.location as number) ?? undefined;
 
-            const snapped = turf.nearestPointOnLine(line, busPoint);
-            const endPoint = turf.point(coords[coords.length - 1]);
+            const nearestIndex = (snapped.properties.index as number) ?? 0;
+            const tangent = getTangentAt(canonicalCoords, nearestIndex);
+            const prevState = prevBusStatesRef.current[bus.id];
 
-            const sliced = turf.lineSlice(snapped, endPoint, line);
-            distance = turf.length(sliced, { units: "kilometers" });
+            if (prevState && tangent) {
+              const prevPoint = turf.point([prevState.lng, prevState.lat]);
+              const movedKm = turf.distance(prevPoint, busPoint, {
+                units: "kilometers",
+              });
+
+              if (movedKm >= MIN_MOVEMENT_KM) {
+                const vx = bus.longitude - prevState.lng;
+                const vy = bus.latitude - prevState.lat;
+                const vLen = Math.hypot(vx, vy);
+
+                if (vLen > 0) {
+                  const directionScore = (vx / vLen) * tangent.x + (vy / vLen) * tangent.y;
+                  if (directionScore > MIN_DIRECTION_SCORE) {
+                    finalDirectionId = 0;
+                  } else if (directionScore < -MIN_DIRECTION_SCORE) {
+                    finalDirectionId = 1;
+                  } else {
+                    finalDirectionId = prevState.computedDirectionId ?? finalDirectionId;
+                  }
+                }
+              } else {
+                finalDirectionId = prevState.computedDirectionId ?? finalDirectionId;
+              }
+            }
+
+            if (projectedKm !== undefined && totalLengthKm > 0) {
+              if (finalDirectionId === 0) {
+                distance = Math.max(0, totalLengthKm - projectedKm);
+              } else if (finalDirectionId === 1) {
+                distance = Math.max(0, projectedKm);
+              }
+            }
           }
         } catch (e) {
-          console.error("Error calculating distance:", e);
+          console.error("Error calculating distance/direction:", e);
         }
       }
-      return { ...bus, distance };
+
+      // Save state for next poll
+      nextStates[bus.id] = {
+        lat: bus.latitude,
+        lng: bus.longitude,
+        projectedKm,
+        computedDirectionId: finalDirectionId,
+      };
+
+      return { ...bus, directionId: finalDirectionId, distance };
     });
+
+    prevBusStatesRef.current = nextStates;
+    return augmentedBuses;
   }, [buses, routeFeatures]);
 
   // Initialize map
@@ -194,7 +296,13 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
 
         // Add route polylines
         routeFeatures.forEach(
-          (feature: { properties: { route_id: string }; geometry: RouteGeometry }, idx: number) => {
+          (
+            feature: {
+              properties: { route_id: string };
+              geometry: RouteGeometry;
+            },
+            idx: number,
+          ) => {
             const coords: [number, number][] = feature.geometry.coordinates.map(
               ([lng, lat]: [number, number]) => [lat, lng] as [number, number],
             );
@@ -211,7 +319,9 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
             ),
         );
         if (allCoords.length > 0) {
-          leafletMapRef.current?.fitBounds(L.latLngBounds(allCoords), { padding: [20, 20] });
+          leafletMapRef.current?.fitBounds(L.latLngBounds(allCoords), {
+            padding: [20, 20],
+          });
         }
 
         setRouteError(null);
@@ -318,7 +428,7 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
                 <tr>
                   <th class="px-4 py-3 font-medium">Autobuz</th>
                   <th class="px-4 py-3 font-medium">Direcție</th>
-                  <th class="px-4 py-3 font-medium">Distanță</th>
+                  <th class="px-4 py-3 font-medium">Distanță Rămasă</th>
                   <th class="px-4 py-3 font-medium">Actualizat</th>
                 </tr>
               </thead>
