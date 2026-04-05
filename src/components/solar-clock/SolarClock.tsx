@@ -94,7 +94,7 @@ export function SolarClock({
 
       {/* Update Notice */}
       <div class="mb-2 w-full rounded-lg bg-blue-50 px-4 py-2 text-center text-sm text-blue-800 border border-blue-100">
-        Program actualizat pentru 28.03.2026
+        Program actualizat pentru 5 Aprilie 2026.
       </div>
 
       {/* Conditional view */}
