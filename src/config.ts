@@ -106,7 +106,7 @@ export const busScheduleData = {
           "20:50",
           "21:25",
           "22:05",
-          "23:05"
+          "23:05",
         ],
         weekendHours: [
           "5:45",
@@ -160,7 +160,7 @@ export const busScheduleData = {
           "20:30",
           "21:15",
           "22:00",
-          "22:30"
+          "22:30",
         ],
         weekendHours: [
           "4:55",
@@ -212,7 +212,7 @@ export const busScheduleData = {
           "20:45",
           "21:15",
           "21:55",
-          "22:55"
+          "22:55",
         ],
         weekendHours: [
           "5:30",

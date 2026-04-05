@@ -1,0 +1,23 @@
+{
+  "headers": [
+    {
+      "source": "/data/layers/:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=604800, s-maxage=604800, immutable"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/busData",
+      "destination": "https://maps.mo-bi.ro/api/busData"
+    },
+    {
+      "source": "/data/layers/:path*",
+      "destination": "https://maps.mo-bi.ro/data/layers/:path*"
+    }
+  ]
+}

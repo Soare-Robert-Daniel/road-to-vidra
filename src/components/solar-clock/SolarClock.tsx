@@ -19,6 +19,7 @@ import { TemperatureWave } from "./TemperatureWave";
 import { RouteMarkers } from "./RouteMarkers";
 import { SolarBand } from "./SolarBand";
 import { TimelineView } from "./TimelineView";
+import { MapView } from "./MapView";
 import {
   CENTER,
   CLOCK_COLORS,
@@ -86,9 +87,7 @@ export function SolarClock({
     >
       {/* Compact header: bus number + schedule badge + mode toggle */}
       <div class="flex w-full items-center justify-between gap-2 px-1 pt-0.5">
-        {clockDisplayMode && (
-          <ClockModeToggle clockDisplayMode={clockDisplayMode} />
-        )}
+        {clockDisplayMode && <ClockModeToggle clockDisplayMode={clockDisplayMode} />}
       </div>
 
       {/* Update Notice */}
@@ -111,6 +110,8 @@ export function SolarClock({
         />
       ) : displayMode === "timeline" ? (
         <TimelineView routeLayers={routeLayers} solarTimes={solarTimes} />
+      ) : displayMode === "harta" ? (
+        <MapView busNumber={busNumber as "420" | "438"} />
       ) : (
         <>
           <div class="w-full px-1">
@@ -146,17 +147,13 @@ export function SolarClock({
               <ClockHand currentMinutes={solarTimes.currentMinutes} />
             </svg>
           </div>
-          <DepartureSummaries
-            routeLayers={routeLayers}
-            solarTimes={solarTimes}
-          />
-          {weatherData.value?.temperatures &&
-            weatherData.value.temperatures.length > 0 && (
-              <TemperatureWave
-                temperatures={weatherData.value.temperatures}
-                currentMinutes={solarTimes.currentMinutes}
-              />
-            )}
+          <DepartureSummaries routeLayers={routeLayers} solarTimes={solarTimes} />
+          {weatherData.value?.temperatures && weatherData.value.temperatures.length > 0 && (
+            <TemperatureWave
+              temperatures={weatherData.value.temperatures}
+              currentMinutes={solarTimes.currentMinutes}
+            />
+          )}
         </>
       )}
     </div>
