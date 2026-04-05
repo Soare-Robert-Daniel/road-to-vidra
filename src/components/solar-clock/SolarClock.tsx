@@ -86,10 +86,9 @@ export function SolarClock({
     >
       {/* Compact header: bus number + schedule badge + mode toggle */}
       <div class="flex w-full items-center justify-between gap-2 px-1 pt-0.5">
-        <div class="font-ui rounded-full border border-slate-200 bg-white/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-600 shadow-sm shadow-slate-200/70">
-          {useWeekendSchedule ? "Program weekend" : "Program lucru"}
-        </div>
-        {clockDisplayMode && <ClockModeToggle clockDisplayMode={clockDisplayMode} />}
+        {clockDisplayMode && (
+          <ClockModeToggle clockDisplayMode={clockDisplayMode} />
+        )}
       </div>
 
       {/* Update Notice */}
@@ -147,13 +146,17 @@ export function SolarClock({
               <ClockHand currentMinutes={solarTimes.currentMinutes} />
             </svg>
           </div>
-          <DepartureSummaries routeLayers={routeLayers} solarTimes={solarTimes} />
-          {weatherData.value?.temperatures && weatherData.value.temperatures.length > 0 && (
-            <TemperatureWave
-              temperatures={weatherData.value.temperatures}
-              currentMinutes={solarTimes.currentMinutes}
-            />
-          )}
+          <DepartureSummaries
+            routeLayers={routeLayers}
+            solarTimes={solarTimes}
+          />
+          {weatherData.value?.temperatures &&
+            weatherData.value.temperatures.length > 0 && (
+              <TemperatureWave
+                temperatures={weatherData.value.temperatures}
+                currentMinutes={solarTimes.currentMinutes}
+              />
+            )}
         </>
       )}
     </div>
