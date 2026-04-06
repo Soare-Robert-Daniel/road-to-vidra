@@ -15,10 +15,10 @@ const ROUTE_IDS: Record<"420" | "438", string> = {
   "438": "PV1_438",
 };
 
-// Route bounds covering Vidra → Bucharest
+// Route bounds for map view
 const ROUTE_BOUNDS: L.LatLngBoundsExpression = [
-  [44.25, 26.0], // Southwest (Vidra area)
-  [44.45, 26.2], // Northeast (Bucharest area)
+  [44.255, 26.072], // Southwest
+  [44.371, 26.198], // Northeast
 ];
 
 // Direction status type
@@ -125,7 +125,8 @@ async function fetchRouteGeoJSON() {
     // Extract ONLY the routes we care about to save space
     const targetRouteIds = Object.values(ROUTE_IDS);
     const filteredFeatures = fullGeojson.features.filter(
-      (f: { properties: { route_id: string } }) => targetRouteIds.includes(f.properties.route_id),
+      (f: { properties: { route_id: string } }) =>
+        targetRouteIds.includes(f.properties.route_id),
     );
 
     const slimGeojson = {
@@ -214,7 +215,10 @@ function getTangentAt(
 const MIN_SPEED_DATA_MS = 60 * 1000; // Minimum 1 minute of data for speed calculation
 
 // Calculate average speed from history (km/h over last N minutes)
-function calculateAverageSpeed(history: SpeedHistoryEntry[], now: number): number | null {
+function calculateAverageSpeed(
+  history: SpeedHistoryEntry[],
+  now: number,
+): number | null {
   if (history.length < 2) return null;
 
   const windowStart = now - SPEED_HISTORY_WINDOW_MS;
@@ -236,7 +240,10 @@ function calculateAverageSpeed(history: SpeedHistoryEntry[], now: number): numbe
 }
 
 // Calculate ETA in minutes from distance (km) and speed (km/h)
-function calculateEta(distanceKm: number | null, speedKmH: number | null): number | null {
+function calculateEta(
+  distanceKm: number | null,
+  speedKmH: number | null,
+): number | null {
   if (distanceKm === null || speedKmH === null || speedKmH <= 0) return null;
   return (distanceKm / speedKmH) * 60; // Convert hours to minutes
 }
@@ -252,7 +259,10 @@ function formatEta(minutes: number | null): string {
 }
 
 // Calculate progress towards having enough data for speed (0-1)
-function calculateSpeedProgress(history: SpeedHistoryEntry[], now: number): number {
+function calculateSpeedProgress(
+  history: SpeedHistoryEntry[],
+  now: number,
+): number {
   if (history.length < 2) {
     // If only 1 entry, calculate time since that entry
     if (history.length === 1) {
@@ -285,14 +295,17 @@ function EstimationNotice({
     );
   }
 
-  const minProgress = Math.min(...busesWithoutSpeed.map((b) => b.speedProgress));
+  const minProgress = Math.min(
+    ...busesWithoutSpeed.map((b) => b.speedProgress),
+  );
   const progressPercent = Math.round(minProgress * 100);
   const remainingSeconds = Math.round((1 - minProgress) * 60);
 
   return (
     <span>
-      <CircularProgress progress={minProgress} /> Se colectează date pentru calculul vitezei
-      ({progressPercent}% complet, ~{remainingSeconds}s rămas). Necesită minim 1 minut de date.
+      <CircularProgress progress={minProgress} /> Se colectează date pentru
+      calculul vitezei ({progressPercent}% complet, ~{remainingSeconds}s rămas).
+      Necesită minim 1 minut de date.
     </span>
   );
 }
@@ -373,7 +386,8 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
             | [number, number][]
             | undefined;
           if (rawCoords && rawCoords.length >= 2) {
-            const { canonicalCoords, totalLengthKm } = normalizeRouteDirection(rawCoords);
+            const { canonicalCoords, totalLengthKm } =
+              normalizeRouteDirection(rawCoords);
             const routeLine = turf.lineString(canonicalCoords);
             const busPoint = turf.point([bus.longitude, bus.latitude]);
             const snapped = turf.nearestPointOnLine(routeLine, busPoint);
@@ -395,17 +409,20 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
                 const vLen = Math.hypot(vx, vy);
 
                 if (vLen > 0) {
-                  const directionScore = (vx / vLen) * tangent.x + (vy / vLen) * tangent.y;
+                  const directionScore =
+                    (vx / vLen) * tangent.x + (vy / vLen) * tangent.y;
                   if (directionScore > MIN_DIRECTION_SCORE) {
                     finalDirectionId = 0;
                   } else if (directionScore < -MIN_DIRECTION_SCORE) {
                     finalDirectionId = 1;
                   } else {
-                    finalDirectionId = prevState.computedDirectionId ?? finalDirectionId;
+                    finalDirectionId =
+                      prevState.computedDirectionId ?? finalDirectionId;
                   }
                 }
               } else {
-                finalDirectionId = prevState.computedDirectionId ?? finalDirectionId;
+                finalDirectionId =
+                  prevState.computedDirectionId ?? finalDirectionId;
               }
             }
 
@@ -435,7 +452,10 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
         };
         // Keep only entries within the window
         const windowStart = now - SPEED_HISTORY_WINDOW_MS;
-        newHistory = [...prevHistory.filter((e) => e.timestamp >= windowStart), entry];
+        newHistory = [
+          ...prevHistory.filter((e) => e.timestamp >= windowStart),
+          entry,
+        ];
       }
 
       // Calculate average speed from history
@@ -451,7 +471,13 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
         speedHistory: newHistory,
       };
 
-      return { ...bus, directionId: finalDirectionId, distance, avgSpeed, speedProgress };
+      return {
+        ...bus,
+        directionId: finalDirectionId,
+        distance,
+        avgSpeed,
+        speedProgress,
+      };
     });
 
     prevBusStatesRef.current = nextStates;
@@ -459,7 +485,9 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
     // Check if all buses have established directions (0 or 1)
     const allDirectionsEstablished =
       augmentedBuses.length > 0 &&
-      augmentedBuses.every((bus) => bus.directionId === 0 || bus.directionId === 1);
+      augmentedBuses.every(
+        (bus) => bus.directionId === 0 || bus.directionId === 1,
+      );
 
     setDirectionEstablished(allDirectionsEstablished);
 
@@ -505,7 +533,8 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
 
         const routeId = ROUTE_IDS[busNumber];
         const routeFeatures = geojson.features.filter(
-          (f: { properties: { route_id: string } }) => f.properties.route_id === routeId,
+          (f: { properties: { route_id: string } }) =>
+            f.properties.route_id === routeId,
         );
 
         if (routeFeatures.length === 0) {
@@ -528,7 +557,9 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
               ([lng, lat]: [number, number]) => [lat, lng] as [number, number],
             );
             const color = idx === 0 ? "#3b82f6" : "#ef4444"; // Blue for first segment, red for return
-            L.polyline(coords, { color, weight: 4, opacity: 0.8 }).addTo(routeLayerRef.current!);
+            L.polyline(coords, { color, weight: 4, opacity: 0.8 }).addTo(
+              routeLayerRef.current!,
+            );
           },
         );
 
@@ -540,14 +571,14 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
             ),
         );
         if (allCoords.length > 0) {
-          leafletMapRef.current?.fitBounds(L.latLngBounds(allCoords), {
-            padding: [20, 20],
-          });
+          leafletMapRef.current?.fitBounds(L.latLngBounds(allCoords));
         }
 
         setRouteError(null);
       } catch (err) {
-        setRouteError(err instanceof Error ? err.message : "Failed to load route");
+        setRouteError(
+          err instanceof Error ? err.message : "Failed to load route",
+        );
       } finally {
         setRouteLoading(false);
       }
@@ -564,14 +595,22 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
 
     busesWithDistance.forEach((bus) => {
       const status: DirectionStatus =
-        bus.directionId === 0 ? "tur" : bus.directionId === 1 ? "retur" : "unknown";
+        bus.directionId === 0
+          ? "tur"
+          : bus.directionId === 1
+            ? "retur"
+            : "unknown";
       const icon = createBusIcon(status);
       const marker = L.marker([bus.latitude, bus.longitude], { icon }).addTo(
         markersLayerRef.current!,
       );
 
       const direction =
-        bus.directionId === 0 ? "Tur" : bus.directionId === 1 ? "Retur" : "Necunoscut";
+        bus.directionId === 0
+          ? "Tur"
+          : bus.directionId === 1
+            ? "Retur"
+            : "Necunoscut";
 
       const time = new Date(bus.timestamp * 1000).toLocaleTimeString("ro-RO");
 
@@ -580,7 +619,9 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
           ? `<br><strong>Distanță rămasă:</strong> ${bus.distance.toFixed(1)} km`
           : "";
 
-      const startTimeStr = bus.startTime ? `<br><strong>Plecare:</strong> ${bus.startTime}` : "";
+      const startTimeStr = bus.startTime
+        ? `<br><strong>Plecare:</strong> ${bus.startTime}`
+        : "";
 
       marker.bindPopup(`
         <div style="font-family: system-ui; min-width: 120px;">
@@ -602,7 +643,10 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
 
   return (
     <div className={twMerge("relative w-full", className)}>
-      <div ref={mapRef} class="w-full h-[400px] rounded-lg border border-slate-200" />
+      <div
+        ref={mapRef}
+        class="w-full h-[400px] rounded-lg border border-slate-200"
+      />
 
       {/* Status overlay */}
       {(routeLoading || busesLoading) && (
@@ -678,7 +722,9 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
                   <tr key={bus.id} class="hover:bg-slate-50 transition-colors">
                     <td class="px-3 py-1">
                       <div class="font-medium text-slate-900">{bus.label}</div>
-                      <div class="text-xs text-slate-500">{bus.licensePlate}</div>
+                      <div class="text-xs text-slate-500">
+                        {bus.licensePlate}
+                      </div>
                     </td>
                     <td class="px-3 py-1">
                       <span
@@ -700,14 +746,18 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
                     </td>
                     <td class="px-3 py-1">
                       {bus.distance !== null ? (
-                        <span class="font-mono">{bus.distance.toFixed(1)} km</span>
+                        <span class="font-mono">
+                          {bus.distance.toFixed(1)} km
+                        </span>
                       ) : (
                         "-"
                       )}
                     </td>
                     <td class="px-3 py-1">
                       {bus.avgSpeed !== null ? (
-                        <span class="font-mono">{Math.round(bus.avgSpeed)} km/h</span>
+                        <span class="font-mono">
+                          {Math.round(bus.avgSpeed)} km/h
+                        </span>
                       ) : (
                         <CircularProgress progress={bus.speedProgress} />
                       )}
@@ -720,7 +770,9 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
                       )}
                     </td>
                     <td class="px-3 py-1 text-slate-500">
-                      {new Date(bus.timestamp * 1000).toLocaleTimeString("ro-RO")}
+                      {new Date(bus.timestamp * 1000).toLocaleTimeString(
+                        "ro-RO",
+                      )}
                     </td>
                   </tr>
                 ))}
