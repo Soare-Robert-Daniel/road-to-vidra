@@ -156,12 +156,20 @@ interface RouteGeometry {
   coordinates: [number, number][];
 }
 
+interface SpeedHistoryEntry {
+  projectedKm: number;
+  timestamp: number;
+}
+
 interface BusMotionState {
   lat: number;
   lng: number;
   projectedKm?: number;
   computedDirectionId?: number;
+  speedHistory: SpeedHistoryEntry[];
 }
+
+const SPEED_HISTORY_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
 
 const MIN_MOVEMENT_KM = 0.02;
 const MIN_DIRECTION_SCORE = 0.15;
@@ -203,6 +211,130 @@ function getTangentAt(
   return { x: dx / len, y: dy / len };
 }
 
+const MIN_SPEED_DATA_MS = 60 * 1000; // Minimum 1 minute of data for speed calculation
+
+// Calculate average speed from history (km/h over last N minutes)
+function calculateAverageSpeed(history: SpeedHistoryEntry[], now: number): number | null {
+  if (history.length < 2) return null;
+
+  const windowStart = now - SPEED_HISTORY_WINDOW_MS;
+  const entriesInWindow = history.filter((e) => e.timestamp >= windowStart);
+
+  if (entriesInWindow.length < 2) return null;
+
+  const oldest = entriesInWindow[0];
+  const newest = entriesInWindow[entriesInWindow.length - 1];
+  const timeDeltaMs = newest.timestamp - oldest.timestamp;
+
+  // Require at least 1 minute of data
+  if (timeDeltaMs < MIN_SPEED_DATA_MS) return null;
+
+  const distanceDelta = newest.projectedKm - oldest.projectedKm;
+  const timeDeltaHours = timeDeltaMs / (1000 * 60 * 60);
+
+  return Math.abs(distanceDelta / timeDeltaHours);
+}
+
+// Calculate ETA in minutes from distance (km) and speed (km/h)
+function calculateEta(distanceKm: number | null, speedKmH: number | null): number | null {
+  if (distanceKm === null || speedKmH === null || speedKmH <= 0) return null;
+  return (distanceKm / speedKmH) * 60; // Convert hours to minutes
+}
+
+// Format ETA as human-readable string
+function formatEta(minutes: number | null): string {
+  if (minutes === null) return "-";
+  if (minutes < 1) return "<1 min";
+  if (minutes < 60) return `${Math.round(minutes)} min`;
+  const hours = Math.floor(minutes / 60);
+  const mins = Math.round(minutes % 60);
+  return mins > 0 ? `${hours}h ${mins}min` : `${hours}h`;
+}
+
+// Calculate progress towards having enough data for speed (0-1)
+function calculateSpeedProgress(history: SpeedHistoryEntry[], now: number): number {
+  if (history.length < 2) {
+    // If only 1 entry, calculate time since that entry
+    if (history.length === 1) {
+      const elapsed = now - history[0].timestamp;
+      return Math.min(1, elapsed / MIN_SPEED_DATA_MS);
+    }
+    return 0;
+  }
+
+  const oldest = history[0];
+  const newest = history[history.length - 1];
+  const timeDeltaMs = newest.timestamp - oldest.timestamp;
+
+  return Math.min(1, timeDeltaMs / MIN_SPEED_DATA_MS);
+}
+
+// Estimation notice component
+function EstimationNotice({
+  buses,
+}: {
+  buses: Array<{ avgSpeed: number | null; speedProgress: number }>;
+}): JSX.Element {
+  const busesWithoutSpeed = buses.filter((b) => b.avgSpeed === null);
+
+  if (busesWithoutSpeed.length === 0) {
+    return (
+      <span>
+        Estimările sunt calculate pe baza ultimelor 5 minute de date colectate.
+      </span>
+    );
+  }
+
+  const minProgress = Math.min(...busesWithoutSpeed.map((b) => b.speedProgress));
+  const progressPercent = Math.round(minProgress * 100);
+  const remainingSeconds = Math.round((1 - minProgress) * 60);
+
+  return (
+    <span>
+      <CircularProgress progress={minProgress} /> Se colectează date pentru calculul vitezei
+      ({progressPercent}% complet, ~{remainingSeconds}s rămas). Necesită minim 1 minut de date.
+    </span>
+  );
+}
+
+// Circular progress indicator SVG
+function CircularProgress({ progress }: { progress: number }): JSX.Element {
+  const radius = 6;
+  const stroke = 2;
+  const normalizedRadius = radius - stroke / 2;
+  const circumference = normalizedRadius * 2 * Math.PI;
+  const strokeDashoffset = circumference - progress * circumference;
+
+  return (
+    <svg
+      width={radius * 2}
+      height={radius * 2}
+      class="inline-block align-middle"
+      style={{ transform: "rotate(-90deg)" }}
+    >
+      <circle
+        cx={radius}
+        cy={radius}
+        r={normalizedRadius}
+        fill="none"
+        stroke="rgb(203 213 225)"
+        stroke-width={stroke}
+      />
+      <circle
+        cx={radius}
+        cy={radius}
+        r={normalizedRadius}
+        fill="none"
+        stroke="rgb(71 85 105)"
+        stroke-width={stroke}
+        stroke-dasharray={circumference}
+        stroke-dashoffset={strokeDashoffset}
+        stroke-linecap="round"
+      />
+    </svg>
+  );
+}
+
 export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
   const mapRef = useRef<HTMLDivElement>(null);
   const leafletMapRef = useRef<L.Map | null>(null);
@@ -226,6 +358,7 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
 
   // Augment buses with direction from movement projection and remaining distance
   const busesWithDistance = useMemo(() => {
+    const now = Date.now();
     const nextStates: Record<string, BusMotionState> = {};
 
     const augmentedBuses = buses.map((bus) => {
@@ -289,15 +422,36 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
         }
       }
 
+      // Get previous state and update speed history
+      const prevState = prevBusStatesRef.current[bus.id];
+      const prevHistory = prevState?.speedHistory ?? [];
+
+      // Add new entry if we have valid projectedKm
+      let newHistory = prevHistory;
+      if (projectedKm !== undefined) {
+        const entry: SpeedHistoryEntry = {
+          projectedKm,
+          timestamp: now,
+        };
+        // Keep only entries within the window
+        const windowStart = now - SPEED_HISTORY_WINDOW_MS;
+        newHistory = [...prevHistory.filter((e) => e.timestamp >= windowStart), entry];
+      }
+
+      // Calculate average speed from history
+      const avgSpeed = calculateAverageSpeed(newHistory, now);
+      const speedProgress = calculateSpeedProgress(newHistory, now);
+
       // Save state for next poll
       nextStates[bus.id] = {
         lat: bus.latitude,
         lng: bus.longitude,
         projectedKm,
         computedDirectionId: finalDirectionId,
+        speedHistory: newHistory,
       };
 
-      return { ...bus, directionId: finalDirectionId, distance };
+      return { ...bus, directionId: finalDirectionId, distance, avgSpeed, speedProgress };
     });
 
     prevBusStatesRef.current = nextStates;
@@ -501,23 +655,35 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
             <table class="w-full text-left text-sm whitespace-nowrap">
               <thead class="bg-slate-50 text-slate-600">
                 <tr>
-                  <th class="px-4 py-3 font-medium">Autobuz</th>
-                  <th class="px-4 py-3 font-medium">Direcție</th>
-                  <th class="px-4 py-3 font-medium">Distanță Rămasă</th>
-                  <th class="px-4 py-3 font-medium">Actualizat</th>
+                  <th class="px-3 py-1.5 font-medium">Autobuz</th>
+                  <th class="px-3 py-1.5 font-medium">Direcție</th>
+                  <th class="px-3 py-1.5 font-medium">Distanță Rămasă</th>
+                  <th class="px-3 py-1.5 font-medium">Viteză Medie</th>
+                  <th class="px-3 py-1.5 font-medium">
+                    <span class="inline-flex items-center gap-1">
+                      ETA
+                      <span
+                        class="cursor-help text-amber-500"
+                        title="Estimare bazată pe viteza medie. Poate diferi semnificativ de realitate din cauza traficului, stațiilor și altor factori."
+                      >
+                        ⚠
+                      </span>
+                    </span>
+                  </th>
+                  <th class="px-3 py-1.5 font-medium">Actualizat</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-200">
                 {busesWithDistance.map((bus) => (
                   <tr key={bus.id} class="hover:bg-slate-50 transition-colors">
-                    <td class="px-4 py-3">
+                    <td class="px-3 py-1">
                       <div class="font-medium text-slate-900">{bus.label}</div>
                       <div class="text-xs text-slate-500">{bus.licensePlate}</div>
                     </td>
-                    <td class="px-4 py-3">
+                    <td class="px-3 py-1">
                       <span
                         class={twMerge(
-                          "inline-flex items-center rounded-full px-2 py-1 text-xs font-medium",
+                          "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
                           bus.directionId === 0
                             ? "bg-green-100 text-green-700"
                             : bus.directionId === 1
@@ -532,20 +698,38 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
                             : "Necunoscut"}
                       </span>
                     </td>
-                    <td class="px-4 py-3">
+                    <td class="px-3 py-1">
                       {bus.distance !== null ? (
                         <span class="font-mono">{bus.distance.toFixed(1)} km</span>
                       ) : (
                         "-"
                       )}
                     </td>
-                    <td class="px-4 py-3 text-slate-500">
+                    <td class="px-3 py-1">
+                      {bus.avgSpeed !== null ? (
+                        <span class="font-mono">{Math.round(bus.avgSpeed)} km/h</span>
+                      ) : (
+                        <CircularProgress progress={bus.speedProgress} />
+                      )}
+                    </td>
+                    <td class="px-3 py-1">
+                      {bus.avgSpeed !== null ? (
+                        formatEta(calculateEta(bus.distance, bus.avgSpeed))
+                      ) : (
+                        <CircularProgress progress={bus.speedProgress} />
+                      )}
+                    </td>
+                    <td class="px-3 py-1 text-slate-500">
                       {new Date(bus.timestamp * 1000).toLocaleTimeString("ro-RO")}
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+          </div>
+          {/* Estimation notice */}
+          <div class="border-t border-slate-200 px-3 py-2 text-xs text-slate-500">
+            <EstimationNotice buses={busesWithDistance} />
           </div>
         </div>
       )}
