@@ -21,27 +21,85 @@ const ROUTE_BOUNDS: L.LatLngBoundsExpression = [
   [44.45, 26.2], // Northeast (Bucharest area)
 ];
 
-// Bus icon (smaller, colored)
-const createBusIcon = (color: string) =>
-  L.divIcon({
+// Direction status type
+type DirectionStatus = "unknown" | "tur" | "retur";
+
+// Bus icons with different shapes based on direction
+const createBusIcon = (status: DirectionStatus) => {
+  const colors = {
+    unknown: "#64748b", // gray
+    tur: "#22c55e", // green
+    retur: "#f97316", // orange
+  };
+
+  const fill = colors[status];
+
+  if (status === "unknown") {
+    // Pulsing circle with spinner for unknown direction
+    return L.divIcon({
+      className: "bus-marker",
+      html: `
+        <div style="
+          position: relative;
+          width: 28px;
+          height: 28px;
+        ">
+          <div style="
+            position: absolute;
+            inset: 0;
+            background: ${fill};
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            animation: pulse 1.5s ease-in-out infinite;
+          "></div>
+          <div style="
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 12px;
+            height: 12px;
+            margin: -6px 0 0 -6px;
+            border: 2px solid transparent;
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+          "></div>
+          <style>
+            @keyframes pulse {
+              0%, 100% { transform: scale(1); opacity: 1; }
+              50% { transform: scale(1.1); opacity: 0.8; }
+            }
+            @keyframes spin {
+              to { transform: rotate(360deg); }
+            }
+          </style>
+        </div>
+      `,
+      iconSize: [28, 28],
+      iconAnchor: [14, 14],
+    });
+  }
+
+  // Triangle/arrow shape for known directions
+  const rotation = status === "tur" ? 0 : 180; // tur points up/forward, retur points down/backward
+  return L.divIcon({
     className: "bus-marker",
-    html: `<div style="
-      background: ${color};
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      border: 2px solid white;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-      font-weight: bold;
-      color: white;
-    ">B</div>`,
-    iconSize: [24, 24],
-    iconAnchor: [12, 12],
+    html: `
+      <svg width="28" height="28" viewBox="0 0 28 28" style="transform: rotate(${rotation}deg);">
+        <polygon 
+          points="14,2 26,24 2,24" 
+          fill="${fill}" 
+          stroke="white" 
+          stroke-width="2"
+          style="filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));"
+        />
+      </svg>
+    `,
+    iconSize: [28, 28],
+    iconAnchor: [14, 14],
   });
+};
 
 const CACHE_DATA_KEY = "vidra-routes-data-v1";
 const CACHE_EXPIRATION_KEY = "vidra-routes-cache-expires";
@@ -160,6 +218,7 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
     loading: busesLoading,
     error: busesError,
     lastUpdate,
+    setDirectionEstablished,
   } = useBusPositions(busNumber);
 
   // Track previous bus states to compute direction if missing
@@ -242,8 +301,16 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
     });
 
     prevBusStatesRef.current = nextStates;
+
+    // Check if all buses have established directions (0 or 1)
+    const allDirectionsEstablished =
+      augmentedBuses.length > 0 &&
+      augmentedBuses.every((bus) => bus.directionId === 0 || bus.directionId === 1);
+
+    setDirectionEstablished(allDirectionsEstablished);
+
     return augmentedBuses;
-  }, [buses, routeFeatures]);
+  }, [buses, routeFeatures, setDirectionEstablished]);
 
   // Initialize map
   useEffect(() => {
@@ -342,9 +409,9 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
     markersLayerRef.current.clearLayers();
 
     busesWithDistance.forEach((bus) => {
-      const icon = createBusIcon(
-        bus.directionId === 0 ? "#22c55e" : bus.directionId === 1 ? "#f97316" : "#64748b", // gray for unknown
-      );
+      const status: DirectionStatus =
+        bus.directionId === 0 ? "tur" : bus.directionId === 1 ? "retur" : "unknown";
+      const icon = createBusIcon(status);
       const marker = L.marker([bus.latitude, bus.longitude], { icon }).addTo(
         markersLayerRef.current!,
       );
@@ -408,12 +475,20 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
       <div class="mt-2 flex items-center justify-between text-xs text-slate-500">
         <div class="flex items-center gap-4">
           <span class="flex items-center gap-1">
-            <span class="w-3 h-3 rounded-full bg-green-500" />
+            <svg width="12" height="12" viewBox="0 0 28 28">
+              <polygon points="14,2 26,24 2,24" fill="#22c55e" />
+            </svg>
             Tur
           </span>
           <span class="flex items-center gap-1">
-            <span class="w-3 h-3 rounded-full bg-orange-500" />
+            <svg width="12" height="12" viewBox="0 0 28 28">
+              <polygon points="14,26 2,4 26,4" fill="#f97316" />
+            </svg>
             Retur
+          </span>
+          <span class="flex items-center gap-1">
+            <span class="w-3 h-3 rounded-full bg-slate-500 animate-pulse" />
+            Necunoscut
           </span>
         </div>
         <span>Ultima actualizare: {formatLastUpdate(lastUpdate)}</span>

@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "preact/hooks";
 
 const BUS_DATA_URL = "/api/busData";
-const CACHE_TTL_MS = 30_000; // 30 seconds
+const CACHE_TTL_MS = 30_000; // 30 seconds (normal interval)
+const INITIAL_INTERVAL_MS = 15_000; // 15 seconds (when direction unknown)
 
 export interface BusPosition {
   id: string;
@@ -86,11 +87,13 @@ export function useBusPositions(routeNumber: "420" | "438"): {
   loading: boolean;
   error: Error | null;
   lastUpdate: number | null;
+  setDirectionEstablished: (established: boolean) => void;
 } {
   const [buses, setBuses] = useState<BusPosition[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [lastUpdate, setLastUpdate] = useState<number | null>(null);
+  const [directionEstablished, setDirectionEstablished] = useState(false);
   const intervalRef = useRef<number | null>(null);
 
   const fetchData = useCallback(async () => {
@@ -148,11 +151,14 @@ export function useBusPositions(routeNumber: "420" | "438"): {
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
+    // Use 15s interval when direction not established, 30s when established
+    const intervalMs = directionEstablished ? CACHE_TTL_MS : INITIAL_INTERVAL_MS;
+
     intervalRef.current = window.setInterval(() => {
       if (document.visibilityState === "visible") {
         fetchData();
       }
-    }, CACHE_TTL_MS);
+    }, intervalMs);
 
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
@@ -160,7 +166,7 @@ export function useBusPositions(routeNumber: "420" | "438"): {
         clearInterval(intervalRef.current);
       }
     };
-  }, [fetchData]);
+  }, [fetchData, directionEstablished]);
 
-  return { buses, loading, error, lastUpdate };
+  return { buses, loading, error, lastUpdate, setDirectionEstablished };
 }
