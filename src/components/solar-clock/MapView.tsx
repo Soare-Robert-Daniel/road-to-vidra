@@ -6,6 +6,13 @@ import "leaflet/dist/leaflet.css";
 import * as turf from "@turf/turf";
 
 import { useBusPositions } from "../../hooks/useBusPositions";
+import {
+  BusDataTable,
+  MapLegend,
+  LoadingOverlay,
+  ErrorOverlay,
+  NoBusesOverlay,
+} from "./map";
 
 const ROUTE_GEOJSON_URL = "/data/layers/routes_iun2024.geojson";
 
@@ -239,32 +246,11 @@ function calculateAverageSpeed(
   return Math.abs(distanceDelta / timeDeltaHours);
 }
 
-// Calculate ETA in minutes from distance (km) and speed (km/h)
-function calculateEta(
-  distanceKm: number | null,
-  speedKmH: number | null,
-): number | null {
-  if (distanceKm === null || speedKmH === null || speedKmH <= 0) return null;
-  return (distanceKm / speedKmH) * 60; // Convert hours to minutes
-}
-
-// Format ETA as human-readable string
-function formatEta(minutes: number | null): string {
-  if (minutes === null) return "-";
-  if (minutes < 1) return "<1 min";
-  if (minutes < 60) return `${Math.round(minutes)} min`;
-  const hours = Math.floor(minutes / 60);
-  const mins = Math.round(minutes % 60);
-  return mins > 0 ? `${hours}h ${mins}min` : `${hours}h`;
-}
-
-// Calculate progress towards having enough data for speed (0-1)
 function calculateSpeedProgress(
   history: SpeedHistoryEntry[],
   now: number,
 ): number {
   if (history.length < 2) {
-    // If only 1 entry, calculate time since that entry
     if (history.length === 1) {
       const elapsed = now - history[0].timestamp;
       return Math.min(1, elapsed / MIN_SPEED_DATA_MS);
@@ -277,75 +263,6 @@ function calculateSpeedProgress(
   const timeDeltaMs = newest.timestamp - oldest.timestamp;
 
   return Math.min(1, timeDeltaMs / MIN_SPEED_DATA_MS);
-}
-
-// Estimation notice component
-function EstimationNotice({
-  buses,
-}: {
-  buses: Array<{ avgSpeed: number | null; speedProgress: number }>;
-}): JSX.Element {
-  const busesWithoutSpeed = buses.filter((b) => b.avgSpeed === null);
-
-  if (busesWithoutSpeed.length === 0) {
-    return (
-      <span>
-        Estimările sunt calculate pe baza ultimelor 5 minute de date colectate.
-      </span>
-    );
-  }
-
-  const minProgress = Math.min(
-    ...busesWithoutSpeed.map((b) => b.speedProgress),
-  );
-  const progressPercent = Math.round(minProgress * 100);
-  const remainingSeconds = Math.round((1 - minProgress) * 60);
-
-  return (
-    <span>
-      <CircularProgress progress={minProgress} /> Se colectează date pentru
-      calculul vitezei ({progressPercent}% complet, ~{remainingSeconds}s rămas).
-      Necesită minim 1 minut de date.
-    </span>
-  );
-}
-
-// Circular progress indicator SVG
-function CircularProgress({ progress }: { progress: number }): JSX.Element {
-  const radius = 6;
-  const stroke = 2;
-  const normalizedRadius = radius - stroke / 2;
-  const circumference = normalizedRadius * 2 * Math.PI;
-  const strokeDashoffset = circumference - progress * circumference;
-
-  return (
-    <svg
-      width={radius * 2}
-      height={radius * 2}
-      class="inline-block align-middle"
-      style={{ transform: "rotate(-90deg)" }}
-    >
-      <circle
-        cx={radius}
-        cy={radius}
-        r={normalizedRadius}
-        fill="none"
-        stroke="rgb(203 213 225)"
-        stroke-width={stroke}
-      />
-      <circle
-        cx={radius}
-        cy={radius}
-        r={normalizedRadius}
-        fill="none"
-        stroke="rgb(71 85 105)"
-        stroke-width={stroke}
-        stroke-dasharray={circumference}
-        stroke-dashoffset={strokeDashoffset}
-        stroke-linecap="round"
-      />
-    </svg>
-  );
 }
 
 export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
@@ -636,10 +553,8 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
     });
   }, [busesWithDistance]);
 
-  const formatLastUpdate = (timestamp: number | null): string => {
-    if (!timestamp) return "-";
-    return new Date(timestamp).toLocaleTimeString("ro-RO");
-  };
+  const isLoading = routeLoading || busesLoading;
+  const displayError = routeError ?? busesError?.message ?? null;
 
   return (
     <div className={twMerge("relative w-full", className)}>
@@ -648,143 +563,15 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
         class="w-full h-[400px] rounded-lg border border-slate-200"
       />
 
-      {/* Status overlay */}
-      {(routeLoading || busesLoading) && (
-        <div class="absolute inset-0 flex items-center justify-center bg-white/50 rounded-lg">
-          <div class="text-sm text-slate-600">Se incarca...</div>
-        </div>
-      )}
+      <LoadingOverlay visible={isLoading} />
+      <ErrorOverlay error={displayError} />
+      <NoBusesOverlay
+        visible={!busesLoading && buses.length === 0 && !busesError}
+        busNumber={busNumber}
+      />
 
-      {/* Error display */}
-      {(routeError || busesError) && (
-        <div class="absolute top-2 left-2 right-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-sm text-red-700">
-          {routeError || busesError?.message}
-        </div>
-      )}
-
-      {/* No buses message */}
-      {!busesLoading && buses.length === 0 && !busesError && (
-        <div class="absolute top-2 left-2 right-2 bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2 text-sm text-yellow-800">
-          Nu exista autobuze pe ruta {busNumber} in acest moment.
-        </div>
-      )}
-
-      {/* Legend and update time */}
-      <div class="mt-2 flex items-center justify-between text-xs text-slate-500">
-        <div class="flex items-center gap-4">
-          <span class="flex items-center gap-1">
-            <svg width="12" height="12" viewBox="0 0 28 28">
-              <polygon points="14,2 26,24 2,24" fill="#22c55e" />
-            </svg>
-            Tur
-          </span>
-          <span class="flex items-center gap-1">
-            <svg width="12" height="12" viewBox="0 0 28 28">
-              <polygon points="14,26 2,4 26,4" fill="#f97316" />
-            </svg>
-            Retur
-          </span>
-          <span class="flex items-center gap-1">
-            <span class="w-3 h-3 rounded-full bg-slate-500 animate-pulse" />
-            Necunoscut
-          </span>
-        </div>
-        <span>Ultima actualizare: {formatLastUpdate(lastUpdate)}</span>
-      </div>
-
-      {/* Bus Data Table */}
-      {busesWithDistance.length > 0 && (
-        <div class="mt-4 overflow-hidden rounded-lg border border-slate-200 bg-white">
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm whitespace-nowrap">
-              <thead class="bg-slate-50 text-slate-600">
-                <tr>
-                  <th class="px-3 py-1.5 font-medium">Autobuz</th>
-                  <th class="px-3 py-1.5 font-medium">Direcție</th>
-                  <th class="px-3 py-1.5 font-medium">Distanță Rămasă</th>
-                  <th class="px-3 py-1.5 font-medium">Viteză Medie</th>
-                  <th class="px-3 py-1.5 font-medium">
-                    <span class="inline-flex items-center gap-1">
-                      ETA
-                      <span
-                        class="cursor-help text-amber-500"
-                        title="Estimare bazată pe viteza medie. Poate diferi semnificativ de realitate din cauza traficului, stațiilor și altor factori."
-                      >
-                        ⚠
-                      </span>
-                    </span>
-                  </th>
-                  <th class="px-3 py-1.5 font-medium">Actualizat</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-200">
-                {busesWithDistance.map((bus) => (
-                  <tr key={bus.id} class="hover:bg-slate-50 transition-colors">
-                    <td class="px-3 py-1">
-                      <div class="font-medium text-slate-900">{bus.label}</div>
-                      <div class="text-xs text-slate-500">
-                        {bus.licensePlate}
-                      </div>
-                    </td>
-                    <td class="px-3 py-1">
-                      <span
-                        class={twMerge(
-                          "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
-                          bus.directionId === 0
-                            ? "bg-green-100 text-green-700"
-                            : bus.directionId === 1
-                              ? "bg-orange-100 text-orange-700"
-                              : "bg-slate-100 text-slate-700",
-                        )}
-                      >
-                        {bus.directionId === 0
-                          ? "Tur"
-                          : bus.directionId === 1
-                            ? "Retur"
-                            : "Necunoscut"}
-                      </span>
-                    </td>
-                    <td class="px-3 py-1">
-                      {bus.distance !== null ? (
-                        <span class="font-mono">
-                          {bus.distance.toFixed(1)} km
-                        </span>
-                      ) : (
-                        "-"
-                      )}
-                    </td>
-                    <td class="px-3 py-1">
-                      {bus.avgSpeed !== null ? (
-                        <span class="font-mono">
-                          {Math.round(bus.avgSpeed)} km/h
-                        </span>
-                      ) : (
-                        <CircularProgress progress={bus.speedProgress} />
-                      )}
-                    </td>
-                    <td class="px-3 py-1">
-                      {bus.avgSpeed !== null ? (
-                        formatEta(calculateEta(bus.distance, bus.avgSpeed))
-                      ) : (
-                        <CircularProgress progress={bus.speedProgress} />
-                      )}
-                    </td>
-                    <td class="px-3 py-1 text-slate-500">
-                      {new Date(bus.timestamp * 1000).toLocaleTimeString(
-                        "ro-RO",
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          {/* Estimation notice */}
-          <div class="border-t border-slate-200 px-3 py-2 text-xs text-slate-500">
-            <EstimationNotice buses={busesWithDistance} />
-          </div>
-        </div>
-      )}
+      <MapLegend lastUpdate={lastUpdate} />
+      <BusDataTable buses={busesWithDistance} />
     </div>
   );
 }
