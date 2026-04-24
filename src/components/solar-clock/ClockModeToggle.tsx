@@ -72,17 +72,6 @@ export function ClockModeToggle({
       >
         Linie
       </button>
-      <button
-        type="button"
-        aria-label="Afisare harta"
-        class={twMerge(
-          baseButtonClass,
-          clockDisplayMode.value === "harta" ? selectedClass : unselectedClass,
-        )}
-        onClick={() => (clockDisplayMode.value = "harta")}
-      >
-        Harta
-      </button>
     </div>
   );
 }

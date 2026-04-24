@@ -61,6 +61,7 @@ export function App() {
   // By reading the signals here, we ensure this component re-renders on change.
   const busNumber = selectedBusNumber.value;
   const mode = programMode.value;
+  const scheme = colorScheme.value;
 
   let useWeekendSchedule;
   if (mode === "auto") {
@@ -69,8 +70,20 @@ export function App() {
     useWeekendSchedule = mode === "weekend";
   }
 
+  const bgColor = {
+    emerald: "bg-slate-50",
+    eliza: "bg-rose-50",
+    azure: "bg-sky-50",
+    amber: "bg-amber-50",
+    violet: "bg-violet-50",
+    ocean: "bg-teal-50",
+    citrus: "bg-lime-50",
+    sunset: "bg-orange-50",
+    mint: "bg-green-50",
+  }[scheme];
+
   return (
-    <div class="min-h-screen bg-gray-50 text-gray-900 p-0.5 sm:p-1" style="color-scheme: light">
+    <div class={`min-h-screen ${bgColor} text-gray-900 p-0.5 sm:p-1`} style="color-scheme: light">
       <div class="max-w-6xl mx-auto">
         {/* Holiday Banner */}
         <HolidayBanner holidayName={holidayName} />
@@ -83,6 +96,7 @@ export function App() {
           selectedBusNumber={selectedBusNumber}
           programMode={programMode}
           isWeekendProgram={isCurrentlyWeekendProgram}
+          colorScheme={colorScheme}
         />
 
         {/* Solar Clock Display */}
@@ -90,6 +104,7 @@ export function App() {
           busNumber={busNumber}
           useWeekendSchedule={useWeekendSchedule}
           clockDisplayMode={clockDisplayMode}
+          colorScheme={colorScheme}
         />
 
         {/* Footer toggle to v2 */}

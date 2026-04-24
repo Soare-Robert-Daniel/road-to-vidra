@@ -8,7 +8,7 @@ const STORAGE_KEYS = {
   COLOR_SCHEME: "vidra-color-scheme",
 } as const;
 
-export type ClockDisplayMode = "round" | "poster" | "tabel" | "timeline" | "harta";
+export type ClockDisplayMode = "round" | "poster" | "tabel" | "timeline";
 export type DesignVersion = "v1" | "v2";
 export type ColorScheme = "emerald" | "eliza" | "azure" | "amber" | "violet" | "ocean" | "citrus" | "sunset" | "mint";
 

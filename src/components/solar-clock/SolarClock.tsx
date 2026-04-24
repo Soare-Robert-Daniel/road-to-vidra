@@ -2,7 +2,7 @@ import { JSX } from "preact";
 import { Signal } from "@preact/signals";
 import { twMerge } from "tailwind-merge";
 
-import { type ClockDisplayMode } from "../../storage";
+import { type ClockDisplayMode, type ColorScheme } from "../../storage";
 import { useRouteLayers } from "../../hooks/useRouteLayers";
 import { useWeatherData } from "../../hooks/useWeatherData";
 import { minutesToTimeLabel } from "../../solar";
@@ -20,6 +20,7 @@ import { RouteMarkers } from "./RouteMarkers";
 import { SolarBand } from "./SolarBand";
 import { TimelineView } from "./TimelineView";
 import { MapView } from "./MapView";
+import { ColorSchemeToggle } from "../../v2/ColorSchemeToggle";
 import {
   CENTER,
   CLOCK_COLORS,
@@ -32,6 +33,7 @@ interface SolarClockProps {
   busNumber: string;
   useWeekendSchedule: boolean;
   clockDisplayMode?: Signal<ClockDisplayMode>;
+  colorScheme?: Signal<ColorScheme>;
   className?: string;
 }
 
@@ -39,6 +41,7 @@ export function SolarClock({
   busNumber,
   useWeekendSchedule,
   clockDisplayMode,
+  colorScheme,
   className,
 }: SolarClockProps): JSX.Element {
   const result = useRouteLayers(busNumber, useWeekendSchedule);
@@ -110,8 +113,6 @@ export function SolarClock({
         />
       ) : displayMode === "timeline" ? (
         <TimelineView routeLayers={routeLayers} solarTimes={solarTimes} />
-      ) : displayMode === "harta" ? (
-        <MapView busNumber={busNumber as "420" | "438"} />
       ) : (
         <>
           <div class="w-full px-1">
@@ -156,6 +157,12 @@ export function SolarClock({
           )}
         </>
       )}
+
+      {/* Map at bottom of all modes */}
+      <MapView busNumber={busNumber as "420" | "438"} />
+
+      {/* Color scheme toggle */}
+      {colorScheme && <ColorSchemeToggle colorScheme={colorScheme} />}
     </div>
   );
 }
