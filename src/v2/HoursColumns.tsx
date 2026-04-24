@@ -73,18 +73,14 @@ export function HoursColumns({ busNumber, useWeekendSchedule }: HoursColumnsProp
   };
 
   return (
-    <div class="p-2">
-      <div class="grid grid-cols-2 gap-4 mb-1">
-        <div class="text-sm font-bold font-display">{turStation}</div>
-        <div class="text-sm font-bold font-display">{returStation}</div>
-      </div>
-      <div class="flex flex-col gap-0.5">
-        {allHours.map((hour) => {
-          const turTimes = turGroups.get(hour) ?? [];
-          const returTimes = returGroups.get(hour) ?? [];
-          return (
-            <div key={hour} class="grid grid-cols-2 gap-4">
-              <div class="flex flex-wrap gap-x-2 tabular-nums text-lg">
+    <div class="p-2 flex">
+      <div class="flex-1 border-r border-slate-300 pr-4">
+        <div class="text-sm font-bold font-display text-center mb-1">{turStation}</div>
+        <div class="flex flex-col gap-0.5">
+          {allHours.map((hour) => {
+            const turTimes = turGroups.get(hour) ?? [];
+            return (
+              <div key={hour} class="flex flex-wrap gap-x-2 tabular-nums text-lg justify-end">
                 {turTimes.length === 0 ? (
                   <span class="text-gray-400">-</span>
                 ) : (
@@ -96,7 +92,7 @@ export function HoursColumns({ busNumber, useWeekendSchedule }: HoursColumnsProp
                       <button
                         key={t}
                         type="button"
-                        class={`cursor-pointer ${past ? "text-gray-400" : ""} ${isNext && !isTapped ? "underline font-bold" : ""}`}
+                        class={`cursor-pointer ${past ? "text-gray-400" : ""} ${isNext && !isTapped ? "underline decoration-indigo-500 font-bold" : ""}`}
                         onClick={() => handleTimeClick(t)}
                       >
                         {t}
@@ -110,7 +106,17 @@ export function HoursColumns({ busNumber, useWeekendSchedule }: HoursColumnsProp
                   })
                 )}
               </div>
-              <div class="flex flex-wrap gap-x-2 tabular-nums text-lg">
+            );
+          })}
+        </div>
+      </div>
+      <div class="flex-1 pl-4">
+        <div class="text-sm font-bold font-display text-center mb-1">{returStation}</div>
+        <div class="flex flex-col gap-0.5">
+          {allHours.map((hour) => {
+            const returTimes = returGroups.get(hour) ?? [];
+            return (
+              <div key={hour} class="flex flex-wrap gap-x-2 tabular-nums text-lg justify-start">
                 {returTimes.length === 0 ? (
                   <span class="text-gray-400">-</span>
                 ) : (
@@ -122,7 +128,7 @@ export function HoursColumns({ busNumber, useWeekendSchedule }: HoursColumnsProp
                       <button
                         key={t}
                         type="button"
-                        class={`cursor-pointer ${past ? "text-gray-400" : ""} ${isNext && !isTapped ? "underline font-bold" : ""}`}
+                        class={`cursor-pointer ${past ? "text-gray-400" : ""} ${isNext && !isTapped ? "underline decoration-emerald-500 font-bold" : ""}`}
                         onClick={() => handleTimeClick(t)}
                       >
                         {t}
@@ -136,9 +142,9 @@ export function HoursColumns({ busNumber, useWeekendSchedule }: HoursColumnsProp
                   })
                 )}
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );
