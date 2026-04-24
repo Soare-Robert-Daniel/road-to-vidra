@@ -28,6 +28,7 @@ export function V2App({
   const scheme = colorScheme.value;
 
   const bgColor = {
+    white: "bg-white",
     emerald: "bg-slate-50",
     eliza: "bg-rose-50",
     azure: "bg-sky-50",
@@ -37,12 +38,21 @@ export function V2App({
     citrus: "bg-lime-50",
     sunset: "bg-orange-50",
     mint: "bg-green-50",
+    "slate-dark": "bg-slate-900 text-slate-100",
+    midnight: "bg-indigo-950 text-indigo-100",
+    forest: "bg-green-950 text-green-100",
+    rust: "bg-red-950 text-red-100",
+    "ocean-deep": "bg-teal-950 text-teal-100",
+    grape: "bg-purple-950 text-purple-100",
+    charcoal: "bg-zinc-900 text-zinc-100",
   }[scheme];
+
+  const isDark = scheme.endsWith("-dark") || ["midnight", "forest", "rust", "ocean-deep", "grape", "charcoal"].includes(scheme);
 
   return (
     <div
-      class={`min-h-screen ${bgColor} text-slate-900 font-v2 p-2`}
-      style="color-scheme: light"
+      class={`min-h-screen ${bgColor} font-v2 p-2`}
+      style={`color-scheme: ${isDark ? "dark" : "light"}`}
     >
       <div class="max-w-4xl mx-auto">
         {/* Top row: Bus (1/4) | Program (3/4) */}

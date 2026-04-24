@@ -80,10 +80,23 @@ export function App() {
     citrus: "bg-lime-50",
     sunset: "bg-orange-50",
     mint: "bg-green-50",
+    white: "bg-white",
+    "slate-dark": "bg-slate-900 text-slate-100",
+    midnight: "bg-indigo-950 text-indigo-100",
+    forest: "bg-green-950 text-green-100",
+    rust: "bg-red-950 text-red-100",
+    "ocean-deep": "bg-teal-950 text-teal-100",
+    grape: "bg-purple-950 text-purple-100",
+    charcoal: "bg-zinc-900 text-zinc-100",
   }[scheme];
 
+  const isDark = scheme.endsWith("-dark") || ["midnight", "forest", "rust", "ocean-deep", "grape", "charcoal"].includes(scheme);
+
   return (
-    <div class={`min-h-screen ${bgColor} text-gray-900 p-0.5 sm:p-1`} style="color-scheme: light">
+    <div
+      class={`min-h-screen ${bgColor} text-gray-900 pt-2 px-0.5 pb-0.5 sm:pt-3 sm:px-1 sm:pb-1`}
+      style={`color-scheme: ${isDark ? "dark" : "light"}`}
+    >
       <div class="max-w-6xl mx-auto">
         {/* Holiday Banner */}
         <HolidayBanner holidayName={holidayName} />

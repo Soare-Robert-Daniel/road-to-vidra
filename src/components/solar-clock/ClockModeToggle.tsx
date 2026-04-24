@@ -12,6 +12,22 @@ interface ClockModeToggleProps {
 
 function getSelectedClass(colorScheme: ColorScheme): string {
   switch (colorScheme) {
+    case "white":
+      return "bg-slate-100 text-slate-800 shadow-[0_2px_6px_rgba(0,0,0,0.1),0_1px_2px_rgba(0,0,0,0.08)]";
+    case "slate-dark":
+      return "bg-slate-700 text-slate-100 shadow-[0_2px_6px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.2)]";
+    case "midnight":
+      return "bg-indigo-800 text-indigo-100 shadow-[0_2px_6px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.2)]";
+    case "forest":
+      return "bg-green-800 text-green-100 shadow-[0_2px_6px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.2)]";
+    case "rust":
+      return "bg-red-800 text-red-100 shadow-[0_2px_6px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.2)]";
+    case "ocean-deep":
+      return "bg-teal-800 text-teal-100 shadow-[0_2px_6px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.2)]";
+    case "grape":
+      return "bg-purple-800 text-purple-100 shadow-[0_2px_6px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.2)]";
+    case "charcoal":
+      return "bg-zinc-700 text-zinc-100 shadow-[0_2px_6px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.2)]";
     case "eliza":
       return "bg-rose-50 text-rose-800 shadow-[0_2px_6px_rgba(0,0,0,0.1),0_1px_2px_rgba(0,0,0,0.08)]";
     case "azure":
@@ -35,6 +51,22 @@ function getSelectedClass(colorScheme: ColorScheme): string {
 
 function getContainerBg(colorScheme: ColorScheme): string {
   switch (colorScheme) {
+    case "white":
+      return "bg-slate-100/80";
+    case "slate-dark":
+      return "bg-slate-800/80";
+    case "midnight":
+      return "bg-indigo-900/80";
+    case "forest":
+      return "bg-green-900/80";
+    case "rust":
+      return "bg-red-900/80";
+    case "ocean-deep":
+      return "bg-teal-900/80";
+    case "grape":
+      return "bg-purple-900/80";
+    case "charcoal":
+      return "bg-zinc-800/80";
     case "eliza":
       return "bg-rose-100/80";
     case "azure":

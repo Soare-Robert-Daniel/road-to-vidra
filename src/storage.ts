@@ -10,7 +10,7 @@ const STORAGE_KEYS = {
 
 export type ClockDisplayMode = "round" | "poster" | "tabel" | "timeline";
 export type DesignVersion = "v1" | "v2";
-export type ColorScheme = "emerald" | "eliza" | "azure" | "amber" | "violet" | "ocean" | "citrus" | "sunset" | "mint";
+export type ColorScheme = "emerald" | "eliza" | "azure" | "amber" | "violet" | "ocean" | "citrus" | "sunset" | "mint" | "white" | "slate-dark" | "midnight" | "forest" | "rust" | "ocean-deep" | "grape" | "charcoal";
 
 /**
  * Get a value from localStorage with a fallback default

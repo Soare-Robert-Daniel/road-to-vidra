@@ -12,6 +12,22 @@ const buttonBase =
 
 function getPressedStyles(colorScheme: ColorScheme): string {
   switch (colorScheme) {
+    case "white":
+      return "font-bold text-[#111] !bg-gradient-to-b !from-[#e2e8f0] !to-[#cbd5e1] !border-[#94a3b8] !border-t-[#cbd5e1] !border-b-[#64748b] shadow-[inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-1px_2px_rgba(0,0,0,0.15)] focus:border-[#94a3b8]";
+    case "slate-dark":
+      return "font-bold text-white !bg-gradient-to-b !from-[#475569] !to-[#334155] !border-[#1e293b] !border-t-[#334155] !border-b-[#0f172a] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-1px_2px_rgba(0,0,0,0.3)] focus:border-[#1e293b]";
+    case "midnight":
+      return "font-bold text-white !bg-gradient-to-b !from-[#4338ca] !to-[#3730a3] !border-[#312e81] !border-t-[#3730a3] !border-b-[#1e1b4b] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-1px_2px_rgba(0,0,0,0.3)] focus:border-[#312e81]";
+    case "forest":
+      return "font-bold text-white !bg-gradient-to-b !from-[#15803d] !to-[#166534] !border-[#14532d] !border-t-[#166534] !border-b-[#052e16] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-1px_2px_rgba(0,0,0,0.3)] focus:border-[#14532d]";
+    case "rust":
+      return "font-bold text-white !bg-gradient-to-b !from-[#b91c1c] !to-[#991b1b] !border-[#7f1d1d] !border-t-[#991b1b] !border-b-[#450a0a] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-1px_2px_rgba(0,0,0,0.3)] focus:border-[#7f1d1d]";
+    case "ocean-deep":
+      return "font-bold text-white !bg-gradient-to-b !from-[#0d9488] !to-[#0f766e] !border-[#134e4a] !border-t-[#0f766e] !border-b-[#042f2e] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-1px_2px_rgba(0,0,0,0.3)] focus:border-[#134e4a]";
+    case "grape":
+      return "font-bold text-white !bg-gradient-to-b !from-[#7c3aed] !to-[#6d28d9] !border-[#5b21b6] !border-t-[#6d28d9] !border-b-[#3b0764] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-1px_2px_rgba(0,0,0,0.3)] focus:border-[#5b21b6]";
+    case "charcoal":
+      return "font-bold text-white !bg-gradient-to-b !from-[#52525b] !to-[#3f3f46] !border-[#27272a] !border-t-[#3f3f46] !border-b-[#18181b] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-1px_2px_rgba(0,0,0,0.3)] focus:border-[#27272a]";
     case "eliza":
       return "font-bold text-[#111] !bg-gradient-to-b !from-[#fda4af] !to-[#fb7185] !border-[#f43f5e] !border-t-[#fb7185] !border-b-[#e11d48] shadow-[inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-1px_2px_rgba(0,0,0,0.15)] focus:border-[#f43f5e]";
     case "azure":
@@ -35,6 +51,22 @@ function getPressedStyles(colorScheme: ColorScheme): string {
 
 function getFocusStyles(colorScheme: ColorScheme): string {
   switch (colorScheme) {
+    case "white":
+      return "focus:border-[#94a3b8] focus:shadow-[0_0_3px_2px_rgba(148,163,184,0.5)]";
+    case "slate-dark":
+      return "focus:border-[#1e293b] focus:shadow-[0_0_3px_2px_rgba(30,41,59,0.5)]";
+    case "midnight":
+      return "focus:border-[#312e81] focus:shadow-[0_0_3px_2px_rgba(49,46,129,0.5)]";
+    case "forest":
+      return "focus:border-[#14532d] focus:shadow-[0_0_3px_2px_rgba(20,83,45,0.5)]";
+    case "rust":
+      return "focus:border-[#7f1d1d] focus:shadow-[0_0_3px_2px_rgba(127,29,29,0.5)]";
+    case "ocean-deep":
+      return "focus:border-[#134e4a] focus:shadow-[0_0_3px_2px_rgba(19,78,74,0.5)]";
+    case "grape":
+      return "focus:border-[#5b21b6] focus:shadow-[0_0_3px_2px_rgba(91,33,182,0.5)]";
+    case "charcoal":
+      return "focus:border-[#27272a] focus:shadow-[0_0_3px_2px_rgba(39,39,42,0.5)]";
     case "eliza":
       return "focus:border-[#f43f5e] focus:shadow-[0_0_3px_2px_rgba(244,63,94,0.5)]";
     case "azure":

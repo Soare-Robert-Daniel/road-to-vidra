@@ -10,6 +10,7 @@ export function ColorSchemeToggle({ colorScheme }: ColorSchemeToggleProps): JSX.
   const scheme = colorScheme.value;
 
   const schemes = [
+    { id: "white", label: "White", activeColor: "bg-slate-500 border-slate-600" },
     { id: "emerald", label: "Emerald", activeColor: "bg-emerald-500 border-emerald-600" },
     { id: "eliza", label: "Eliza", activeColor: "bg-rose-500 border-rose-600" },
     { id: "azure", label: "Azure", activeColor: "bg-sky-500 border-sky-600" },
@@ -19,6 +20,13 @@ export function ColorSchemeToggle({ colorScheme }: ColorSchemeToggleProps): JSX.
     { id: "citrus", label: "Citrus", activeColor: "bg-lime-500 border-lime-600" },
     { id: "sunset", label: "Sunset", activeColor: "bg-orange-500 border-orange-600" },
     { id: "mint", label: "Mint", activeColor: "bg-green-400 border-green-500" },
+    { id: "slate-dark", label: "Slate", activeColor: "bg-slate-600 border-slate-700" },
+    { id: "midnight", label: "Midnight", activeColor: "bg-indigo-600 border-indigo-700" },
+    { id: "forest", label: "Forest", activeColor: "bg-green-600 border-green-700" },
+    { id: "rust", label: "Rust", activeColor: "bg-red-600 border-red-700" },
+    { id: "ocean-deep", label: "Deep", activeColor: "bg-teal-600 border-teal-700" },
+    { id: "grape", label: "Grape", activeColor: "bg-purple-600 border-purple-700" },
+    { id: "charcoal", label: "Charcoal", activeColor: "bg-zinc-600 border-zinc-700" },
   ] as const;
 
   return (
