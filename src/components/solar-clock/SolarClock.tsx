@@ -91,13 +91,11 @@ export function SolarClock({
       {/* Compact header: bus number + schedule badge + mode toggle */}
       <div class="flex w-full items-center justify-between gap-2 px-1 pt-0.5">
         {clockDisplayMode && (
-          <ClockModeToggle clockDisplayMode={clockDisplayMode} colorScheme={colorScheme} />
+          <ClockModeToggle
+            clockDisplayMode={clockDisplayMode}
+            colorScheme={colorScheme}
+          />
         )}
-      </div>
-
-      {/* Update Notice */}
-      <div class="mb-2 w-full rounded-lg bg-blue-50 px-4 py-2 text-center text-sm text-blue-800 border border-blue-100">
-        Program actualizat pentru 5 Aprilie 2026.
       </div>
 
       {/* Conditional view */}
@@ -150,13 +148,17 @@ export function SolarClock({
               <ClockHand currentMinutes={solarTimes.currentMinutes} />
             </svg>
           </div>
-          <DepartureSummaries routeLayers={routeLayers} solarTimes={solarTimes} />
-          {weatherData.value?.temperatures && weatherData.value.temperatures.length > 0 && (
-            <TemperatureWave
-              temperatures={weatherData.value.temperatures}
-              currentMinutes={solarTimes.currentMinutes}
-            />
-          )}
+          <DepartureSummaries
+            routeLayers={routeLayers}
+            solarTimes={solarTimes}
+          />
+          {weatherData.value?.temperatures &&
+            weatherData.value.temperatures.length > 0 && (
+              <TemperatureWave
+                temperatures={weatherData.value.temperatures}
+                currentMinutes={solarTimes.currentMinutes}
+              />
+            )}
         </>
       )}
 
