@@ -101,7 +101,7 @@ export function HoursColumns({ busNumber, useWeekendSchedule }: HoursColumnsProp
                       >
                         {t}
                         {isTapped && (
-                          <span class="text-xs font-bold ml-1 text-[#e77600]">
+                          <span class="text-base font-bold ml-1 text-violet-500">
                             {formatCountdown(getMinutesUntil(currentMinutes, t))}
                           </span>
                         )}
@@ -127,7 +127,7 @@ export function HoursColumns({ busNumber, useWeekendSchedule }: HoursColumnsProp
                       >
                         {t}
                         {isTapped && (
-                          <span class="text-xs font-bold ml-1 text-[#e77600]">
+                          <span class="text-base font-bold ml-1 text-violet-500">
                             {formatCountdown(getMinutesUntil(currentMinutes, t))}
                           </span>
                         )}
