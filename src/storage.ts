@@ -4,9 +4,11 @@ const STORAGE_KEYS = {
   SHOW_PAST_HOURS: "vidra-show-past-hours",
   SELECTED_BUS: "vidra-selected-bus",
   CLOCK_DISPLAY_MODE: "vidra-clock-display-mode",
+  DESIGN_VERSION: "vidra-design-version",
 } as const;
 
 export type ClockDisplayMode = "round" | "poster" | "tabel" | "timeline" | "harta";
+export type DesignVersion = "v1" | "v2";
 
 /**
  * Get a value from localStorage with a fallback default
@@ -67,4 +69,12 @@ export const getClockDisplayMode = (): ClockDisplayMode => {
 
 export const setClockDisplayMode = (value: ClockDisplayMode): void => {
   setStorageValue(STORAGE_KEYS.CLOCK_DISPLAY_MODE, value);
+};
+
+export const getDesignVersion = (): DesignVersion => {
+  return getStorageValue<DesignVersion>(STORAGE_KEYS.DESIGN_VERSION, "v2");
+};
+
+export const setDesignVersion = (value: DesignVersion): void => {
+  setStorageValue(STORAGE_KEYS.DESIGN_VERSION, value);
 };

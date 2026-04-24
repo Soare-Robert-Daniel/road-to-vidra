@@ -62,10 +62,7 @@ function formatEta(minutes: number | null): string {
   return mins > 0 ? `${hours}h ${mins}min` : `${hours}h`;
 }
 
-function calculateEta(
-  distanceKm: number | null,
-  speedKmH: number | null,
-): number | null {
+function calculateEta(distanceKm: number | null, speedKmH: number | null): number | null {
   if (distanceKm === null || speedKmH === null || speedKmH <= 0) return null;
   return (distanceKm / speedKmH) * 60;
 }
@@ -78,24 +75,17 @@ function EstimationNotice({
   const busesWithoutSpeed = buses.filter((b) => b.avgSpeed === null);
 
   if (busesWithoutSpeed.length === 0) {
-    return (
-      <span>
-        Estimările sunt calculate pe baza ultimelor 5 minute de date colectate.
-      </span>
-    );
+    return <span>Estimările sunt calculate pe baza ultimelor 5 minute de date colectate.</span>;
   }
 
-  const minProgress = Math.min(
-    ...busesWithoutSpeed.map((b) => b.speedProgress),
-  );
+  const minProgress = Math.min(...busesWithoutSpeed.map((b) => b.speedProgress));
   const progressPercent = Math.round(minProgress * 100);
   const remainingSeconds = Math.round((1 - minProgress) * 60);
 
   return (
     <span>
-      <CircularProgress progress={minProgress} /> Se colectează date pentru
-      calculul vitezei ({progressPercent}% complet, ~{remainingSeconds}s rămas).
-      Necesită minim 1 minut de date.
+      <CircularProgress progress={minProgress} /> Se colectează date pentru calculul vitezei (
+      {progressPercent}% complet, ~{remainingSeconds}s rămas). Necesită minim 1 minut de date.
     </span>
   );
 }
@@ -112,11 +102,7 @@ function DirectionBadge({ directionId }: { directionId: number | null }) {
             : "bg-slate-100 text-slate-700",
       )}
     >
-      {directionId === 0
-        ? "Tur"
-        : directionId === 1
-          ? "Retur"
-          : "Necunoscut"}
+      {directionId === 0 ? "Tur" : directionId === 1 ? "Retur" : "Necunoscut"}
     </span>
   );
 }
@@ -132,11 +118,7 @@ function BusDataRow({ bus }: { bus: BusData }) {
         <DirectionBadge directionId={bus.directionId} />
       </td>
       <td class="px-3 py-1">
-        {bus.distance !== null ? (
-          <span class="font-mono">{bus.distance.toFixed(1)} km</span>
-        ) : (
-          "-"
-        )}
+        {bus.distance !== null ? <span class="font-mono">{bus.distance.toFixed(1)} km</span> : "-"}
       </td>
       <td class="px-3 py-1">
         {bus.avgSpeed !== null ? (

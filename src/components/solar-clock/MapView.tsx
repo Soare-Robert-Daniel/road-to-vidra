@@ -6,13 +6,7 @@ import "leaflet/dist/leaflet.css";
 import * as turf from "@turf/turf";
 
 import { useBusPositions } from "../../hooks/useBusPositions";
-import {
-  BusDataTable,
-  MapLegend,
-  LoadingOverlay,
-  ErrorOverlay,
-  NoBusesOverlay,
-} from "./map";
+import { BusDataTable, MapLegend, LoadingOverlay, ErrorOverlay, NoBusesOverlay } from "./map";
 
 const ROUTE_GEOJSON_URL = "/data/layers/routes_iun2024.geojson";
 
@@ -132,8 +126,7 @@ async function fetchRouteGeoJSON() {
     // Extract ONLY the routes we care about to save space
     const targetRouteIds = Object.values(ROUTE_IDS);
     const filteredFeatures = fullGeojson.features.filter(
-      (f: { properties: { route_id: string } }) =>
-        targetRouteIds.includes(f.properties.route_id),
+      (f: { properties: { route_id: string } }) => targetRouteIds.includes(f.properties.route_id),
     );
 
     const slimGeojson = {
@@ -222,10 +215,7 @@ function getTangentAt(
 const MIN_SPEED_DATA_MS = 60 * 1000; // Minimum 1 minute of data for speed calculation
 
 // Calculate average speed from history (km/h over last N minutes)
-function calculateAverageSpeed(
-  history: SpeedHistoryEntry[],
-  now: number,
-): number | null {
+function calculateAverageSpeed(history: SpeedHistoryEntry[], now: number): number | null {
   if (history.length < 2) return null;
 
   const windowStart = now - SPEED_HISTORY_WINDOW_MS;
@@ -246,10 +236,7 @@ function calculateAverageSpeed(
   return Math.abs(distanceDelta / timeDeltaHours);
 }
 
-function calculateSpeedProgress(
-  history: SpeedHistoryEntry[],
-  now: number,
-): number {
+function calculateSpeedProgress(history: SpeedHistoryEntry[], now: number): number {
   if (history.length < 2) {
     if (history.length === 1) {
       const elapsed = now - history[0].timestamp;
@@ -303,8 +290,7 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
             | [number, number][]
             | undefined;
           if (rawCoords && rawCoords.length >= 2) {
-            const { canonicalCoords, totalLengthKm } =
-              normalizeRouteDirection(rawCoords);
+            const { canonicalCoords, totalLengthKm } = normalizeRouteDirection(rawCoords);
             const routeLine = turf.lineString(canonicalCoords);
             const busPoint = turf.point([bus.longitude, bus.latitude]);
             const snapped = turf.nearestPointOnLine(routeLine, busPoint);
@@ -326,20 +312,17 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
                 const vLen = Math.hypot(vx, vy);
 
                 if (vLen > 0) {
-                  const directionScore =
-                    (vx / vLen) * tangent.x + (vy / vLen) * tangent.y;
+                  const directionScore = (vx / vLen) * tangent.x + (vy / vLen) * tangent.y;
                   if (directionScore > MIN_DIRECTION_SCORE) {
                     finalDirectionId = 0;
                   } else if (directionScore < -MIN_DIRECTION_SCORE) {
                     finalDirectionId = 1;
                   } else {
-                    finalDirectionId =
-                      prevState.computedDirectionId ?? finalDirectionId;
+                    finalDirectionId = prevState.computedDirectionId ?? finalDirectionId;
                   }
                 }
               } else {
-                finalDirectionId =
-                  prevState.computedDirectionId ?? finalDirectionId;
+                finalDirectionId = prevState.computedDirectionId ?? finalDirectionId;
               }
             }
 
@@ -369,10 +352,7 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
         };
         // Keep only entries within the window
         const windowStart = now - SPEED_HISTORY_WINDOW_MS;
-        newHistory = [
-          ...prevHistory.filter((e) => e.timestamp >= windowStart),
-          entry,
-        ];
+        newHistory = [...prevHistory.filter((e) => e.timestamp >= windowStart), entry];
       }
 
       // Calculate average speed from history
@@ -402,9 +382,7 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
     // Check if all buses have established directions (0 or 1)
     const allDirectionsEstablished =
       augmentedBuses.length > 0 &&
-      augmentedBuses.every(
-        (bus) => bus.directionId === 0 || bus.directionId === 1,
-      );
+      augmentedBuses.every((bus) => bus.directionId === 0 || bus.directionId === 1);
 
     setDirectionEstablished(allDirectionsEstablished);
 
@@ -450,8 +428,7 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
 
         const routeId = ROUTE_IDS[busNumber];
         const routeFeatures = geojson.features.filter(
-          (f: { properties: { route_id: string } }) =>
-            f.properties.route_id === routeId,
+          (f: { properties: { route_id: string } }) => f.properties.route_id === routeId,
         );
 
         if (routeFeatures.length === 0) {
@@ -474,9 +451,7 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
               ([lng, lat]: [number, number]) => [lat, lng] as [number, number],
             );
             const color = idx === 0 ? "#3b82f6" : "#ef4444"; // Blue for first segment, red for return
-            L.polyline(coords, { color, weight: 4, opacity: 0.8 }).addTo(
-              routeLayerRef.current!,
-            );
+            L.polyline(coords, { color, weight: 4, opacity: 0.8 }).addTo(routeLayerRef.current!);
           },
         );
 
@@ -493,9 +468,7 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
 
         setRouteError(null);
       } catch (err) {
-        setRouteError(
-          err instanceof Error ? err.message : "Failed to load route",
-        );
+        setRouteError(err instanceof Error ? err.message : "Failed to load route");
       } finally {
         setRouteLoading(false);
       }
@@ -512,22 +485,14 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
 
     busesWithDistance.forEach((bus) => {
       const status: DirectionStatus =
-        bus.directionId === 0
-          ? "tur"
-          : bus.directionId === 1
-            ? "retur"
-            : "unknown";
+        bus.directionId === 0 ? "tur" : bus.directionId === 1 ? "retur" : "unknown";
       const icon = createBusIcon(status);
       const marker = L.marker([bus.latitude, bus.longitude], { icon }).addTo(
         markersLayerRef.current!,
       );
 
       const direction =
-        bus.directionId === 0
-          ? "Tur"
-          : bus.directionId === 1
-            ? "Retur"
-            : "Necunoscut";
+        bus.directionId === 0 ? "Tur" : bus.directionId === 1 ? "Retur" : "Necunoscut";
 
       const time = new Date(bus.timestamp * 1000).toLocaleTimeString("ro-RO");
 
@@ -536,9 +501,7 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
           ? `<br><strong>Distanță rămasă:</strong> ${bus.distance.toFixed(1)} km`
           : "";
 
-      const startTimeStr = bus.startTime
-        ? `<br><strong>Plecare:</strong> ${bus.startTime}`
-        : "";
+      const startTimeStr = bus.startTime ? `<br><strong>Plecare:</strong> ${bus.startTime}` : "";
 
       marker.bindPopup(`
         <div style="font-family: system-ui; min-width: 120px;">
@@ -558,10 +521,7 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
 
   return (
     <div className={twMerge("relative w-full", className)}>
-      <div
-        ref={mapRef}
-        class="w-full h-[400px] rounded-lg border border-slate-200"
-      />
+      <div ref={mapRef} class="w-full h-[400px] rounded-lg border border-slate-200" />
 
       <LoadingOverlay visible={isLoading} />
       <ErrorOverlay error={displayError} />

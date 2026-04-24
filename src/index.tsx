@@ -10,12 +10,17 @@ import {
   setShowPastHours,
   getClockDisplayMode,
   setClockDisplayMode,
+  getDesignVersion,
+  setDesignVersion,
   type ClockDisplayMode,
+  type DesignVersion,
 } from "./storage";
 import { HolidayBanner } from "./components/shared-ui/HolidayBanner";
 import { Header } from "./components/shared-ui/Header";
 import { SettingsMenu } from "./components/settings/SettingsMenu";
 import { SolarClock } from "./components/solar-clock";
+import { DesignToggleFooter } from "./components/shared-ui/DesignToggleFooter";
+import { V2App } from "./v2";
 
 // State management with localStorage persistence
 const selectedBusNumber = signal(getSelectedBus());
@@ -23,13 +28,21 @@ const selectedBusNumber = signal(getSelectedBus());
 const programMode = signal<"auto" | "lucru" | "weekend">("auto");
 const showPastHours = signal(getShowPastHours());
 const clockDisplayMode = signal<ClockDisplayMode>(getClockDisplayMode());
+const designVersion = signal<DesignVersion>(getDesignVersion());
 
 // Persist changes to localStorage
 selectedBusNumber.subscribe((value) => setSelectedBus(value));
 showPastHours.subscribe((value) => setShowPastHours(value));
 clockDisplayMode.subscribe((value) => setClockDisplayMode(value));
+designVersion.subscribe((value) => setDesignVersion(value));
 
 export function App() {
+  // Branch between v1 and v2 designs
+  if (designVersion.value === "v2") {
+    return <V2App selectedBusNumber={selectedBusNumber} designVersion={designVersion} />;
+  }
+
+  // v1 design (original)
   const currentDate = new Date();
   const isCurrentlyWeekendProgram = isWeekendProgram(currentDate);
   const holidayName = getHolidayName(currentDate);
@@ -67,6 +80,9 @@ export function App() {
           useWeekendSchedule={useWeekendSchedule}
           clockDisplayMode={clockDisplayMode}
         />
+
+        {/* Footer toggle to v2 */}
+        <DesignToggleFooter designVersion={designVersion} />
       </div>
     </div>
   );
