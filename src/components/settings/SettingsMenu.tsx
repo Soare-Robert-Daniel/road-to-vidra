@@ -28,12 +28,7 @@ export function SettingsMenu({
   }
 
   return (
-    <div
-      class={twMerge(
-        "bg-white rounded-2xl shadow-sm px-1.5 py-1.5 mb-1.5 sm:mb-2 sm:px-2 sm:py-2",
-        className,
-      )}
-    >
+    <div class={twMerge("mb-1.5 sm:mb-2", className)}>
       <div class={twMerge("flex items-center gap-1 sm:gap-1.5")}>
         <BusSelector
           selectedBusNumber={selectedBusNumber}

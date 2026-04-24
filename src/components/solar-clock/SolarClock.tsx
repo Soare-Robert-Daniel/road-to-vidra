@@ -90,7 +90,9 @@ export function SolarClock({
     >
       {/* Compact header: bus number + schedule badge + mode toggle */}
       <div class="flex w-full items-center justify-between gap-2 px-1 pt-0.5">
-        {clockDisplayMode && <ClockModeToggle clockDisplayMode={clockDisplayMode} />}
+        {clockDisplayMode && (
+          <ClockModeToggle clockDisplayMode={clockDisplayMode} colorScheme={colorScheme} />
+        )}
       </div>
 
       {/* Update Notice */}
