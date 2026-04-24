@@ -59,7 +59,7 @@ export function App() {
   }
 
   return (
-    <div class="min-h-screen bg-gray-50 p-0.5 sm:p-1">
+    <div class="min-h-screen bg-gray-50 text-gray-900 p-0.5 sm:p-1" style="color-scheme: light">
       <div class="max-w-6xl mx-auto">
         {/* Holiday Banner */}
         <HolidayBanner holidayName={holidayName} />

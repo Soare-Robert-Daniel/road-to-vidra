@@ -24,7 +24,7 @@ export function V2App({
   const useWeekendSchedule = programMode.value === "weekend";
 
   return (
-    <div class="min-h-screen bg-slate-50 font-v2 p-2">
+    <div class="min-h-screen bg-slate-50 text-slate-900 font-v2 p-2" style="color-scheme: light">
       <div class="max-w-4xl mx-auto">
         {/* Top row: Bus (1/4) | Program (3/4) */}
         <div class="grid grid-cols-10 gap-0 p-2 border-b">
