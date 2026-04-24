@@ -12,8 +12,11 @@ import {
   setClockDisplayMode,
   getDesignVersion,
   setDesignVersion,
+  getColorScheme,
+  setColorScheme,
   type ClockDisplayMode,
   type DesignVersion,
+  type ColorScheme,
 } from "./storage";
 import { HolidayBanner } from "./components/shared-ui/HolidayBanner";
 import { Header } from "./components/shared-ui/Header";
@@ -29,17 +32,25 @@ const programMode = signal<"auto" | "lucru" | "weekend">("auto");
 const showPastHours = signal(getShowPastHours());
 const clockDisplayMode = signal<ClockDisplayMode>(getClockDisplayMode());
 const designVersion = signal<DesignVersion>(getDesignVersion());
+const colorScheme = signal<ColorScheme>(getColorScheme());
 
 // Persist changes to localStorage
 selectedBusNumber.subscribe((value) => setSelectedBus(value));
 showPastHours.subscribe((value) => setShowPastHours(value));
 clockDisplayMode.subscribe((value) => setClockDisplayMode(value));
 designVersion.subscribe((value) => setDesignVersion(value));
+colorScheme.subscribe((value) => setColorScheme(value));
 
 export function App() {
   // Branch between v1 and v2 designs
   if (designVersion.value === "v2") {
-    return <V2App selectedBusNumber={selectedBusNumber} designVersion={designVersion} />;
+    return (
+      <V2App
+        selectedBusNumber={selectedBusNumber}
+        designVersion={designVersion}
+        colorScheme={colorScheme}
+      />
+    );
   }
 
   // v1 design (original)

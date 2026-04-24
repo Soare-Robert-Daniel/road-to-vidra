@@ -5,10 +5,12 @@ const STORAGE_KEYS = {
   SELECTED_BUS: "vidra-selected-bus",
   CLOCK_DISPLAY_MODE: "vidra-clock-display-mode",
   DESIGN_VERSION: "vidra-design-version",
+  COLOR_SCHEME: "vidra-color-scheme",
 } as const;
 
 export type ClockDisplayMode = "round" | "poster" | "tabel" | "timeline" | "harta";
 export type DesignVersion = "v1" | "v2";
+export type ColorScheme = "emerald" | "eliza" | "azure" | "amber" | "violet" | "ocean" | "citrus" | "sunset" | "mint";
 
 /**
  * Get a value from localStorage with a fallback default
@@ -77,4 +79,25 @@ export const getDesignVersion = (): DesignVersion => {
 
 export const setDesignVersion = (value: DesignVersion): void => {
   setStorageValue(STORAGE_KEYS.DESIGN_VERSION, value);
+};
+
+export const getColorScheme = (): ColorScheme => {
+  return getStorageValue<ColorScheme>(STORAGE_KEYS.COLOR_SCHEME, "emerald");
+};
+
+// Migration: convert old "rose" value to "eliza"
+function migrateRoseToEliza(): void {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEYS.COLOR_SCHEME);
+    if (stored === '"rose"') {
+      localStorage.setItem(STORAGE_KEYS.COLOR_SCHEME, '"eliza"');
+    }
+  } catch {
+    // ignore migration errors
+  }
+}
+migrateRoseToEliza();
+
+export const setColorScheme = (value: ColorScheme): void => {
+  setStorageValue(STORAGE_KEYS.COLOR_SCHEME, value);
 };
