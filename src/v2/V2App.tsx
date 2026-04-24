@@ -46,12 +46,18 @@ export function V2App({
     >
       <div class="max-w-4xl mx-auto">
         {/* Top row: Bus (1/4) | Program (3/4) */}
-        <div class="grid grid-cols-10 gap-0 p-0 border-b pb-1">
+        <div class="grid grid-cols-10 gap-0 p-0">
           <div class="col-span-3">
-            <BusButtons selectedBusNumber={selectedBusNumber} colorScheme={colorScheme} />
+            <BusButtons
+              selectedBusNumber={selectedBusNumber}
+              colorScheme={colorScheme}
+            />
           </div>
           <div class="col-span-7">
-            <ProgramButtons programMode={programMode} colorScheme={colorScheme} />
+            <ProgramButtons
+              programMode={programMode}
+              colorScheme={colorScheme}
+            />
           </div>
         </div>
 
