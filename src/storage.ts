@@ -9,7 +9,7 @@ const STORAGE_KEYS = {
 } as const;
 
 export type ClockDisplayMode = "round" | "poster" | "tabel" | "timeline";
-export type DesignVersion = "v1" | "v2";
+export type DesignVersion = "classic" | "modern" | "experimental";
 export type ColorScheme = "emerald" | "eliza" | "azure" | "amber" | "violet" | "ocean" | "citrus" | "sunset" | "mint" | "white" | "slate-dark" | "midnight" | "forest" | "rust" | "ocean-deep" | "grape" | "charcoal";
 
 /**
@@ -74,7 +74,11 @@ export const setClockDisplayMode = (value: ClockDisplayMode): void => {
 };
 
 export const getDesignVersion = (): DesignVersion => {
-  return getStorageValue<DesignVersion>(STORAGE_KEYS.DESIGN_VERSION, "v1");
+  const value = getStorageValue<string>(STORAGE_KEYS.DESIGN_VERSION, "modern");
+  // Migration: v1 → modern, v2 → classic
+  if (value === "v1") return "modern";
+  if (value === "v2") return "classic";
+  return value as DesignVersion;
 };
 
 export const setDesignVersion = (value: DesignVersion): void => {

@@ -35,6 +35,7 @@ interface SolarClockProps {
   clockDisplayMode?: Signal<ClockDisplayMode>;
   colorScheme?: Signal<ColorScheme>;
   className?: string;
+  availableModes?: ClockDisplayMode[];
 }
 
 export function SolarClock({
@@ -43,6 +44,7 @@ export function SolarClock({
   clockDisplayMode,
   colorScheme,
   className,
+  availableModes,
 }: SolarClockProps): JSX.Element {
   const result = useRouteLayers(busNumber, useWeekendSchedule);
   const { data: weatherData } = useWeatherData();
@@ -62,7 +64,7 @@ export function SolarClock({
 
   const { routeLayers, solarTimes, isSelectedScheduleToday } = result;
 
-  const displayMode = clockDisplayMode?.value ?? "round";
+  const displayMode = clockDisplayMode?.value ?? "tabel";
 
   const clockFaceId = `clockFace-${busNumber}`;
   const shadowId = `clockShadow-${busNumber}`;
@@ -94,6 +96,7 @@ export function SolarClock({
           <ClockModeToggle
             clockDisplayMode={clockDisplayMode}
             colorScheme={colorScheme}
+            availableModes={availableModes}
           />
         )}
       </div>

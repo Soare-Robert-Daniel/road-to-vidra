@@ -2,7 +2,6 @@ import { render } from "preact";
 import { signal } from "@preact/signals";
 
 import "./style.css";
-import { isWeekendProgram, getHolidayName } from "./utils";
 import {
   getSelectedBus,
   setSelectedBus,
@@ -15,15 +14,11 @@ import {
   getColorScheme,
   setColorScheme,
   type ClockDisplayMode,
-  type DesignVersion,
   type ColorScheme,
 } from "./storage";
-import { HolidayBanner } from "./components/shared-ui/HolidayBanner";
-import { Header } from "./components/shared-ui/Header";
-import { SettingsMenu } from "./components/settings/SettingsMenu";
-import { SolarClock } from "./components/solar-clock";
-import { DesignToggleFooter } from "./components/shared-ui/DesignToggleFooter";
-import { V2App } from "./v2";
+import { ClassicApp } from "./ClassicApp";
+import { ModernApp } from "./ModernApp";
+import { ExperimentalApp } from "./ExperimentalApp";
 
 // State management with localStorage persistence
 const selectedBusNumber = signal(getSelectedBus());
@@ -31,7 +26,7 @@ const selectedBusNumber = signal(getSelectedBus());
 const programMode = signal<"auto" | "lucru" | "weekend">("auto");
 const showPastHours = signal(getShowPastHours());
 const clockDisplayMode = signal<ClockDisplayMode>(getClockDisplayMode());
-const designVersion = signal<DesignVersion>(getDesignVersion());
+const designVersion = signal<"classic" | "modern" | "experimental">(getDesignVersion());
 const colorScheme = signal<ColorScheme>(getColorScheme());
 
 // Persist changes to localStorage
@@ -42,10 +37,10 @@ designVersion.subscribe((value) => setDesignVersion(value));
 colorScheme.subscribe((value) => setColorScheme(value));
 
 export function App() {
-  // Branch between v1 and v2 designs
-  if (designVersion.value === "v2") {
+  // Branch between classic, modern, and experimental designs
+  if (designVersion.value === "classic") {
     return (
-      <V2App
+      <ClassicApp
         selectedBusNumber={selectedBusNumber}
         designVersion={designVersion}
         colorScheme={colorScheme}
@@ -53,77 +48,25 @@ export function App() {
     );
   }
 
-  // v1 design (original)
-  const currentDate = new Date();
-  const isCurrentlyWeekendProgram = isWeekendProgram(currentDate);
-  const holidayName = getHolidayName(currentDate);
-
-  // By reading the signals here, we ensure this component re-renders on change.
-  const busNumber = selectedBusNumber.value;
-  const mode = programMode.value;
-  const scheme = colorScheme.value;
-
-  let useWeekendSchedule;
-  if (mode === "auto") {
-    useWeekendSchedule = isCurrentlyWeekendProgram;
-  } else {
-    useWeekendSchedule = mode === "weekend";
+  if (designVersion.value === "experimental") {
+    return (
+      <ExperimentalApp
+        selectedBusNumber={selectedBusNumber}
+        programMode={programMode}
+        designVersion={designVersion}
+        colorScheme={colorScheme}
+      />
+    );
   }
 
-  const bgColor = {
-    emerald: "bg-slate-50",
-    eliza: "bg-rose-50",
-    azure: "bg-sky-50",
-    amber: "bg-amber-50",
-    violet: "bg-violet-50",
-    ocean: "bg-teal-50",
-    citrus: "bg-lime-50",
-    sunset: "bg-orange-50",
-    mint: "bg-green-50",
-    white: "bg-white",
-    "slate-dark": "bg-slate-900 text-slate-100",
-    midnight: "bg-indigo-950 text-indigo-100",
-    forest: "bg-green-950 text-green-100",
-    rust: "bg-red-950 text-red-100",
-    "ocean-deep": "bg-teal-950 text-teal-100",
-    grape: "bg-purple-950 text-purple-100",
-    charcoal: "bg-zinc-900 text-zinc-100",
-  }[scheme];
-
-  const isDark = scheme.endsWith("-dark") || ["midnight", "forest", "rust", "ocean-deep", "grape", "charcoal"].includes(scheme);
-
+  // Modern design (default - table view)
   return (
-    <div
-      class={`min-h-screen ${bgColor} text-gray-900 pt-2 px-0.5 pb-0.5 sm:pt-3 sm:px-1 sm:pb-1`}
-      style={`color-scheme: ${isDark ? "dark" : "light"}`}
-    >
-      <div class="max-w-6xl mx-auto">
-        {/* Holiday Banner */}
-        <HolidayBanner holidayName={holidayName} />
-
-        {/* Ultra-Compact Mobile Header */}
-        <Header holidayName={holidayName} currentDate={currentDate} />
-
-        {/* Settings Menu */}
-        <SettingsMenu
-          selectedBusNumber={selectedBusNumber}
-          programMode={programMode}
-          isWeekendProgram={isCurrentlyWeekendProgram}
-          colorScheme={colorScheme}
-        />
-
-        {/* Solar Clock Display */}
-        <SolarClock
-          busNumber={busNumber}
-          useWeekendSchedule={useWeekendSchedule}
-          clockDisplayMode={clockDisplayMode}
-          colorScheme={colorScheme}
-        />
-
-        {/* Footer toggle to v2 */}
-        <DesignToggleFooter designVersion={designVersion} />
-      </div>
-    </div>
+    <ModernApp
+      selectedBusNumber={selectedBusNumber}
+      programMode={programMode}
+      designVersion={designVersion}
+      colorScheme={colorScheme}
+    />
   );
 }
 

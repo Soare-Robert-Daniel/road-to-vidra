@@ -1,29 +1,29 @@
 import { JSX } from "preact";
 import { Signal, signal } from "@preact/signals";
 
-import { type DesignVersion, type ColorScheme } from "../storage";
-import { DesignToggleFooter } from "../components/shared-ui/DesignToggleFooter";
+import { type ColorScheme } from "./storage";
+import { ModeSelector } from "./components/shared-ui/ModeSelector";
 
-import { BusButtons } from "./BusButtons";
-import { ProgramButtons } from "./ProgramButtons";
-import { HoursColumns } from "./HoursColumns";
-import { V2Map } from "./V2Map";
-import { ColorSchemeToggle } from "./ColorSchemeToggle";
+import { BusButtons } from "./v2/BusButtons";
+import { ProgramButtons } from "./v2/ProgramButtons";
+import { HoursColumns } from "./v2/HoursColumns";
+import { V2Map } from "./v2/V2Map";
+import { ColorSchemeToggle } from "./v2/ColorSchemeToggle";
 
-// Local program mode signal (no "auto" mode for v2)
+// Local program mode signal (no "auto" mode for classic)
 const programMode = signal<"lucru" | "weekend">("lucru");
 
-interface V2AppProps {
+interface ClassicAppProps {
   selectedBusNumber: Signal<string>;
-  designVersion: Signal<DesignVersion>;
+  designVersion: Signal<"classic" | "modern" | "experimental">;
   colorScheme: Signal<ColorScheme>;
 }
 
-export function V2App({
+export function ClassicApp({
   selectedBusNumber,
   designVersion,
   colorScheme,
-}: V2AppProps): JSX.Element {
+}: ClassicAppProps): JSX.Element {
   const useWeekendSchedule = programMode.value === "weekend";
   const scheme = colorScheme.value;
 
@@ -83,8 +83,8 @@ export function V2App({
         {/* Color scheme toggle */}
         <ColorSchemeToggle colorScheme={colorScheme} />
 
-        {/* Footer toggle */}
-        <DesignToggleFooter designVersion={designVersion} />
+        {/* Mode selector */}
+        <ModeSelector designVersion={designVersion} colorScheme={colorScheme} />
       </div>
     </div>
   );

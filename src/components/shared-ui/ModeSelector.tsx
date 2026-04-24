@@ -2,13 +2,11 @@ import { JSX } from "preact";
 import { Signal } from "@preact/signals";
 import { twMerge } from "tailwind-merge";
 
-import { type ClockDisplayMode, type ColorScheme } from "../../storage";
+import { type ColorScheme } from "../../storage";
 
-interface ClockModeToggleProps {
-  clockDisplayMode: Signal<ClockDisplayMode>;
+interface ModeSelectorProps {
+  designVersion: Signal<"classic" | "modern" | "experimental">;
   colorScheme?: Signal<ColorScheme>;
-  className?: string;
-  availableModes?: ClockDisplayMode[];
 }
 
 function getSelectedClass(colorScheme: ColorScheme): string {
@@ -89,12 +87,10 @@ function getContainerBg(colorScheme: ColorScheme): string {
   }
 }
 
-export function ClockModeToggle({
-  clockDisplayMode,
+export function ModeSelector({
+  designVersion,
   colorScheme,
-  className,
-  availableModes,
-}: ClockModeToggleProps): JSX.Element {
+}: ModeSelectorProps): JSX.Element {
   const scheme = colorScheme?.value ?? "emerald";
   const baseButtonClass =
     "px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.12em] rounded-[11px] transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500";
@@ -102,38 +98,35 @@ export function ClockModeToggle({
   const containerBg = getContainerBg(scheme);
   const unselectedClass = "bg-transparent text-slate-400 hover:text-slate-600";
 
-  const modes: { key: ClockDisplayMode; label: string; aria: string }[] = [
-    { key: "round", label: "Ceas", aria: "Afisare ceas rotund" },
-    { key: "poster", label: "Poster", aria: "Afisare poster" },
-    { key: "tabel", label: "Tabel", aria: "Afisare tabel" },
-    { key: "timeline", label: "Linie", aria: "Afisare timeline" },
+  const modes: { key: "classic" | "modern" | "experimental"; label: string }[] = [
+    { key: "classic", label: "Classic" },
+    { key: "modern", label: "Modern" },
+    { key: "experimental", label: "Exp." },
   ];
 
-  const filteredModes = availableModes
-    ? modes.filter((m) => availableModes.includes(m.key))
-    : modes;
-
   return (
-    <div
-      class={twMerge(
-        `font-ui inline-flex items-center gap-0.5 ${containerBg} rounded-2xl p-1 shadow-[inset_0_2px_4px_rgba(0,0,0,0.06),inset_0_1px_2px_rgba(0,0,0,0.04)]`,
-        className,
-      )}
-    >
-      {filteredModes.map((mode) => (
-        <button
-          key={mode.key}
-          type="button"
-          aria-label={mode.aria}
-          class={twMerge(
-            baseButtonClass,
-            clockDisplayMode.value === mode.key ? selectedClass : unselectedClass,
-          )}
-          onClick={() => (clockDisplayMode.value = mode.key)}
-        >
-          {mode.label}
-        </button>
-      ))}
-    </div>
+    <footer class="mt-6 mb-4 flex justify-center">
+      <div
+        class={twMerge(
+          `font-ui inline-flex items-center gap-0.5 ${containerBg} rounded-2xl p-1 shadow-[inset_0_2px_4px_rgba(0,0,0,0.06),inset_0_1px_2px_rgba(0,0,0,0.04)]`,
+        )}
+      >
+        {modes.map((mode) => (
+          <button
+            key={mode.key}
+            type="button"
+            class={twMerge(
+              baseButtonClass,
+              designVersion.value === mode.key ? selectedClass : unselectedClass,
+            )}
+            onClick={() => {
+              designVersion.value = mode.key;
+            }}
+          >
+            {mode.label}
+          </button>
+        ))}
+      </div>
+    </footer>
   );
 }
