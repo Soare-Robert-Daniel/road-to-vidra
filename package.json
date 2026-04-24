@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@fontsource-variable/space-grotesk": "^5.2.10",
+    "@fontsource/archivo-narrow": "^5.2.8",
     "@fontsource/ibm-plex-sans-condensed": "^5.2.8",
     "@turf/turf": "^7.3.4",
     "leaflet": "^1.9.4",

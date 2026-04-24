@@ -3,12 +3,17 @@
 @import "@fontsource/ibm-plex-sans-condensed/400.css";
 @import "@fontsource/ibm-plex-sans-condensed/500.css";
 @import "@fontsource/ibm-plex-sans-condensed/600.css";
+@import "@fontsource/archivo-narrow/400.css";
+@import "@fontsource/archivo-narrow/500.css";
+@import "@fontsource/archivo-narrow/600.css";
+@import "@fontsource/archivo-narrow/700.css";
 
 @import "tailwindcss";
 
 @theme {
   --font-display: "Space Grotesk Variable", sans-serif;
   --font-ui: "IBM Plex Sans Condensed", sans-serif;
+  --font-v2: "Archivo Narrow", sans-serif;
 
   /* Clock face */
   --color-clock-hand: oklch(0.3462 0.0736 256.04);
@@ -83,6 +88,10 @@
 
 body {
   font-family: "IBM Plex Sans Condensed", sans-serif;
+}
+
+.font-v2 {
+  font-variant-numeric: tabular-nums;
 }
 
 /* Custom styles for ultra-compact mobile layout */

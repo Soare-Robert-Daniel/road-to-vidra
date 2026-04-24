@@ -72,7 +72,7 @@ export const setClockDisplayMode = (value: ClockDisplayMode): void => {
 };
 
 export const getDesignVersion = (): DesignVersion => {
-  return getStorageValue<DesignVersion>(STORAGE_KEYS.DESIGN_VERSION, "v2");
+  return getStorageValue<DesignVersion>(STORAGE_KEYS.DESIGN_VERSION, "v1");
 };
 
 export const setDesignVersion = (value: DesignVersion): void => {
