@@ -1,30 +1,39 @@
 import { JSX } from "preact";
-import { Signal, signal } from "@preact/signals";
+import { Signal } from "@preact/signals";
 
 import { type ColorScheme } from "./storage";
+import { isWeekendProgram } from "./utils";
 import { ModeSelector } from "./components/shared-ui/ModeSelector";
 
 import { BusButtons } from "./v2/BusButtons";
-import { ProgramButtons } from "./v2/ProgramButtons";
+import { ClassicProgramButtons } from "./v2/ClassicProgramButtons";
 import { HoursColumns } from "./v2/HoursColumns";
 import { V2Map } from "./v2/V2Map";
 import { ColorSchemeToggle } from "./v2/ColorSchemeToggle";
 
-// Local program mode signal (no "auto" mode for classic)
-const programMode = signal<"lucru" | "weekend">("lucru");
-
 interface ClassicAppProps {
   selectedBusNumber: Signal<string>;
+  programMode: Signal<"auto" | "lucru" | "weekend">;
   designVersion: Signal<"classic" | "modern" | "experimental">;
   colorScheme: Signal<ColorScheme>;
 }
 
 export function ClassicApp({
   selectedBusNumber,
+  programMode,
   designVersion,
   colorScheme,
 }: ClassicAppProps): JSX.Element {
-  const useWeekendSchedule = programMode.value === "weekend";
+  const currentDate = new Date();
+  const isCurrentlyWeekendProgram = isWeekendProgram(currentDate);
+
+  const mode = programMode.value;
+  let useWeekendSchedule: boolean;
+  if (mode === "auto") {
+    useWeekendSchedule = isCurrentlyWeekendProgram;
+  } else {
+    useWeekendSchedule = mode === "weekend";
+  }
   const scheme = colorScheme.value;
 
   const bgColor = {
@@ -64,8 +73,9 @@ export function ClassicApp({
             />
           </div>
           <div class="col-span-7">
-            <ProgramButtons
+            <ClassicProgramButtons
               programMode={programMode}
+              isWeekendProgram={isCurrentlyWeekendProgram}
               colorScheme={colorScheme}
             />
           </div>

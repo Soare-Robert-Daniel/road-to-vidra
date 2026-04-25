@@ -2,7 +2,7 @@ import { JSX } from "preact";
 import { Signal } from "@preact/signals";
 import { type ColorScheme } from "../storage";
 
-interface ProgramButtonsProps {
+interface ClassicProgramButtonsProps {
   programMode: Signal<"auto" | "lucru" | "weekend">;
   isWeekendProgram: boolean;
   colorScheme: Signal<ColorScheme>;
@@ -89,17 +89,19 @@ function getFocusStyles(colorScheme: ColorScheme): string {
   }
 }
 
-export function ProgramButtons({
+export function ClassicProgramButtons({
   programMode,
   isWeekendProgram,
   colorScheme,
-}: ProgramButtonsProps): JSX.Element {
+}: ClassicProgramButtonsProps): JSX.Element {
   const scheme = colorScheme.value;
   const buttonPressed = getPressedStyles(scheme);
   const focusStyles = getFocusStyles(scheme);
 
-  // For auto mode, show which schedule type is active
-  const autoActiveType = isWeekendProgram ? "weekend" : "lucru";
+  const mode = programMode.value;
+  // In auto mode, highlight based on detected schedule; otherwise use selected mode
+  const isLucruActive = mode === "lucru" || (mode === "auto" && !isWeekendProgram);
+  const isWeekendActive = mode === "weekend" || (mode === "auto" && isWeekendProgram);
 
   return (
     <div class="flex flex-col gap-1 items-end">
@@ -107,18 +109,8 @@ export function ProgramButtons({
       <div class="flex flex-wrap gap-1">
         <button
           type="button"
-          class={`${buttonBase} ${focusStyles} ${programMode.value === "auto" ? buttonPressed : ""}`}
-          aria-pressed={programMode.value === "auto"}
-          onClick={() => {
-            programMode.value = "auto";
-          }}
-        >
-          Auto{programMode.value === "auto" && ` (${autoActiveType === "weekend" ? "Sâmbătă/Duminică" : "Luni-Vineri"})`}
-        </button>
-        <button
-          type="button"
-          class={`${buttonBase} ${focusStyles} ${programMode.value === "lucru" ? buttonPressed : ""}`}
-          aria-pressed={programMode.value === "lucru"}
+          class={`${buttonBase} ${focusStyles} ${isLucruActive ? buttonPressed : ""}`}
+          aria-pressed={isLucruActive}
           onClick={() => {
             programMode.value = "lucru";
           }}
@@ -127,8 +119,8 @@ export function ProgramButtons({
         </button>
         <button
           type="button"
-          class={`${buttonBase} ${focusStyles} ${programMode.value === "weekend" ? buttonPressed : ""}`}
-          aria-pressed={programMode.value === "weekend"}
+          class={`${buttonBase} ${focusStyles} ${isWeekendActive ? buttonPressed : ""}`}
+          aria-pressed={isWeekendActive}
           onClick={() => {
             programMode.value = "weekend";
           }}

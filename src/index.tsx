@@ -42,6 +42,7 @@ export function App() {
     return (
       <ClassicApp
         selectedBusNumber={selectedBusNumber}
+        programMode={programMode}
         designVersion={designVersion}
         colorScheme={colorScheme}
       />
