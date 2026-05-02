@@ -80,7 +80,7 @@ export function HoursColumns({ busNumber, useWeekendSchedule }: HoursColumnsProp
           {allHours.map((hour) => {
             const turTimes = turGroups.get(hour) ?? [];
             return (
-              <div key={hour} class="flex flex-wrap gap-x-2 tabular-nums text-lg justify-end">
+              <div key={hour} class="flex flex-wrap gap-x-2 tabular-nums text-[21px] justify-end">
                 {turTimes.length === 0 ? (
                   <span class="text-gray-400">-</span>
                 ) : (
@@ -116,7 +116,7 @@ export function HoursColumns({ busNumber, useWeekendSchedule }: HoursColumnsProp
           {allHours.map((hour) => {
             const returTimes = returGroups.get(hour) ?? [];
             return (
-              <div key={hour} class="flex flex-wrap gap-x-2 tabular-nums text-lg justify-start">
+              <div key={hour} class="flex flex-wrap gap-x-2 tabular-nums text-[21px] justify-start">
                 {returTimes.length === 0 ? (
                   <span class="text-gray-400">-</span>
                 ) : (

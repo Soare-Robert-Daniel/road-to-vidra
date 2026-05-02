@@ -9,7 +9,7 @@ interface ClassicProgramButtonsProps {
 }
 
 const buttonBase =
-  "inline-block h-[31px] px-[12px] text-[14px] text-[#0f1111] rounded-[3px] border border-[#a2a6ac] border-t-[#adb1b8] border-b-[#8d9096] bg-gradient-to-b from-[#f7f8fa] to-[#e7e9ec] shadow-[inset_0_1px_0_rgba(255,255,255,0.6)] cursor-pointer select-none whitespace-nowrap hover:border-[#979aa1] hover:border-t-[#a2a6ac] hover:border-b-[#82858a] focus:shadow-[0_0_3px_2px_rgba(16,185,129,0.5)] focus:outline-none";
+  "inline-block h-[31px] px-[12px] text-[18px] text-[#0f1111] rounded-[3px] border border-[#a2a6ac] border-t-[#adb1b8] border-b-[#8d9096] bg-gradient-to-b from-[#f7f8fa] to-[#e7e9ec] shadow-[inset_0_1px_0_rgba(255,255,255,0.6)] cursor-pointer select-none whitespace-nowrap hover:border-[#979aa1] hover:border-t-[#a2a6ac] hover:border-b-[#82858a] focus:shadow-[0_0_3px_2px_rgba(16,185,129,0.5)] focus:outline-none";
 
 function getPressedStyles(colorScheme: ColorScheme): string {
   switch (colorScheme) {
@@ -105,7 +105,7 @@ export function ClassicProgramButtons({
 
   return (
     <div class="flex flex-col gap-1 items-end">
-      <div class="text-sm font-bold">Program</div>
+      <div class="text-sm font-bold">Alege program</div>
       <div class="flex flex-wrap gap-1">
         <button
           type="button"
