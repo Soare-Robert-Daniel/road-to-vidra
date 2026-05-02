@@ -3,7 +3,7 @@ import { Signal } from "@preact/signals";
 
 import { type ColorScheme } from "../../shared/utils/storage";
 import { isWeekendProgram, getHolidayName } from "../../shared/utils/utils";
-import { ModeSelector, HolidayBanner } from "../../shared/components/ui";
+import { ModeSelector, HolidayBanner, HolidayTable } from "../../shared/components/ui";
 import {
   getAppBgClass,
   isDarkScheme,
@@ -75,6 +75,9 @@ export function ClassicApp({
 
         {/* Mode selector */}
         <ModeSelector designVersion={designVersion} colorScheme={colorScheme} />
+
+        {/* Holiday table */}
+        <HolidayTable colorScheme={colorScheme} />
       </div>
     </div>
   );
