@@ -7,6 +7,7 @@ import * as turf from "@turf/turf";
 
 import { useBusPositions } from "../../hooks/useBusPositions";
 import { BusDataTable, MapLegend, LoadingOverlay, ErrorOverlay, NoBusesOverlay } from "./map";
+import { ShareButtons } from "../ui/ShareButtons";
 
 const ROUTE_GEOJSON_URL = "/data/layers/routes_iun2024.geojson";
 
@@ -532,6 +533,7 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
 
       <MapLegend lastUpdate={lastUpdate} />
       <BusDataTable buses={busesWithDistance} />
+      <ShareButtons />
     </div>
   );
 }
