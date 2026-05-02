@@ -2,8 +2,8 @@ import { JSX } from "preact";
 import { Signal } from "@preact/signals";
 
 import { type ColorScheme } from "../../shared/utils/storage";
-import { isWeekendProgram } from "../../shared/utils/utils";
-import { ModeSelector } from "../../shared/components/ui";
+import { isWeekendProgram, getHolidayName } from "../../shared/utils/utils";
+import { ModeSelector, HolidayBanner } from "../../shared/components/ui";
 import {
   getAppBgClass,
   isDarkScheme,
@@ -27,6 +27,7 @@ export function ClassicApp({
 }: ClassicAppProps): JSX.Element {
   const currentDate = new Date();
   const isCurrentlyWeekendProgram = isWeekendProgram(currentDate);
+  const holidayName = getHolidayName(currentDate);
 
   const mode = programMode.value;
   let useWeekendSchedule: boolean;
@@ -46,6 +47,9 @@ export function ClassicApp({
       style={`color-scheme: ${isDark ? "dark" : "light"}`}
     >
       <div class="max-w-4xl mx-auto">
+        {/* Holiday banner */}
+        <HolidayBanner holidayName={holidayName} />
+
         {/* Top row: Bus (1/4) | Program (3/4) */}
         <div class="grid grid-cols-10 gap-0 p-0">
           <div class="col-span-3">
