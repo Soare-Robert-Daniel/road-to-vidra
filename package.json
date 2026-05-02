@@ -14,7 +14,7 @@
     "@fontsource-variable/space-grotesk": "^5.2.10",
     "@fontsource/archivo-narrow": "^5.2.8",
     "@fontsource/ibm-plex-sans-condensed": "^5.2.8",
-    "@turf/turf": "^7.3.4",
+    "@turf/turf": "^7.3.5",
     "leaflet": "^1.9.4",
     "openmeteo": "^1.2.3",
     "react-leaflet": "^5.0.0",
@@ -23,16 +23,16 @@
   "devDependencies": {
     "@preact/preset-vite": "^2.10.5",
     "@preact/signals": "^2.9.0",
-    "@tailwindcss/vite": "^4.2.2",
+    "@tailwindcss/vite": "^4.2.4",
     "@types/leaflet": "^1.9.21",
     "@types/suncalc": "^1.9.2",
-    "oxfmt": "^0.42.0",
-    "oxlint": "^1.57.0",
-    "oxlint-tsgolint": "^0.18.0",
-    "preact": "^10.29.0",
+    "oxfmt": "^0.46.0",
+    "oxlint": "^1.61.0",
+    "oxlint-tsgolint": "^0.22.0",
+    "preact": "^10.29.1",
     "tailwind-merge": "^3.5.0",
-    "tailwindcss": "^4.2.2",
-    "typescript": "^6.0.2",
-    "vite": "^8.0.3"
+    "tailwindcss": "^4.2.4",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.10"
   }
 }
