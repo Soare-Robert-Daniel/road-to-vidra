@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "unicorn"],
+  "plugins": ["react", "unicorn", "oxc", "react-perf"],
   "env": {
     "builtin": true,
     "browser": true,
