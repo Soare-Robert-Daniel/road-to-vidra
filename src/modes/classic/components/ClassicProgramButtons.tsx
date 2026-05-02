@@ -104,8 +104,8 @@ export function ClassicProgramButtons({
   const isWeekendActive = mode === "weekend" || (mode === "auto" && isWeekendProgram);
 
   return (
-    <div class="flex flex-col gap-1 items-end">
-      <div class="text-sm font-bold">Alege program</div>
+    <div class="flex flex-col gap-1">
+      <div class="text-[1.1rem] font-bold text-right">Alege regim orar</div>
       <div class="flex flex-wrap gap-1">
         <button
           type="button"

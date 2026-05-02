@@ -95,7 +95,7 @@ export function BusButtons({ selectedBusNumber, colorScheme }: BusButtonsProps):
 
   return (
     <div class="flex flex-col gap-1">
-      <div class="text-sm font-bold">Alege Autobuz</div>
+      <div class="text-[1.1rem] font-bold">Alege Autobuz</div>
       <div class="flex flex-wrap gap-1">
         <button
           type="button"
