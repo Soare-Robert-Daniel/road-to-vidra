@@ -87,10 +87,7 @@ function getContainerBg(colorScheme: ColorScheme): string {
   }
 }
 
-export function ModeSelector({
-  designVersion,
-  colorScheme,
-}: ModeSelectorProps): JSX.Element {
+export function ModeSelector({ designVersion, colorScheme }: ModeSelectorProps): JSX.Element {
   const scheme = colorScheme?.value ?? "emerald";
   const baseButtonClass =
     "px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.12em] rounded-[11px] transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500";

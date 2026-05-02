@@ -4,7 +4,11 @@ import { Signal } from "@preact/signals";
 import { type ColorScheme } from "../../shared/utils/storage";
 import { isWeekendProgram } from "../../shared/utils/utils";
 import { ModeSelector } from "../../shared/components/ui";
-import { getAppBgClass, isDarkScheme } from "../../shared/components/color-scheme";
+import {
+  getAppBgClass,
+  isDarkScheme,
+  ColorSchemeToggle,
+} from "../../shared/components/color-scheme";
 
 import { BusButtons, ClassicProgramButtons, HoursColumns, MapSection } from "./components";
 
@@ -45,10 +49,7 @@ export function ClassicApp({
         {/* Top row: Bus (1/4) | Program (3/4) */}
         <div class="grid grid-cols-10 gap-0 p-0">
           <div class="col-span-3">
-            <BusButtons
-              selectedBusNumber={selectedBusNumber}
-              colorScheme={colorScheme}
-            />
+            <BusButtons selectedBusNumber={selectedBusNumber} colorScheme={colorScheme} />
           </div>
           <div class="col-span-7">
             <ClassicProgramButtons
@@ -60,13 +61,13 @@ export function ClassicApp({
         </div>
 
         {/* Hours columns */}
-        <HoursColumns
-          busNumber={selectedBusNumber.value}
-          useWeekendSchedule={useWeekendSchedule}
-        />
+        <HoursColumns busNumber={selectedBusNumber.value} useWeekendSchedule={useWeekendSchedule} />
 
         {/* Map with embedded BusDataTable */}
-        <MapSection busNumber={selectedBusNumber.value as "420" | "438"} />
+        <MapSection busNumber={selectedBusNumber.value as "418" | "420" | "438"} />
+
+        {/* Color scheme toggle */}
+        <ColorSchemeToggle colorScheme={colorScheme} />
 
         {/* Mode selector */}
         <ModeSelector designVersion={designVersion} colorScheme={colorScheme} />

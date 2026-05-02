@@ -57,7 +57,9 @@ export function ModernApp({
     charcoal: "bg-zinc-900 text-zinc-100",
   }[scheme];
 
-  const isDark = scheme.endsWith("-dark") || ["midnight", "forest", "rust", "ocean-deep", "grape", "charcoal"].includes(scheme);
+  const isDark =
+    scheme.endsWith("-dark") ||
+    ["midnight", "forest", "rust", "ocean-deep", "grape", "charcoal"].includes(scheme);
 
   return (
     <div

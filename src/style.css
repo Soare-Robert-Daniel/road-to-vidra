@@ -47,6 +47,14 @@
   /* Label */
   --color-label-intermediate: oklch(0.2795 0.0368 260.03);
 
+  /* Route: 418 tur (violet) */
+  --color-route-418-tur: oklch(0.4934 0.203952 300);
+  --color-route-418-tur-soft: oklch(0.8091 0.0956 295);
+
+  /* Route: 418 retur (teal) */
+  --color-route-418-retur: oklch(0.5534 0.13 175);
+  --color-route-418-retur-soft: oklch(0.879 0.08 175);
+
   /* Route: 420 tur (blue) */
   --color-route-420-tur: oklch(0.4934 0.203952 260.2423);
   --color-route-420-tur-soft: oklch(0.8091 0.0956 251.81);

@@ -33,6 +33,16 @@ export function BusSelector({
         type="button"
         class={twMerge(
           baseButtonClass,
+          selectedBusNumber.value === "418" ? selectedClass : unselectedClass,
+        )}
+        onClick={() => (selectedBusNumber.value = "418")}
+      >
+        418
+      </button>
+      <button
+        type="button"
+        class={twMerge(
+          baseButtonClass,
           selectedBusNumber.value === "420" ? selectedClass : unselectedClass,
         )}
         onClick={() => (selectedBusNumber.value = "420")}

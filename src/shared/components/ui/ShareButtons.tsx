@@ -2,7 +2,7 @@ import { JSX } from "preact";
 import { useState } from "preact/hooks";
 
 const shareUrl = () => window.location.href;
-const shareTitle = "Program autobuz 420 & 438";
+const shareTitle = "Program autobuz 418, 420 & 438";
 
 function WhatsAppIcon() {
   return (
@@ -67,13 +67,11 @@ export function ShareButtons(): JSX.Element {
 
   return (
     <div class="mt-4 flex flex-col items-center gap-2 border-t border-slate-200 pt-3">
-      <span class="text-sm font-semibold text-slate-600">
-        Distribuie aplicația:
-      </span>
+      <span class="text-sm font-semibold text-slate-600">Distribuie aplicația:</span>
       <div class="flex gap-3">
         {/* WhatsApp */}
         <a
-          href={`https://api.whatsapp.com/send?text=${encodeURIComponent(title + " " + url)}`}
+          href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`${title} ${url}`)}`}
           target="_blank"
           rel="noopener noreferrer"
           class="flex h-10 w-10 items-center justify-center rounded-full bg-green-500 text-white transition-transform hover:scale-110"
@@ -111,9 +109,7 @@ export function ShareButtons(): JSX.Element {
           <InstagramIcon />
         </button>
       </div>
-      {copied && (
-        <span class="text-xs text-green-600">Link copiat în clipboard!</span>
-      )}
+      {copied && <span class="text-xs text-green-600">Link copiat în clipboard!</span>}
     </div>
   );
 }

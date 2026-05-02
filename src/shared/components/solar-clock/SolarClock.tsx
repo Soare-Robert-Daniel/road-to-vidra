@@ -149,21 +149,17 @@ export function SolarClock({
               <ClockHand currentMinutes={solarTimes.currentMinutes} />
             </svg>
           </div>
-          <DepartureSummaries
-            routeLayers={routeLayers}
-            solarTimes={solarTimes}
-          />
-          {weatherData.value?.temperatures &&
-            weatherData.value.temperatures.length > 0 && (
-              <TemperatureWave
-                temperatures={weatherData.value.temperatures}
-                currentMinutes={solarTimes.currentMinutes}
-              />
-            )}
+          <DepartureSummaries routeLayers={routeLayers} solarTimes={solarTimes} />
+          {weatherData.value?.temperatures && weatherData.value.temperatures.length > 0 && (
+            <TemperatureWave
+              temperatures={weatherData.value.temperatures}
+              currentMinutes={solarTimes.currentMinutes}
+            />
+          )}
         </>
       )}
 
-      <MapView busNumber={busNumber as "420" | "438"} />
+      <MapView busNumber={busNumber as "418" | "420" | "438"} />
 
       {colorScheme && <ColorSchemeToggle colorScheme={colorScheme} />}
     </div>

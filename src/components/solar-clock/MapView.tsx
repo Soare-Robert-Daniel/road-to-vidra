@@ -11,7 +11,8 @@ import { BusDataTable, MapLegend, LoadingOverlay, ErrorOverlay, NoBusesOverlay }
 const ROUTE_GEOJSON_URL = "/data/layers/routes_iun2024.geojson";
 
 // Route ID mapping
-const ROUTE_IDS: Record<"420" | "438", string> = {
+const ROUTE_IDS: Record<"418" | "420" | "438", string> = {
+  "418": "PV1_418",
   "420": "PV1_420",
   "438": "PV1_438",
 };
@@ -106,6 +107,21 @@ const CACHE_DATA_KEY = "vidra-routes-data-v1";
 const CACHE_EXPIRATION_KEY = "vidra-routes-cache-expires";
 const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 1 week
 
+function invalidateRouteCache() {
+  localStorage.removeItem(CACHE_DATA_KEY);
+  localStorage.removeItem(CACHE_EXPIRATION_KEY);
+  globalCache = null;
+}
+
+function isCacheMissingRoutes(cachedGeojson: {
+  features: { properties: { route_id: string } }[];
+}): boolean {
+  const cachedRouteIds = new Set(cachedGeojson.features.map((f) => f.properties.route_id));
+  const targetRouteIds = Object.values(ROUTE_IDS);
+
+  return targetRouteIds.some((id) => !cachedRouteIds.has(id));
+}
+
 async function fetchRouteGeoJSON() {
   const now = Date.now();
   const expiresStr = localStorage.getItem(CACHE_EXPIRATION_KEY);
@@ -115,7 +131,12 @@ async function fetchRouteGeoJSON() {
     if (now < expires) {
       const cachedData = localStorage.getItem(CACHE_DATA_KEY);
       if (cachedData) {
-        return JSON.parse(cachedData);
+        const parsed = JSON.parse(cachedData);
+        if (!isCacheMissingRoutes(parsed)) {
+          return parsed;
+        }
+        console.warn("Cache missing routes, invalidating and refetching");
+        invalidateRouteCache();
       }
     }
 
@@ -148,7 +169,7 @@ async function fetchRouteGeoJSON() {
 }
 
 interface MapViewProps {
-  busNumber: "420" | "438";
+  busNumber: "418" | "420" | "438";
   className?: string;
 }
 

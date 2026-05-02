@@ -113,7 +113,9 @@ export function ProgramButtons({
             programMode.value = "auto";
           }}
         >
-          Auto{programMode.value === "auto" && ` (${autoActiveType === "weekend" ? "Sâmbătă/Duminică" : "Luni-Vineri"})`}
+          Auto
+          {programMode.value === "auto" &&
+            ` (${autoActiveType === "weekend" ? "Sâmbătă/Duminică" : "Luni-Vineri"})`}
         </button>
         <button
           type="button"

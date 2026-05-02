@@ -82,7 +82,7 @@ function setCache(data: BusPosition[]): void {
   };
 }
 
-export function useBusPositions(routeNumber: "420" | "438"): {
+export function useBusPositions(routeNumber: "418" | "420" | "438"): {
   buses: BusPosition[];
   loading: boolean;
   error: Error | null;

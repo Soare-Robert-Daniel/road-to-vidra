@@ -56,7 +56,9 @@ export function ClassicApp({
     charcoal: "bg-zinc-900 text-zinc-100",
   }[scheme];
 
-  const isDark = scheme.endsWith("-dark") || ["midnight", "forest", "rust", "ocean-deep", "grape", "charcoal"].includes(scheme);
+  const isDark =
+    scheme.endsWith("-dark") ||
+    ["midnight", "forest", "rust", "ocean-deep", "grape", "charcoal"].includes(scheme);
 
   return (
     <div
@@ -67,10 +69,7 @@ export function ClassicApp({
         {/* Top row: Bus (1/4) | Program (3/4) */}
         <div class="grid grid-cols-10 gap-0 p-0">
           <div class="col-span-3">
-            <BusButtons
-              selectedBusNumber={selectedBusNumber}
-              colorScheme={colorScheme}
-            />
+            <BusButtons selectedBusNumber={selectedBusNumber} colorScheme={colorScheme} />
           </div>
           <div class="col-span-7">
             <ClassicProgramButtons
@@ -82,13 +81,10 @@ export function ClassicApp({
         </div>
 
         {/* Hours columns */}
-        <HoursColumns
-          busNumber={selectedBusNumber.value}
-          useWeekendSchedule={useWeekendSchedule}
-        />
+        <HoursColumns busNumber={selectedBusNumber.value} useWeekendSchedule={useWeekendSchedule} />
 
         {/* Map with embedded BusDataTable */}
-        <V2Map busNumber={selectedBusNumber.value as "420" | "438"} />
+        <V2Map busNumber={selectedBusNumber.value as "418" | "420" | "438"} />
 
         {/* Color scheme toggle */}
         <ColorSchemeToggle colorScheme={colorScheme} />

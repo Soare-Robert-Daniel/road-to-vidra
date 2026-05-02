@@ -88,10 +88,7 @@ function getFocusStyles(colorScheme: ColorScheme): string {
   }
 }
 
-export function BusButtons({
-  selectedBusNumber,
-  colorScheme,
-}: BusButtonsProps): JSX.Element {
+export function BusButtons({ selectedBusNumber, colorScheme }: BusButtonsProps): JSX.Element {
   const scheme = colorScheme.value;
   const buttonPressed = getPressedStyles(scheme);
   const focusStyles = getFocusStyles(scheme);
@@ -100,6 +97,16 @@ export function BusButtons({
     <div class="flex flex-col gap-1">
       <div class="text-sm font-bold">Autobuz</div>
       <div class="flex flex-wrap gap-1">
+        <button
+          type="button"
+          class={`${buttonBase} ${focusStyles} ${selectedBusNumber.value === "418" ? buttonPressed : ""}`}
+          aria-pressed={selectedBusNumber.value === "418"}
+          onClick={() => {
+            selectedBusNumber.value = "418";
+          }}
+        >
+          418
+        </button>
         <button
           type="button"
           class={`${buttonBase} ${focusStyles} ${selectedBusNumber.value === "420" ? buttonPressed : ""}`}

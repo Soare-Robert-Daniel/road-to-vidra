@@ -264,6 +264,28 @@ export const CURRENT_HAND_TAIL = CLOCK_LAYOUT.currentHandTail;
 
 // Color and styling themes for each bus route (420, 438, default); tur/retur directions have different color schemes
 const BUS_ROUTE_THEMES: Record<string, Record<Direction, RouteTheme>> = {
+  "418": {
+    tur: {
+      marker: "var(--color-route-418-tur)",
+      markerSoft: "var(--color-route-418-tur-soft)",
+      legendBg: "bg-violet-50/80",
+      legendText: "text-violet-800",
+      summaryBorder: "border-violet-200/80",
+      summarySurface: "bg-white/80",
+      summaryText: "text-violet-950",
+      summaryMuted: "text-violet-800",
+    },
+    retur: {
+      marker: "var(--color-route-418-retur)",
+      markerSoft: "var(--color-route-418-retur-soft)",
+      legendBg: "bg-teal-50/80",
+      legendText: "text-teal-800",
+      summaryBorder: "border-teal-200/80",
+      summarySurface: "bg-white/80",
+      summaryText: "text-teal-950",
+      summaryMuted: "text-teal-800",
+    },
+  },
   "420": {
     tur: {
       marker: "var(--color-route-420-tur)",

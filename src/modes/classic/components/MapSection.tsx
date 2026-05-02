@@ -2,7 +2,7 @@ import { JSX } from "preact";
 import { MapView } from "../../../shared/components/solar-clock";
 
 interface MapSectionProps {
-  busNumber: "420" | "438";
+  busNumber: "418" | "420" | "438";
 }
 
 export function MapSection({ busNumber }: MapSectionProps): JSX.Element {
