@@ -1,19 +1,10 @@
 import { JSX } from "preact";
 import { twMerge } from "tailwind-merge";
 
-interface BusData {
-  id: string;
-  label: string;
-  licensePlate: string;
-  directionId: number | null;
-  distance: number | null;
-  avgSpeed: number | null;
-  speedProgress: number;
-  timestamp: number;
-}
+import type { BusDirection, BusPosition } from "../../../hooks/useBusPositions";
 
 interface BusDataTableProps {
-  buses: BusData[];
+  buses: BusPosition[];
 }
 
 function CircularProgress({ progress }: { progress: number }): JSX.Element {
@@ -62,17 +53,12 @@ function formatEta(minutes: number | null): string {
   return mins > 0 ? `${hours}h ${mins}min` : `${hours}h`;
 }
 
-function calculateEta(distanceKm: number | null, speedKmH: number | null): number | null {
-  if (distanceKm === null || speedKmH === null || speedKmH <= 0) return null;
-  return (distanceKm / speedKmH) * 60;
-}
-
 function EstimationNotice({
   buses,
 }: {
-  buses: Array<{ avgSpeed: number | null; speedProgress: number }>;
+  buses: Array<{ avgSpeedKmH: number | null; speedProgress: number }>;
 }): JSX.Element {
-  const busesWithoutSpeed = buses.filter((b) => b.avgSpeed === null);
+  const busesWithoutSpeed = buses.filter((b) => b.avgSpeedKmH === null);
 
   if (busesWithoutSpeed.length === 0) {
     return <span>Estimările sunt calculate pe baza ultimelor 5 minute de date colectate.</span>;
@@ -90,58 +76,71 @@ function EstimationNotice({
   );
 }
 
-function DirectionBadge({ directionId }: { directionId: number | null }) {
+const DIRECTION_BADGE_CLASS: Record<BusDirection, string> = {
+  outbound: "bg-green-100 text-green-700",
+  inbound: "bg-orange-100 text-orange-700",
+  stationary: "bg-sky-100 text-sky-700",
+  unknown: "bg-slate-100 text-slate-700",
+};
+
+const DIRECTION_BADGE_LABEL: Record<BusDirection, string> = {
+  outbound: "Tur",
+  inbound: "Retur",
+  stationary: "Staționat",
+  unknown: "Necunoscut",
+};
+
+function DirectionBadge({ direction }: { direction: BusDirection }) {
   return (
     <span
       class={twMerge(
         "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
-        directionId === 0
-          ? "bg-green-100 text-green-700"
-          : directionId === 1
-            ? "bg-orange-100 text-orange-700"
-            : "bg-slate-100 text-slate-700",
+        DIRECTION_BADGE_CLASS[direction],
       )}
     >
-      {directionId === 0 ? "Tur" : directionId === 1 ? "Retur" : "Necunoscut"}
+      {DIRECTION_BADGE_LABEL[direction]}
     </span>
   );
 }
 
-function BusDataRow({ bus }: { bus: BusData }) {
+function BusDataRow({ bus }: { bus: BusPosition }) {
   return (
     <tr key={bus.id} class="hover:bg-slate-50 transition-colors">
       <td class="px-3 py-1">
         <div class="font-medium text-slate-900">{bus.label}</div>
-        <div class="text-xs text-slate-500">{bus.licensePlate}</div>
       </td>
       <td class="px-3 py-1">
-        <DirectionBadge directionId={bus.directionId} />
+        <DirectionBadge direction={bus.direction} />
       </td>
       <td class="px-3 py-1">
-        {bus.distance !== null ? <span class="font-mono">{bus.distance.toFixed(1)} km</span> : "-"}
+        {bus.remainingDistanceKm !== null ? (
+          <span class="font-mono">{bus.remainingDistanceKm.toFixed(1)} km</span>
+        ) : (
+          "-"
+        )}
       </td>
       <td class="px-3 py-1">
-        {bus.avgSpeed !== null ? (
-          <span class="font-mono">{Math.round(bus.avgSpeed)} km/h</span>
+        {bus.avgSpeedKmH !== null ? (
+          <span class="font-mono">{Math.round(bus.avgSpeedKmH)} km/h</span>
         ) : (
           <CircularProgress progress={bus.speedProgress} />
         )}
       </td>
       <td class="px-3 py-1">
-        {bus.avgSpeed !== null ? (
-          formatEta(calculateEta(bus.distance, bus.avgSpeed))
+        {bus.etaMinutes !== null ? (
+          formatEta(bus.etaMinutes)
         ) : (
           <CircularProgress progress={bus.speedProgress} />
         )}
       </td>
       <td class="px-3 py-1 text-slate-500">
-        {new Date(bus.timestamp * 1000).toLocaleTimeString("ro-RO")}
+        {new Date(bus.timestamp).toLocaleTimeString("ro-RO")}
       </td>
     </tr>
   );
 }
 
-export function BusDataTable({ buses }: BusDataTableProps): JSX.Element {
+export function BusDataTable({ buses }: BusDataTableProps): JSX.Element | null {
   if (buses.length === 0) return null;
 
   return (

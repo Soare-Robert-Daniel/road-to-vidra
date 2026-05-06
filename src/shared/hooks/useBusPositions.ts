@@ -1,85 +1,67 @@
 import { useCallback, useEffect, useRef, useState } from "preact/hooks";
 
-const BUS_DATA_URL = "/api/busData";
-const CACHE_TTL_MS = 30_000; // 30 seconds (normal interval)
-const INITIAL_INTERVAL_MS = 15_000; // 15 seconds (when direction unknown)
+const BUS_API_BASE = "/api/v1/bus";
+const POLL_INTERVAL_MS = 15_000;
+
+export type BusDirection = "outbound" | "inbound" | "stationary" | "unknown";
 
 export interface BusPosition {
   id: string;
   label: string;
-  licensePlate: string;
   latitude: number;
   longitude: number;
   timestamp: number;
   routeId: string;
-  directionId?: number;
-  startTime?: string;
+  direction: BusDirection;
+  directionComputed: boolean;
+  remainingDistanceKm: number | null;
+  avgSpeedKmH: number | null;
+  speedProgress: number;
+  etaMinutes: number | null;
 }
 
-interface BusDataCache {
-  timestamp: number;
-  data: BusPosition[];
+interface RawEnrichedBus {
+  id: string;
+  label?: string;
+  latitude: number;
+  longitude: number;
+  timestamp: string;
+  routeId: string;
+  direction: BusDirection;
+  directionComputed: boolean;
+  projectedKm: number | null;
+  remainingDistanceKm: number | null;
+  avgSpeedKmH: number | null;
+  speedProgress: number;
+  etaMinutes: number | null;
 }
 
-let globalCache: BusDataCache | null = null;
+interface RawEnrichedResponse {
+  buses: RawEnrichedBus[];
+  fetchedAt: string;
+}
 
-async function fetchBusData(): Promise<BusPosition[]> {
-  const response = await fetch(BUS_DATA_URL);
+async function fetchBusData(routeNumber: string): Promise<BusPosition[]> {
+  const response = await fetch(`${BUS_API_BASE}/${routeNumber}`);
   if (!response.ok) {
     throw new Error(`Failed to fetch bus data: ${response.status}`);
   }
-  const raw = await response.json();
+  const raw: RawEnrichedResponse = await response.json();
 
-  return raw
-    .filter((item: { vehicle?: { trip?: { routeId?: string } } }) => item.vehicle?.trip?.routeId)
-    .map(
-      (item: {
-        id: string;
-        vehicle: {
-          trip: {
-            routeId: string;
-            directionId?: number;
-            startTime?: string;
-          };
-          vehicle: {
-            id: string;
-            label: string;
-            licensePlate: string;
-          };
-          position: {
-            latitude: number;
-            longitude: number;
-          };
-          timestamp: number;
-        };
-      }) => ({
-        id: item.id,
-        label: item.vehicle.vehicle.label,
-        licensePlate: item.vehicle.vehicle.licensePlate,
-        latitude: item.vehicle.position.latitude,
-        longitude: item.vehicle.position.longitude,
-        timestamp: item.vehicle.timestamp,
-        routeId: item.vehicle.trip.routeId,
-        directionId: item.vehicle.trip.directionId,
-        startTime: item.vehicle.trip.startTime,
-      }),
-    );
-}
-
-function getCachedData(): BusPosition[] | null {
-  if (!globalCache) return null;
-  const now = Date.now();
-  if (now - globalCache.timestamp < CACHE_TTL_MS) {
-    return globalCache.data;
-  }
-  return null;
-}
-
-function setCache(data: BusPosition[]): void {
-  globalCache = {
-    timestamp: Date.now(),
-    data,
-  };
+  return raw.buses.map((bus) => ({
+    id: bus.id,
+    label: bus.label ?? bus.id.replace(/^PV1_/, ""),
+    latitude: bus.latitude,
+    longitude: bus.longitude,
+    timestamp: Date.parse(bus.timestamp),
+    routeId: bus.routeId,
+    direction: bus.direction,
+    directionComputed: bus.directionComputed,
+    remainingDistanceKm: bus.remainingDistanceKm,
+    avgSpeedKmH: bus.avgSpeedKmH,
+    speedProgress: bus.speedProgress,
+    etaMinutes: bus.etaMinutes,
+  }));
 }
 
 export function useBusPositions(routeNumber: "418" | "420" | "438"): {
@@ -87,50 +69,17 @@ export function useBusPositions(routeNumber: "418" | "420" | "438"): {
   loading: boolean;
   error: Error | null;
   lastUpdate: number | null;
-  setDirectionEstablished: (established: boolean) => void;
 } {
   const [buses, setBuses] = useState<BusPosition[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [lastUpdate, setLastUpdate] = useState<number | null>(null);
-  const [directionEstablished, setDirectionEstablished] = useState(false);
   const intervalRef = useRef<number | null>(null);
 
   const fetchData = useCallback(async () => {
-    // Try both PV1_ prefix and plain route number for STB/PV1 routes
-    const routeIds = [`PV1_${routeNumber}`, routeNumber, `"${routeNumber}"`];
-
     try {
-      const cached = getCachedData();
-      let allBuses: BusPosition[];
-
-      if (cached) {
-        allBuses = cached;
-      } else {
-        allBuses = await fetchBusData();
-        setCache(allBuses);
-      }
-
-      const filtered = allBuses.filter((bus) => routeIds.includes(bus.routeId));
-      // Debug: log total buses and filtered count
-      console.log(
-        `[useBusPositions] Total buses: ${allBuses.length}, Filtered for ${routeNumber}: ${filtered.length}`,
-      );
-      if (filtered.length === 0) {
-        // Show available route IDs for debugging
-        const availableRouteIds = [...new Set(allBuses.map((b) => b.routeId))].sort();
-        console.log(
-          `[useBusPositions] Available routeIds: ${availableRouteIds.slice(0, 30).join(", ")}...`,
-        );
-        // Check for partial matches
-        const partialMatches = availableRouteIds.filter((id) => id.includes(routeNumber));
-        if (partialMatches.length > 0) {
-          console.log(
-            `[useBusPositions] Partial matches for ${routeNumber}: ${partialMatches.join(", ")}`,
-          );
-        }
-      }
-      setBuses(filtered);
+      const data = await fetchBusData(routeNumber);
+      setBuses(data);
       setLastUpdate(Date.now());
       setError(null);
     } catch (err) {
@@ -151,14 +100,11 @@ export function useBusPositions(routeNumber: "418" | "420" | "438"): {
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
-    // Use 15s interval when direction not established, 30s when established
-    const intervalMs = directionEstablished ? CACHE_TTL_MS : INITIAL_INTERVAL_MS;
-
     intervalRef.current = window.setInterval(() => {
       if (document.visibilityState === "visible") {
         fetchData();
       }
-    }, intervalMs);
+    }, POLL_INTERVAL_MS);
 
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
@@ -166,7 +112,7 @@ export function useBusPositions(routeNumber: "418" | "420" | "438"): {
         clearInterval(intervalRef.current);
       }
     };
-  }, [fetchData, directionEstablished]);
+  }, [fetchData]);
 
-  return { buses, loading, error, lastUpdate, setDirectionEstablished };
+  return { buses, loading, error, lastUpdate };
 }
