@@ -3,7 +3,13 @@ import { Signal } from "@preact/signals";
 
 import { type ColorScheme } from "../../shared/utils/storage";
 import { isWeekendProgram, getHolidayName } from "../../shared/utils/utils";
-import { ModeSelector, HolidayBanner, HolidayTable } from "../../shared/components/ui";
+import { scheduleChanges } from "../../shared/utils/config";
+import {
+  ModeSelector,
+  HolidayBanner,
+  HolidayTable,
+  ScheduleChangesTable,
+} from "../../shared/components/ui";
 import {
   getAppBgClass,
   isDarkScheme,
@@ -76,8 +82,20 @@ export function ClassicApp({
         {/* Mode selector */}
         <ModeSelector designVersion={designVersion} colorScheme={colorScheme} />
 
+        {/* Recent schedule changes */}
+        <ScheduleChangesTable
+          changes={scheduleChanges}
+          colorScheme={colorScheme}
+          title="Ultimele modificări program"
+          className={`pb-4 border-b ${isDark ? "border-slate-600/40" : "border-slate-200"}`}
+        />
+
         {/* Holiday table */}
-        <HolidayTable colorScheme={colorScheme} />
+        <HolidayTable
+          colorScheme={colorScheme}
+          title="Sărbători legale"
+          className="mt-6"
+        />
       </div>
     </div>
   );

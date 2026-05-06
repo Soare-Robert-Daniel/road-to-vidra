@@ -28,6 +28,30 @@ export const nonFixedHolidays = [
   { date: "06-01", name: "A doua zi de Rusalii" },
 ];
 
+export interface ScheduleChange {
+  date: string;
+  line: string;
+  direction: "tur" | "retur";
+  program: "lucru" | "weekend";
+  oldTime: string;
+  newTime: string;
+}
+
+/**
+ * Manually-curated log of bus schedule changes.
+ * Newest entries first.
+ */
+export const scheduleChanges: ScheduleChange[] = [
+  {
+    date: "2026-05-06",
+    line: "438",
+    direction: "tur",
+    program: "lucru",
+    oldTime: "12:10",
+    newTime: "12:20",
+  },
+];
+
 /**
  * The bus schedule data used to display the hours.
  */
@@ -227,7 +251,7 @@ export const busScheduleData = {
           "9:50",
           "10:40",
           "11:20",
-          "12:10",
+          "12:20",
           "13:10",
           "14:05",
           "14:55",

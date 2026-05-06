@@ -3,7 +3,13 @@ import { Signal, signal } from "@preact/signals";
 
 import { type ColorScheme, type ClockDisplayMode } from "../../shared/utils/storage";
 import { isWeekendProgram, getHolidayName } from "../../shared/utils/utils";
-import { HolidayBanner, Header, ModeSelector } from "../../shared/components/ui";
+import { scheduleChanges } from "../../shared/utils/config";
+import {
+  HolidayBanner,
+  Header,
+  ModeSelector,
+  ScheduleChangesTable,
+} from "../../shared/components/ui";
 import { SettingsMenu } from "../../shared/components/settings";
 import { SolarClock } from "../../shared/components/solar-clock";
 import { getAppBgClass, isDarkScheme } from "../../shared/components/color-scheme";
@@ -64,6 +70,11 @@ export function ExperimentalApp({
           availableModes={["round", "poster", "timeline"]}
         />
         <ModeSelector designVersion={designVersion} />
+        <ScheduleChangesTable
+          changes={scheduleChanges}
+          colorScheme={colorScheme}
+          title="Ultimele modificări program"
+        />
       </div>
     </div>
   );
