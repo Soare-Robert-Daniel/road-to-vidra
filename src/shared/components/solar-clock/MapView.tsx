@@ -23,6 +23,15 @@ const ROUTE_BOUNDS: L.LatLngBoundsExpression = [
   [44.371, 26.198], // Northeast
 ];
 
+function formatEta(minutes: number | null): string {
+  if (minutes === null) return "-";
+  if (minutes < 1) return "<1 min";
+  if (minutes < 60) return `${Math.round(minutes)} min`;
+  const hours = Math.floor(minutes / 60);
+  const mins = Math.round(minutes % 60);
+  return mins > 0 ? `${hours}h ${mins}min` : `${hours}h`;
+}
+
 const DIRECTION_LABEL_RO: Record<BusDirection, string> = {
   outbound: "Tur",
   inbound: "Retur",
@@ -290,6 +299,16 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
           ? `<br><strong>Distanță rămasă:</strong> ${bus.remainingDistanceKm.toFixed(1)} km`
           : "";
 
+      const speedText =
+        bus.avgSpeedKmH !== null
+          ? `<br><strong>Viteză medie:</strong> ${Math.round(bus.avgSpeedKmH)} km/h`
+          : "";
+
+      const etaText =
+        bus.etaMinutes !== null
+          ? `<br><strong>Estimare sosire:</strong> ${formatEta(bus.etaMinutes)}`
+          : "";
+
       marker.bindPopup(`
         <div style="font-family: system-ui; min-width: 120px;">
           <strong>Autobuz ${bus.label}</strong>
@@ -297,6 +316,8 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
           <strong>Direcție:</strong> ${directionLabel}<br>
           <strong>Ultima poziție:</strong> ${time}
           ${distanceText}
+          ${speedText}
+          ${etaText}
         </div>
       `);
     });
