@@ -43,6 +43,22 @@ export interface ScheduleChange {
  */
 export const scheduleChanges: ScheduleChange[] = [
   {
+    date: "2026-05-30",
+    line: "438",
+    direction: "tur",
+    program: "lucru",
+    oldTime: "11:20",
+    newTime: "11:30",
+  },
+  {
+    date: "2026-05-30",
+    line: "438",
+    direction: "retur",
+    program: "lucru",
+    oldTime: "-",
+    newTime: "12:25",
+  },
+  {
     date: "2026-05-06",
     line: "438",
     direction: "tur",
@@ -250,7 +266,7 @@ export const busScheduleData = {
           "9:20",
           "9:50",
           "10:40",
-          "11:20",
+          "11:30",
           "12:20",
           "13:10",
           "14:05",
@@ -302,6 +318,7 @@ export const busScheduleData = {
           "9:40",
           "10:40",
           "11:30",
+          "12:25",
           "13:15",
           "14:05",
           "14:40",
