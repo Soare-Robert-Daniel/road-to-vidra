@@ -1,4 +1,5 @@
 import { JSX } from "preact";
+import { useState } from "preact/hooks";
 import { Signal } from "@preact/signals";
 import { twMerge } from "tailwind-merge";
 
@@ -33,6 +34,8 @@ function formatDate(dateStr: string): string {
   return `${day} ${MONTH_NAMES[month - 1]}`;
 }
 
+const VISIBLE_COUNT = 8;
+
 export function ScheduleChangesTable({
   changes,
   colorScheme,
@@ -41,8 +44,13 @@ export function ScheduleChangesTable({
 }: ScheduleChangesTableProps): JSX.Element | null {
   if (changes.length === 0) return null;
 
+  const [expanded, setExpanded] = useState(false);
+
   const scheme = colorScheme?.value ?? "emerald";
   const isDark = isDarkScheme(scheme);
+
+  const visibleChanges = expanded ? changes : changes.slice(0, VISIBLE_COUNT);
+  const hasMore = changes.length > VISIBLE_COUNT;
 
   const rowBase = "text-[11px] leading-tight";
   const headerText = isDark ? "text-slate-300" : "text-slate-500";
@@ -96,7 +104,7 @@ export function ScheduleChangesTable({
           </tr>
         </thead>
         <tbody>
-          {changes.map((change) => {
+          {visibleChanges.map((change) => {
             const key = `${change.date}-${change.line}-${change.direction}-${change.oldTime}`;
             return (
               <tr key={key}>
@@ -138,6 +146,18 @@ export function ScheduleChangesTable({
           })}
         </tbody>
       </table>
+      {hasMore && (
+        <button
+          type="button"
+          onClick={() => setExpanded(!expanded)}
+          class={twMerge(
+            "mt-2 text-[11px] font-medium underline",
+            headerText,
+          )}
+        >
+          {expanded ? "Arată mai puțin" : `Arată mai multe (${changes.length - VISIBLE_COUNT})`}
+        </button>
+      )}
     </div>
   );
 }

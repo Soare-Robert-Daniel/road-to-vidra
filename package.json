@@ -22,17 +22,17 @@
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.10.5",
-    "@preact/signals": "^2.9.0",
-    "@tailwindcss/vite": "^4.2.4",
+    "@preact/signals": "^2.9.2",
+    "@tailwindcss/vite": "^4.3.1",
     "@types/leaflet": "^1.9.21",
     "@types/suncalc": "^1.9.2",
     "oxfmt": "^0.46.0",
-    "oxlint": "^1.61.0",
-    "oxlint-tsgolint": "^0.22.0",
-    "preact": "^10.29.1",
-    "tailwind-merge": "^3.5.0",
-    "tailwindcss": "^4.2.4",
+    "oxlint": "^1.70.0",
+    "oxlint-tsgolint": "^0.22.1",
+    "preact": "^10.29.2",
+    "tailwind-merge": "^3.6.0",
+    "tailwindcss": "^4.3.1",
     "typescript": "^6.0.3",
-    "vite": "^8.0.10"
+    "vite": "^8.0.16"
   }
 }
