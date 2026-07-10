@@ -1,14 +1,15 @@
 import { JSX } from "preact";
-import { useEffect, useRef, useState } from "preact/hooks";
+import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import { twMerge } from "tailwind-merge";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import * as turf from "@turf/turf";
 
-import { useBusPositions, type BusDirection } from "../../hooks/useBusPositions";
+import { useBusPositions, type BusPosition } from "../../hooks/useBusPositions";
 import { BusDataTable, MapLegend, LoadingOverlay, ErrorOverlay, NoBusesOverlay } from "./map";
 import { ShareButtons } from "../ui/ShareButtons";
 
-const ROUTE_GEOJSON_URL = "/api/v1/routes/geojson";
+const ROUTE_GEOJSON_URL = "/data/layers/routes_iun2024.geojson";
 
 // Route ID mapping
 const ROUTE_IDS: Record<"418" | "420" | "438", string> = {
@@ -23,6 +24,8 @@ const ROUTE_BOUNDS: L.LatLngBoundsExpression = [
   [44.371, 26.198], // Northeast
 ];
 
+type BusDirection = "outbound" | "inbound" | "unknown";
+
 function formatEta(minutes: number | null): string {
   if (minutes === null) return "-";
   if (minutes < 1) return "<1 min";
@@ -35,7 +38,6 @@ function formatEta(minutes: number | null): string {
 const DIRECTION_LABEL_RO: Record<BusDirection, string> = {
   outbound: "Tur",
   inbound: "Retur",
-  stationary: "Staționat",
   unknown: "Necunoscut",
 };
 
@@ -45,7 +47,6 @@ const createBusIcon = (direction: BusDirection) => {
     unknown: "#64748b", // gray
     outbound: "#22c55e", // green
     inbound: "#f97316", // orange
-    stationary: "#0ea5e9", // sky blue
   };
 
   const fill = colors[direction];
@@ -97,25 +98,6 @@ const createBusIcon = (direction: BusDirection) => {
     });
   }
 
-  if (direction === "stationary") {
-    return L.divIcon({
-      className: "bus-marker",
-      html: `
-        <svg width="28" height="28" viewBox="0 0 28 28">
-          <rect
-            x="4" y="4" width="20" height="20" rx="2"
-            fill="${fill}"
-            stroke="white"
-            stroke-width="2"
-            style="filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));"
-          />
-        </svg>
-      `,
-      iconSize: [28, 28],
-      iconAnchor: [14, 14],
-    });
-  }
-
   // Triangle/arrow shape for moving directions
   const rotation = direction === "outbound" ? 0 : 180;
   return L.divIcon({
@@ -138,9 +120,14 @@ const createBusIcon = (direction: BusDirection) => {
 
 const CACHE_DATA_KEY = "vidra-routes-data-v2";
 const CACHE_EXPIRATION_KEY = "vidra-routes-cache-expires";
-const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 1 day, matching server refresh cadence
+const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
-async function fetchRouteGeoJSON() {
+function isCacheMissingRoutes(geojson: { features?: RouteFeature[] }): boolean {
+  const cachedRouteIds = new Set(geojson.features?.map((feature) => feature.properties.route_id));
+  return Object.values(ROUTE_IDS).some((routeId) => !cachedRouteIds.has(routeId));
+}
+
+async function fetchRouteGeoJSON(): Promise<{ features: RouteFeature[] }> {
   const now = Date.now();
   const expiresStr = localStorage.getItem(CACHE_EXPIRATION_KEY);
   const expires = expiresStr ? parseInt(expiresStr, 10) : 0;
@@ -149,13 +136,23 @@ async function fetchRouteGeoJSON() {
     if (now < expires) {
       const cachedData = localStorage.getItem(CACHE_DATA_KEY);
       if (cachedData) {
-        return JSON.parse(cachedData);
+        const geojson = JSON.parse(cachedData) as { features?: RouteFeature[] };
+        if (!isCacheMissingRoutes(geojson)) {
+          return geojson as { features: RouteFeature[] };
+        }
+        localStorage.removeItem(CACHE_DATA_KEY);
+        localStorage.removeItem(CACHE_EXPIRATION_KEY);
       }
     }
 
     const response = await fetch(ROUTE_GEOJSON_URL);
     if (!response.ok) throw new Error("Failed to fetch route data");
-    const geojson = await response.json();
+    const fullGeojson = (await response.json()) as { features: RouteFeature[] };
+    const routeIds = new Set(Object.values(ROUTE_IDS));
+    const geojson = {
+      ...fullGeojson,
+      features: fullGeojson.features.filter((feature) => routeIds.has(feature.properties.route_id)),
+    };
 
     localStorage.setItem(CACHE_DATA_KEY, JSON.stringify(geojson));
     localStorage.setItem(CACHE_EXPIRATION_KEY, (now + CACHE_TTL_MS).toString());
@@ -166,7 +163,7 @@ async function fetchRouteGeoJSON() {
     console.warn("Local cache failed, falling back to network", error);
     const response = await fetch(ROUTE_GEOJSON_URL);
     if (!response.ok) throw new Error("Failed to fetch route data");
-    return await response.json();
+    return (await response.json()) as { features: RouteFeature[] };
   }
 }
 
@@ -180,6 +177,92 @@ interface RouteGeometry {
   coordinates: [number, number][];
 }
 
+interface RouteFeature {
+  properties: { route_id: string };
+  geometry: RouteGeometry;
+}
+
+interface SpeedHistoryEntry {
+  projectedKm: number;
+  timestamp: number;
+}
+
+interface BusMotionState {
+  latitude: number;
+  longitude: number;
+  direction: BusDirection;
+  speedHistory: SpeedHistoryEntry[];
+}
+
+interface ComputedBusPosition extends BusPosition {
+  direction: BusDirection;
+  directionComputed: boolean;
+  remainingDistanceKm: number | null;
+  avgSpeedKmH: number | null;
+  speedProgress: number;
+  etaMinutes: number | null;
+}
+
+const SPEED_HISTORY_WINDOW_MS = 5 * 60 * 1000;
+const MIN_SPEED_DATA_MS = 60 * 1000;
+const MIN_MOVEMENT_KM = 0.02;
+const MIN_DIRECTION_SCORE = 0.15;
+
+function directionFromId(directionId: number | undefined): BusDirection {
+  if (directionId === 0) return "outbound";
+  if (directionId === 1) return "inbound";
+  return "unknown";
+}
+
+function normalizeRouteDirection(coords: [number, number][]): {
+  canonicalCoords: [number, number][];
+  totalLengthKm: number;
+} {
+  if (coords.length < 2) {
+    return { canonicalCoords: coords, totalLengthKm: 0 };
+  }
+
+  const shouldReverse = coords[0][1] > coords[coords.length - 1][1];
+  const canonicalCoords = shouldReverse ? [...coords].reverse() : coords;
+  const totalLengthKm = turf.length(turf.lineString(canonicalCoords), { units: "kilometers" });
+
+  return { canonicalCoords, totalLengthKm };
+}
+
+function getTangentAt(
+  coords: [number, number][],
+  nearestIndex: number,
+): { x: number; y: number } | null {
+  if (coords.length < 2) return null;
+
+  const from = coords[Math.max(0, Math.min(nearestIndex, coords.length - 2))];
+  const to = coords[Math.max(0, Math.min(nearestIndex + 1, coords.length - 1))];
+  const x = to[0] - from[0];
+  const y = to[1] - from[1];
+  const length = Math.hypot(x, y);
+
+  return length === 0 ? null : { x: x / length, y: y / length };
+}
+
+function calculateAverageSpeed(history: SpeedHistoryEntry[], now: number): number | null {
+  const entriesInWindow = history.filter(
+    (entry) => entry.timestamp >= now - SPEED_HISTORY_WINDOW_MS,
+  );
+  if (entriesInWindow.length < 2) return null;
+
+  const oldest = entriesInWindow[0];
+  const newest = entriesInWindow[entriesInWindow.length - 1];
+  const elapsedMs = newest.timestamp - oldest.timestamp;
+  if (elapsedMs < MIN_SPEED_DATA_MS) return null;
+
+  return Math.abs((newest.projectedKm - oldest.projectedKm) / (elapsedMs / 3_600_000));
+}
+
+function calculateSpeedProgress(history: SpeedHistoryEntry[], now: number): number {
+  if (history.length === 0) return 0;
+  return Math.min(1, (now - history[0].timestamp) / MIN_SPEED_DATA_MS);
+}
+
 export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
   const mapRef = useRef<HTMLDivElement>(null);
   const leafletMapRef = useRef<L.Map | null>(null);
@@ -187,10 +270,118 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
   const markersLayerRef = useRef<L.LayerGroup | null>(null);
   const [routeLoading, setRouteLoading] = useState(true);
   const [routeError, setRouteError] = useState<string | null>(null);
+  const [routeFeatures, setRouteFeatures] = useState<RouteFeature[]>([]);
 
-  const { buses, loading: busesLoading, error: busesError, lastUpdate } = useBusPositions(
-    busNumber,
-  );
+  const {
+    buses,
+    loading: busesLoading,
+    error: busesError,
+    lastUpdate,
+  } = useBusPositions(busNumber);
+  const previousBusStatesRef = useRef<Record<string, BusMotionState>>({});
+
+  const busesWithComputedData = useMemo<ComputedBusPosition[]>(() => {
+    const now = Date.now();
+    const nextBusStates: Record<string, BusMotionState> = {};
+
+    const computedBuses = buses.map((bus) => {
+      let direction = directionFromId(bus.directionId);
+      let directionComputed = direction !== "unknown";
+      let projectedKm: number | null = null;
+      let remainingDistanceKm: number | null = null;
+
+      const referenceRoute = routeFeatures[0];
+      if (referenceRoute) {
+        try {
+          const { canonicalCoords, totalLengthKm } = normalizeRouteDirection(
+            referenceRoute.geometry.coordinates,
+          );
+          const routeLine = turf.lineString(canonicalCoords);
+          const busPoint = turf.point([bus.longitude, bus.latitude]);
+          const snapped = turf.nearestPointOnLine(routeLine, busPoint);
+          projectedKm = (snapped.properties.location as number) ?? null;
+
+          const previousState = previousBusStatesRef.current[bus.id];
+          const tangent = getTangentAt(
+            canonicalCoords,
+            (snapped.properties.index as number | undefined) ?? 0,
+          );
+          if (previousState && tangent) {
+            const previousPoint = turf.point([previousState.longitude, previousState.latitude]);
+            const movedKm = turf.distance(previousPoint, busPoint, { units: "kilometers" });
+
+            if (movedKm >= MIN_MOVEMENT_KM) {
+              const x = bus.longitude - previousState.longitude;
+              const y = bus.latitude - previousState.latitude;
+              const movementLength = Math.hypot(x, y);
+              if (movementLength > 0) {
+                const directionScore =
+                  (x / movementLength) * tangent.x + (y / movementLength) * tangent.y;
+                if (directionScore > MIN_DIRECTION_SCORE) {
+                  direction = "outbound";
+                  directionComputed = true;
+                } else if (directionScore < -MIN_DIRECTION_SCORE) {
+                  direction = "inbound";
+                  directionComputed = true;
+                } else if (previousState.direction !== "unknown") {
+                  direction = previousState.direction;
+                  directionComputed = true;
+                }
+              }
+            } else if (previousState.direction !== "unknown") {
+              direction = previousState.direction;
+              directionComputed = true;
+            }
+          }
+
+          if (projectedKm !== null && totalLengthKm > 0) {
+            if (direction === "outbound") {
+              remainingDistanceKm = Math.max(0, totalLengthKm - projectedKm);
+            } else if (direction === "inbound") {
+              remainingDistanceKm = Math.max(0, projectedKm);
+            }
+          }
+        } catch (error) {
+          console.error("Failed to calculate bus route metrics", error);
+        }
+      }
+
+      const previousHistory = previousBusStatesRef.current[bus.id]?.speedHistory ?? [];
+      const speedHistory =
+        projectedKm === null
+          ? previousHistory
+          : [
+              ...previousHistory.filter(
+                (entry) => entry.timestamp >= now - SPEED_HISTORY_WINDOW_MS,
+              ),
+              { projectedKm, timestamp: now },
+            ];
+      const avgSpeedKmH = calculateAverageSpeed(speedHistory, now);
+
+      nextBusStates[bus.id] = {
+        latitude: bus.latitude,
+        longitude: bus.longitude,
+        direction,
+        speedHistory,
+      };
+
+      return {
+        ...bus,
+        direction,
+        directionComputed,
+        remainingDistanceKm,
+        avgSpeedKmH,
+        speedProgress: calculateSpeedProgress(speedHistory, now),
+        etaMinutes:
+          remainingDistanceKm === null || avgSpeedKmH === null || avgSpeedKmH <= 0
+            ? null
+            : (remainingDistanceKm / avgSpeedKmH) * 60,
+      };
+    });
+
+    previousBusStatesRef.current = nextBusStates;
+    return computedBuses;
+  }, [buses, routeFeatures]);
 
   // Initialize map
   useEffect(() => {
@@ -230,39 +421,31 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
         const geojson = await fetchRouteGeoJSON();
 
         const routeId = ROUTE_IDS[busNumber];
-        const routeFeatures = geojson.features.filter(
-          (f: { properties: { route_id: string } }) => f.properties.route_id === routeId,
+        const matchingRouteFeatures: RouteFeature[] = geojson.features.filter(
+          (feature: RouteFeature) => feature.properties.route_id === routeId,
         );
 
-        if (routeFeatures.length === 0) {
+        if (matchingRouteFeatures.length === 0) {
           throw new Error(`Route ${busNumber} not found`);
         }
 
+        setRouteFeatures(matchingRouteFeatures);
         routeLayerRef.current?.clearLayers();
 
         // Add route polylines
-        routeFeatures.forEach(
-          (
-            feature: {
-              properties: { route_id: string };
-              geometry: RouteGeometry;
-            },
-            idx: number,
-          ) => {
-            const coords: [number, number][] = feature.geometry.coordinates.map(
-              ([lng, lat]: [number, number]) => [lat, lng] as [number, number],
-            );
-            const color = idx === 0 ? "#3b82f6" : "#ef4444"; // Blue for first segment, red for return
-            L.polyline(coords, { color, weight: 4, opacity: 0.8 }).addTo(routeLayerRef.current!);
-          },
-        );
+        matchingRouteFeatures.forEach((feature, idx: number) => {
+          const coords: [number, number][] = feature.geometry.coordinates.map(
+            ([lng, lat]: [number, number]) => [lat, lng] as [number, number],
+          );
+          const color = idx === 0 ? "#3b82f6" : "#ef4444"; // Blue for first segment, red for return
+          L.polyline(coords, { color, weight: 4, opacity: 0.8 }).addTo(routeLayerRef.current!);
+        });
 
         // Fit bounds to route
-        const allCoords: [number, number][] = routeFeatures.flatMap(
-          (f: { geometry: RouteGeometry }) =>
-            f.geometry.coordinates.map(
-              ([lng, lat]: [number, number]) => [lat, lng] as [number, number],
-            ),
+        const allCoords: [number, number][] = matchingRouteFeatures.flatMap((feature) =>
+          feature.geometry.coordinates.map(
+            ([lng, lat]: [number, number]) => [lat, lng] as [number, number],
+          ),
         );
         if (allCoords.length > 0) {
           leafletMapRef.current?.fitBounds(L.latLngBounds(allCoords));
@@ -285,14 +468,14 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
 
     markersLayerRef.current.clearLayers();
 
-    buses.forEach((bus) => {
+    busesWithComputedData.forEach((bus) => {
       const icon = createBusIcon(bus.direction);
       const marker = L.marker([bus.latitude, bus.longitude], { icon }).addTo(
         markersLayerRef.current!,
       );
 
       const directionLabel = DIRECTION_LABEL_RO[bus.direction];
-      const time = new Date(bus.timestamp).toLocaleTimeString("ro-RO");
+      const time = new Date(bus.timestamp * 1000).toLocaleTimeString("ro-RO");
 
       const distanceText =
         bus.remainingDistanceKm !== null
@@ -321,7 +504,7 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
         </div>
       `);
     });
-  }, [buses]);
+  }, [busesWithComputedData]);
 
   const isLoading = routeLoading || busesLoading;
   const displayError = routeError ?? busesError?.message ?? null;
@@ -338,7 +521,7 @@ export function MapView({ busNumber, className }: MapViewProps): JSX.Element {
       />
 
       <MapLegend lastUpdate={lastUpdate} />
-      <BusDataTable buses={buses} />
+      <BusDataTable buses={busesWithComputedData} />
       <ShareButtons />
     </div>
   );

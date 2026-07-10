@@ -1,10 +1,21 @@
 import { JSX } from "preact";
 import { twMerge } from "tailwind-merge";
 
-import type { BusDirection, BusPosition } from "../../../hooks/useBusPositions";
+type BusDirection = "outbound" | "inbound" | "unknown";
+
+interface BusData {
+  id: string;
+  label: string;
+  timestamp: number;
+  direction: BusDirection;
+  remainingDistanceKm: number | null;
+  avgSpeedKmH: number | null;
+  speedProgress: number;
+  etaMinutes: number | null;
+}
 
 interface BusDataTableProps {
-  buses: BusPosition[];
+  buses: BusData[];
 }
 
 function CircularProgress({ progress }: { progress: number }): JSX.Element {
@@ -79,14 +90,12 @@ function EstimationNotice({
 const DIRECTION_BADGE_CLASS: Record<BusDirection, string> = {
   outbound: "bg-green-100 text-green-700",
   inbound: "bg-orange-100 text-orange-700",
-  stationary: "bg-sky-100 text-sky-700",
   unknown: "bg-slate-100 text-slate-700",
 };
 
 const DIRECTION_BADGE_LABEL: Record<BusDirection, string> = {
   outbound: "Tur",
   inbound: "Retur",
-  stationary: "Staționat",
   unknown: "Necunoscut",
 };
 
@@ -103,7 +112,7 @@ function DirectionBadge({ direction }: { direction: BusDirection }) {
   );
 }
 
-function BusDataRow({ bus }: { bus: BusPosition }) {
+function BusDataRow({ bus }: { bus: BusData }) {
   return (
     <tr key={bus.id} class="hover:bg-slate-50 transition-colors">
       <td class="px-3 py-1">
@@ -134,7 +143,7 @@ function BusDataRow({ bus }: { bus: BusPosition }) {
         )}
       </td>
       <td class="px-3 py-1 text-slate-500">
-        {new Date(bus.timestamp).toLocaleTimeString("ro-RO")}
+        {new Date(bus.timestamp * 1000).toLocaleTimeString("ro-RO")}
       </td>
     </tr>
   );

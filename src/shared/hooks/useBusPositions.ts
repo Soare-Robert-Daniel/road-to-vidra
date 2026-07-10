@@ -1,67 +1,91 @@
 import { useCallback, useEffect, useRef, useState } from "preact/hooks";
 
-const BUS_API_BASE = "/api/v1/bus";
+const BUS_DATA_URL = "/api/busData";
 const POLL_INTERVAL_MS = 15_000;
-
-export type BusDirection = "outbound" | "inbound" | "stationary" | "unknown";
 
 export interface BusPosition {
   id: string;
   label: string;
+  licensePlate: string;
   latitude: number;
   longitude: number;
   timestamp: number;
   routeId: string;
-  direction: BusDirection;
-  directionComputed: boolean;
-  remainingDistanceKm: number | null;
-  avgSpeedKmH: number | null;
-  speedProgress: number;
-  etaMinutes: number | null;
+  directionId?: number;
+  startTime?: string;
 }
 
-interface RawEnrichedBus {
+interface RawBusDataItem {
   id: string;
-  label?: string;
-  latitude: number;
-  longitude: number;
-  timestamp: string;
-  routeId: string;
-  direction: BusDirection;
-  directionComputed: boolean;
-  projectedKm: number | null;
-  remainingDistanceKm: number | null;
-  avgSpeedKmH: number | null;
-  speedProgress: number;
-  etaMinutes: number | null;
+  vehicle?: {
+    trip?: {
+      routeId?: string;
+      directionId?: number;
+      startTime?: string;
+    };
+    vehicle: {
+      id: string;
+      label: string;
+      licensePlate: string;
+    };
+    position: {
+      latitude: number;
+      longitude: number;
+    };
+    timestamp: number;
+  };
 }
 
-interface RawEnrichedResponse {
-  buses: RawEnrichedBus[];
-  fetchedAt: string;
+interface BusDataCache {
+  timestamp: number;
+  data: BusPosition[];
 }
 
-async function fetchBusData(routeNumber: string): Promise<BusPosition[]> {
-  const response = await fetch(`${BUS_API_BASE}/${routeNumber}`);
+let globalCache: BusDataCache | null = null;
+
+async function fetchBusData(): Promise<BusPosition[]> {
+  const response = await fetch(BUS_DATA_URL);
   if (!response.ok) {
     throw new Error(`Failed to fetch bus data: ${response.status}`);
   }
-  const raw: RawEnrichedResponse = await response.json();
+  const raw: RawBusDataItem[] = await response.json();
 
-  return raw.buses.map((bus) => ({
-    id: bus.id,
-    label: bus.label ?? bus.id.replace(/^PV1_/, ""),
-    latitude: bus.latitude,
-    longitude: bus.longitude,
-    timestamp: Date.parse(bus.timestamp),
-    routeId: bus.routeId,
-    direction: bus.direction,
-    directionComputed: bus.directionComputed,
-    remainingDistanceKm: bus.remainingDistanceKm,
-    avgSpeedKmH: bus.avgSpeedKmH,
-    speedProgress: bus.speedProgress,
-    etaMinutes: bus.etaMinutes,
-  }));
+  return raw
+    .filter(
+      (
+        item,
+      ): item is RawBusDataItem & {
+        vehicle: NonNullable<RawBusDataItem["vehicle"]> & {
+          trip: {
+            routeId: string;
+            directionId?: number;
+            startTime?: string;
+          };
+        };
+      } => item.vehicle?.trip?.routeId !== undefined,
+    )
+    .map((item) => ({
+      id: item.id,
+      label: item.vehicle.vehicle.label,
+      licensePlate: item.vehicle.vehicle.licensePlate,
+      latitude: item.vehicle.position.latitude,
+      longitude: item.vehicle.position.longitude,
+      timestamp: item.vehicle.timestamp,
+      routeId: item.vehicle.trip.routeId,
+      directionId: item.vehicle.trip.directionId,
+      startTime: item.vehicle.trip.startTime,
+    }));
+}
+
+function getCachedData(): BusPosition[] | null {
+  if (!globalCache || Date.now() - globalCache.timestamp >= POLL_INTERVAL_MS) {
+    return null;
+  }
+  return globalCache.data;
+}
+
+function setCachedData(data: BusPosition[]): void {
+  globalCache = { timestamp: Date.now(), data };
 }
 
 export function useBusPositions(routeNumber: "418" | "420" | "438"): {
@@ -77,9 +101,16 @@ export function useBusPositions(routeNumber: "418" | "420" | "438"): {
   const intervalRef = useRef<number | null>(null);
 
   const fetchData = useCallback(async () => {
+    const routeIds = new Set([`PV1_${routeNumber}`, routeNumber, `"${routeNumber}"`]);
+
     try {
-      const data = await fetchBusData(routeNumber);
-      setBuses(data);
+      const cachedBuses = getCachedData();
+      const allBuses = cachedBuses ?? (await fetchBusData());
+      if (!cachedBuses) {
+        setCachedData(allBuses);
+      }
+
+      setBuses(allBuses.filter((bus) => routeIds.has(bus.routeId)));
       setLastUpdate(Date.now());
       setError(null);
     } catch (err) {

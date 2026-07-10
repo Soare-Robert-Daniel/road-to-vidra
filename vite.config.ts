@@ -7,8 +7,12 @@ export default defineConfig({
   plugins: [tailwindcss(), preact()],
   server: {
     proxy: {
-      "/api/v1": {
-        target: "https://robertsoare.xyz/bus-watcher",
+      "/api/busData": {
+        target: "https://maps.mo-bi.ro",
+        changeOrigin: true,
+      },
+      "/data/layers": {
+        target: "https://maps.mo-bi.ro",
         changeOrigin: true,
       },
     },
