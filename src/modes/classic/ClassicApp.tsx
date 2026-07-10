@@ -91,11 +91,7 @@ export function ClassicApp({
         />
 
         {/* Holiday table */}
-        <HolidayTable
-          colorScheme={colorScheme}
-          title="Sărbători legale"
-          className="mt-6"
-        />
+        <HolidayTable colorScheme={colorScheme} title="Sărbători legale" className="mt-6" />
       </div>
     </div>
   );

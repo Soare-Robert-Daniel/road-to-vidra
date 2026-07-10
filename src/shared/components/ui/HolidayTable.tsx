@@ -32,11 +32,7 @@ function formatDate(dateStr: string): string {
   return `${day} ${MONTH_NAMES[month - 1]}`;
 }
 
-export function HolidayTable({
-  colorScheme,
-  title,
-  className,
-}: HolidayTableProps): JSX.Element {
+export function HolidayTable({ colorScheme, title, className }: HolidayTableProps): JSX.Element {
   const scheme = colorScheme?.value ?? "emerald";
   const isDark = isDarkScheme(scheme);
 
@@ -67,12 +63,7 @@ export function HolidayTable({
   return (
     <div class={twMerge("mt-4 mb-2 px-2", className)}>
       {title && (
-        <p
-          class={twMerge(
-            "text-[11px] font-semibold uppercase tracking-wider mb-1.5",
-            headerText,
-          )}
-        >
+        <p class={twMerge("text-[11px] font-semibold uppercase tracking-wider mb-1.5", headerText)}>
           {title}
         </p>
       )}
@@ -131,7 +122,8 @@ export function HolidayTable({
         </tbody>
       </table>
       <p class={twMerge("text-[10px] mt-1 italic", mutedText)}>
-        * Sărbători cu dată variabilă (valabile pentru 2026). În aceste zile se circulă conform programului de weekend.
+        * Sărbători cu dată variabilă (valabile pentru 2026). În aceste zile se circulă conform
+        programului de weekend.
       </p>
     </div>
   );

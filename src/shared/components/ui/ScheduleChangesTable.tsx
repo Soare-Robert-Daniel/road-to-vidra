@@ -42,9 +42,9 @@ export function ScheduleChangesTable({
   title,
   className,
 }: ScheduleChangesTableProps): JSX.Element | null {
-  if (changes.length === 0) return null;
-
   const [expanded, setExpanded] = useState(false);
+
+  if (changes.length === 0) return null;
 
   const scheme = colorScheme?.value ?? "emerald";
   const isDark = isDarkScheme(scheme);
@@ -62,12 +62,7 @@ export function ScheduleChangesTable({
   return (
     <div class={twMerge("mt-4 mb-2 px-2", className)}>
       {title && (
-        <p
-          class={twMerge(
-            "text-[11px] font-semibold uppercase tracking-wider mb-1.5",
-            headerText,
-          )}
-        >
+        <p class={twMerge("text-[11px] font-semibold uppercase tracking-wider mb-1.5", headerText)}>
           {title}
         </p>
       )}
@@ -150,10 +145,7 @@ export function ScheduleChangesTable({
         <button
           type="button"
           onClick={() => setExpanded(!expanded)}
-          class={twMerge(
-            "mt-2 text-[11px] font-medium underline",
-            headerText,
-          )}
+          class={twMerge("mt-2 text-[11px] font-medium underline", headerText)}
         >
           {expanded ? "Arată mai puțin" : `Arată mai multe (${changes.length - VISIBLE_COUNT})`}
         </button>
